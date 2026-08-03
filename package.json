@@ -1,0 +1,11 @@
+{
+  "name": "atmoai-insights-root",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "install": "npm --prefix frontend install",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint",
+    "format": "npm --prefix frontend run format"
+  }
+}
