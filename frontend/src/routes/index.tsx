@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Navbar } from "@/components/atmo/Navbar";
 import { Footer } from "@/components/atmo/Footer";
 import { IndiaHeatmap, AQIGauge } from "@/components/atmo/Visualizations";
-import { forecast24h, monthly, Card } from "@/components/atmo/data";
+import { forecast24h, monthly, Card as DataCard } from "@/components/atmo/data";
 import {
   AreaChart, Area, BarChart, Bar, ResponsiveContainer,
   XAxis, YAxis, Tooltip, CartesianGrid,
@@ -10,37 +10,49 @@ import {
 import {
   Wind, Activity, Map as MapIcon, BellRing, Sparkles,
   ArrowRight, Zap, Github, Linkedin, Twitter,
-  ShieldCheck, Navigation2, MessageSquare,
+  ShieldCheck, Navigation2, MessageSquare, TrendingUp,
+  CheckCircle2,
 } from "lucide-react";
 import { useState } from "react";
 
+// ShadCN UI
+import { Button } from "@/components/ui/button";
+import {
+  Card, CardContent, CardHeader, CardTitle, CardDescription,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
+
 export const Route = createFileRoute("/")({ component: Landing });
 
-/* ─────────────────────────────────────────────
-   Scroll order  (mirrors navbar exactly):
-   1. #home          Hero
-   2. #forecasting   Core Objectives
-   3. #features      Features (6 cards)
-   4. #preview       Platform Preview
-   5. #contact       Team + Feedback Form
-───────────────────────────────────────────── */
 function Landing() {
   return (
-    <div className="bg-background font-sans antialiased">
-      <Navbar />
-      <Hero />
-      <Forecasting />
-      <Features />
-      <PlatformPreview />
-      <Contact />
-      <Footer />
-    </div>
+    <TooltipProvider>
+      <div className="bg-background font-sans antialiased">
+        <Navbar />
+        <Hero />
+        <Forecasting />
+        <Features />
+        <PlatformPreview />
+        <Contact />
+        <Footer />
+        <Toaster position="bottom-right" richColors />
+      </div>
+    </TooltipProvider>
   );
 }
 
 /* ══════════════════════════════════════════════
-   §1 – HOME / HERO
-   Full viewport, split layout
+   §1 – HERO
 ══════════════════════════════════════════════ */
 function Hero() {
   return (
@@ -49,72 +61,99 @@ function Hero() {
       className="relative overflow-hidden flex items-center"
       style={{ minHeight: "calc(100dvh - 3.5rem)" }}
     >
-      {/* Dot-grid backdrop */}
+      {/* Animated blob glows */}
+      <div className="animate-blob absolute -top-40 -right-20 h-[500px] w-[500px] rounded-full bg-orange-300/20 blur-3xl pointer-events-none" />
+      <div className="animate-blob animation-delay-blob absolute -bottom-40 -left-20 h-[400px] w-[400px] rounded-full bg-amber-200/20 blur-3xl pointer-events-none" />
+
+      {/* Dot grid */}
       <div
         className="absolute inset-0 opacity-[0.04] pointer-events-none"
         style={{
           backgroundImage:
-            "linear-gradient(oklch(0.4 0.02 250) 1px,transparent 1px),linear-gradient(90deg,oklch(0.4 0.02 250) 1px,transparent 1px)",
-          backgroundSize: "36px 36px",
+            "radial-gradient(circle, oklch(0.4 0.02 250) 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
         }}
       />
-      {/* Ambient glows */}
-      <div className="absolute -top-24 right-0 h-72 w-72 md:h-[440px] md:w-[440px] rounded-full bg-primary/15 blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 left-0 h-56 w-56 md:h-[340px] md:w-[340px] rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
 
-      <div className="relative w-full mx-auto max-w-7xl px-4 sm:px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
-        {/* Copy */}
+      <div className="relative w-full mx-auto max-w-7xl px-4 sm:px-6 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+        {/* ── Copy ── */}
         <div className="flex flex-col gap-5 order-2 lg:order-1">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/25 bg-primary/8 px-3 py-1.5 text-[11px] sm:text-xs font-semibold text-primary">
-            <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
-            ✨ Powered by Deep Learning · LSTM + Transformer
+          {/* Animated badge */}
+          <div className="animate-fade-up animate-pulse-badge">
+            <Badge
+              variant="outline"
+              className="w-fit gap-1.5 rounded-full border-orange-200 bg-orange-50 px-3 py-1.5 text-[11px] font-semibold text-orange-600 shadow-sm"
+            >
+              <Sparkles className="h-3 w-3" />
+              Powered by Deep Learning · LSTM + Transformer
+            </Badge>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[3.25rem] font-bold tracking-tight text-foreground leading-[1.12]">
-            Predict Future Air Quality with{" "}
-            <span className="text-orange-500">AI-Powered PM2.5 Forecasting</span>
-          </h1>
+          {/* Headline with shimmer accent */}
+          <div className="animate-fade-up animation-delay-1">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[3.25rem] font-bold tracking-tight text-foreground leading-[1.12]">
+              Predict Future Air Quality with{" "}
+              <span className="shimmer-text">AI-Powered PM2.5 Forecasting</span>
+            </h1>
+          </div>
 
-          <p className="text-sm sm:text-base leading-relaxed text-muted-foreground max-w-lg">
+          <p className="animate-fade-up animation-delay-2 text-sm sm:text-base leading-relaxed text-muted-foreground max-w-lg">
             Over{" "}
             <strong className="text-foreground font-semibold">1.67 million deaths</strong>{" "}
             in India are attributed to Air Pollution annually, causing an economic loss of approximately{" "}
             <strong className="text-foreground font-semibold">1.36% of India's GDP</strong>.
-            AtmoAI leverages scientific machine learning to track, analyze, and forecast hazardous PM2.5 concentrations before they threaten public health.
+            AtmoAI leverages scientific machine learning to track, analyze, and forecast hazardous
+            PM2.5 concentrations before they threaten public health.
           </p>
 
-          <div className="flex flex-wrap gap-3 pt-1">
-            <Link
-              to="/app/dashboard"
-              className="group inline-flex items-center gap-2 rounded-xl gradient-primary px-5 py-2.5 text-sm font-semibold text-white shadow-glow transition hover:opacity-95 active:scale-95"
+          {/* CTA buttons */}
+          <div className="animate-fade-up animation-delay-3 flex flex-wrap gap-3 pt-1">
+            <Button
+              asChild
+              size="lg"
+              className="rounded-xl gradient-primary text-white shadow-glow hover:opacity-90 transition-all active:scale-95 gap-2"
             >
-              Explore Dashboard
-              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-            </Link>
-            <Link
-              to="/app/dashboard/pollution"
-              className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary active:scale-95"
+              <Link to="/app/dashboard">
+                Explore Dashboard
+                <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="rounded-xl border-border hover:border-primary hover:text-primary transition-all active:scale-95"
             >
-              View Forecasts
-            </Link>
+              <Link to="/app/dashboard/pollution">View Forecasts</Link>
+            </Button>
           </div>
 
-          <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1">
+          {/* Trust row */}
+          <div className="animate-fade-up animation-delay-4 flex flex-wrap items-center gap-4 pt-2">
             <div className="flex -space-x-2">
               {["bg-orange-400", "bg-amber-400", "bg-emerald-400", "bg-rose-400"].map((c, i) => (
-                <div key={i} className={`h-7 w-7 rounded-full border-2 border-background ${c}`} />
+                <div key={i} className={`h-7 w-7 rounded-full border-2 border-background ${c} shadow-sm`} />
               ))}
             </div>
-            <p>Trusted by <span className="font-semibold text-foreground">10,000+</span> researchers &amp; agencies</p>
+            <span className="text-xs text-muted-foreground">
+              Trusted by <strong className="text-foreground">10,000+</strong> researchers &amp; agencies
+            </span>
+            <Separator orientation="vertical" className="h-4 hidden sm:block" />
+            <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              <span>Open-source &amp; peer-reviewed</span>
+            </div>
           </div>
         </div>
 
-        {/* Map dashboard */}
-        <div className="relative order-1 lg:order-2">
-          <div className="rounded-2xl border border-border bg-card p-3 shadow-soft">
+        {/* ── Floating map card ── */}
+        <div className="relative animate-float order-1 lg:order-2">
+          <div className="glow-border rounded-2xl border border-border bg-card p-3 shadow-soft">
             <IndiaHeatmap height={300} interactive />
           </div>
-          <div className="absolute -left-3 top-6 hidden md:block rounded-xl glass p-3 shadow-soft">
+
+          {/* Accuracy pill */}
+          <div className="absolute -left-4 top-8 hidden md:block rounded-xl glass p-3 shadow-soft animate-fade-up animation-delay-2">
             <div className="flex items-center gap-2">
               <div className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-100 text-emerald-700">
                 <Activity className="h-4 w-4" />
@@ -125,10 +164,14 @@ function Hero() {
               </div>
             </div>
           </div>
-          <div className="absolute -bottom-4 -right-2 hidden md:block rounded-xl glass p-3 shadow-soft">
+
+          {/* PM2.5 pill */}
+          <div className="absolute -bottom-4 -right-3 hidden md:block rounded-xl glass p-3 shadow-soft animate-fade-up animation-delay-3">
             <p className="text-[10px] text-muted-foreground">Next 10-hour prediction</p>
             <p className="text-base font-bold text-primary">PM2.5 · 68 μg/m³</p>
-            <div className="mt-1 inline-flex rounded-full bg-orange-100 px-2 py-0.5 text-[9px] font-bold text-orange-700">Sensitive Groups</div>
+            <Badge className="mt-1 rounded-full bg-orange-100 text-orange-700 text-[9px] font-bold hover:bg-orange-100">
+              Sensitive Groups
+            </Badge>
           </div>
         </div>
       </div>
@@ -137,71 +180,87 @@ function Hero() {
 }
 
 /* ══════════════════════════════════════════════
-   §2 – FORECASTING / CORE OBJECTIVES
+   §2 – FORECASTING
 ══════════════════════════════════════════════ */
 function Forecasting() {
-  const bullets = [
+  const objectives = [
     {
       icon: <Zap className="h-5 w-5" />,
       heading: "10-Hour Forecast Horizon",
       text: "Predicting dynamic PM2.5 distribution patterns using historical meteorological and pollution datasets fused through LSTM + Transformer architectures.",
+      color: "from-orange-500/10 to-amber-500/5",
+      iconBg: "gradient-primary",
     },
     {
       icon: <MapIcon className="h-5 w-5" />,
       heading: "Hotspot Tracking",
       text: "Identifying exactly where severe pollution zones will emerge across the Indian map, enabling precise location-level early intervention and routing.",
+      color: "from-red-500/10 to-rose-500/5",
+      iconBg: "bg-red-500",
     },
     {
       icon: <BellRing className="h-5 w-5" />,
       heading: "Early Warnings",
-      text: "Providing data-driven insights to actively support public-health interventions, government policy responses, and community safety awareness programmes.",
+      text: "Providing data-driven insights to actively support public-health interventions, government policy responses, and community safety programmes.",
+      color: "from-teal-500/10 to-emerald-500/5",
+      iconBg: "bg-teal-600",
     },
+  ];
+
+  const stats = [
+    { v: "10h",   l: "Forecast Horizon" },
+    { v: "94.7%", l: "Model Accuracy" },
+    { v: "12+",   l: "Indian Cities" },
+    { v: "1.67M", l: "Lives at Risk / Yr" },
   ];
 
   return (
     <section
       id="forecasting"
-      className="flex items-center border-t border-border bg-[var(--color-surface)]"
+      className="flex items-center border-t border-border bg-gradient-to-b from-orange-50/50 to-background"
       style={{ minHeight: "100dvh" }}
     >
-      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 py-10">
+      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 py-12">
+        {/* Header */}
         <div className="mx-auto max-w-2xl text-center mb-10">
-          <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">Core Objectives</p>
-          <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
+          <Badge variant="outline" className="mb-3 rounded-full border-primary/30 bg-primary/5 text-primary text-[11px] font-semibold tracking-widest uppercase">
+            Core Objectives
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
             Forecasting PM2.5 Across India
           </h2>
-          <blockquote className="mt-4 text-sm sm:text-base text-muted-foreground italic border-l-2 border-primary/30 pl-4 text-left max-w-xl mx-auto">
-            "To design scientific machine learning models that can accurately forecast short-term PM2.5 concentration fields over India."
+          <blockquote className="mt-4 text-sm sm:text-base text-muted-foreground italic border-l-2 border-primary/40 pl-4 text-left mx-auto max-w-xl rounded-r-lg bg-orange-50/50 py-3 pr-3">
+            "To design scientific machine learning models that can accurately forecast
+            short-term PM2.5 concentration fields over India."
           </blockquote>
         </div>
 
-        <div className="grid gap-5 grid-cols-1 sm:grid-cols-3">
-          {bullets.map(({ icon, heading, text }) => (
-            <div
-              key={heading}
-              className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 transition hover:-translate-y-1 hover:shadow-soft"
-            >
-              <div className="grid h-11 w-11 place-items-center rounded-xl gradient-primary text-white shadow-glow flex-shrink-0">
-                {icon}
-              </div>
-              <h3 className="text-base font-semibold text-foreground">{heading}</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground flex-1">{text}</p>
-            </div>
+        {/* Objective cards */}
+        <div className="grid gap-5 grid-cols-1 sm:grid-cols-3 mb-8">
+          {objectives.map(({ icon, heading, text, color, iconBg }, idx) => (
+            <Card key={heading} className={`card-hover border-border bg-gradient-to-br ${color} overflow-hidden animate-fade-up animation-delay-${idx + 1}`}>
+              <CardHeader className="pb-3">
+                <div className={`grid h-11 w-11 place-items-center rounded-xl ${iconBg} text-white shadow-glow mb-3`}>
+                  {icon}
+                </div>
+                <CardTitle className="text-base">{heading}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-xs sm:text-sm leading-relaxed">{text}</CardDescription>
+              </CardContent>
+            </Card>
           ))}
         </div>
 
-        {/* Stats row */}
-        <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[
-            { v: "10h", l: "Forecast Horizon" },
-            { v: "94.7%", l: "Model Accuracy" },
-            { v: "12+", l: "Indian Cities" },
-            { v: "1.67M", l: "Lives at Risk / Year" },
-          ].map((s) => (
-            <div key={s.l} className="rounded-xl border border-border bg-card px-5 py-4 text-center">
-              <p className="text-2xl sm:text-3xl font-bold text-primary">{s.v}</p>
-              <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground">{s.l}</p>
-            </div>
+        {/* Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {stats.map((s, i) => (
+            <Card key={s.l} className={`card-hover text-center border-border animate-fade-up animation-delay-${i + 4}`}>
+              <CardContent className="pt-5 pb-5">
+                <p className="text-2xl sm:text-3xl font-bold text-primary">{s.v}</p>
+                <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground">{s.l}</p>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
@@ -214,36 +273,12 @@ function Forecasting() {
 ══════════════════════════════════════════════ */
 function Features() {
   const items = [
-    {
-      icon: <Wind className="h-5 w-5" />,
-      title: "PM2.5 Forecasting",
-      desc: "ML models predict PM2.5 concentration fields up to 10 hours ahead using historical meteorological and pollutant datasets across Indian regions.",
-    },
-    {
-      icon: <MapIcon className="h-5 w-5" />,
-      title: "Interactive Pollution Maps",
-      desc: "Live, responsive heatmaps showcasing localised pollution spreads across Indian cities, overlaid on an accurate India physical map.",
-    },
-    {
-      icon: <BellRing className="h-5 w-5" />,
-      title: "Emerging Hotspot Alerts",
-      desc: "Real-time identification and concise descriptions of rapidly deteriorating local air quality zones before they reach hazardous thresholds.",
-    },
-    {
-      icon: <Navigation2 className="h-5 w-5" />,
-      title: "Nearest Safe Zone",
-      desc: "Smart geographical routing recommendations that guide users toward the closest clean-air locations based on live pollution data.",
-    },
-    {
-      icon: <ShieldCheck className="h-5 w-5" />,
-      title: "Health Risk Assessment",
-      desc: "Personalised impact alerts and tailored safety guidance based on sensitive group vulnerabilities — children, elderly, and respiratory patients.",
-    },
-    {
-      icon: <MessageSquare className="h-5 w-5" />,
-      title: "Civics & Trend Analytics",
-      desc: "An integrated feedback and pollution-complaint system combined with deep historical trend analysis tools for civic reporting.",
-    },
+    { icon: <Wind />,         title: "PM2.5 Forecasting",        desc: "ML models predict PM2.5 concentration fields up to 10 hours ahead using historical meteorological and pollutant datasets across Indian regions.", accent: "text-orange-500 bg-orange-500/10" },
+    { icon: <MapIcon />,       title: "Interactive Pollution Maps", desc: "Live, responsive heatmaps showcasing localised pollution spreads across Indian cities, overlaid on an accurate India physical map.",        accent: "text-blue-500 bg-blue-500/10" },
+    { icon: <BellRing />,      title: "Emerging Hotspot Alerts",   desc: "Real-time identification and concise descriptions of rapidly deteriorating local air quality zones before they reach hazardous thresholds.",    accent: "text-red-500 bg-red-500/10" },
+    { icon: <Navigation2 />,   title: "Nearest Safe Zone",         desc: "Smart geographical routing recommendations that guide users toward the closest clean-air locations based on live pollution data.",               accent: "text-teal-500 bg-teal-500/10" },
+    { icon: <ShieldCheck />,   title: "Health Risk Assessment",    desc: "Personalised impact alerts and tailored safety guidance based on sensitive group vulnerabilities — children, elderly, and respiratory patients.", accent: "text-emerald-500 bg-emerald-500/10" },
+    { icon: <MessageSquare />, title: "Civics & Trend Analytics",  desc: "An integrated feedback and pollution-complaint system combined with deep historical trend analysis tools for civic reporting.",               accent: "text-purple-500 bg-purple-500/10" },
   ];
 
   return (
@@ -252,30 +287,46 @@ function Features() {
       className="flex items-center border-t border-border"
       style={{ minHeight: "100dvh" }}
     >
-      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 py-10">
+      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 py-12">
+        {/* Header */}
         <div className="mx-auto max-w-2xl text-center mb-10">
-          <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">Features</p>
-          <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
-            Everything you need to understand the air around you
+          <Badge variant="outline" className="mb-3 rounded-full border-primary/30 bg-primary/5 text-primary text-[11px] font-semibold tracking-widest uppercase">
+            Features
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
+            Everything you need to understand{" "}
+            <span className="text-primary">the air around you</span>
           </h2>
           <p className="mt-3 text-sm text-muted-foreground">
             A modern intelligence layer for environmental data — built for India's unique climate and pollution patterns.
           </p>
         </div>
 
+        {/* 3×2 grid */}
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map(({ icon, title, desc }) => (
-            <div
-              key={title}
-              className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card p-6 transition hover:-translate-y-1 hover:shadow-soft"
-            >
-              <div className="absolute -right-5 -top-5 h-20 w-20 rounded-full bg-primary/5 blur-xl transition group-hover:bg-primary/10 pointer-events-none" />
-              <div className="relative grid h-10 w-10 place-items-center rounded-xl gradient-primary text-white shadow-glow flex-shrink-0">
-                {icon}
-              </div>
-              <h3 className="relative mt-4 text-sm font-semibold text-foreground">{title}</h3>
-              <p className="relative mt-2 flex-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">{desc}</p>
-            </div>
+          {items.map(({ icon, title, desc, accent }, idx) => (
+            <TooltipProvider key={title}>
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <Card className={`card-hover group cursor-default border-border relative overflow-hidden animate-fade-up animation-delay-${idx + 1}`}>
+                    {/* Hover shimmer overlay */}
+                    <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/5 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                    <CardHeader className="pb-2">
+                      <div className={`grid h-10 w-10 place-items-center rounded-xl ${accent} mb-3 transition-transform duration-300 group-hover:scale-110`}>
+                        {icon}
+                      </div>
+                      <CardTitle className="text-sm sm:text-base">{title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription className="text-xs sm:text-sm leading-relaxed">{desc}</CardDescription>
+                    </CardContent>
+                  </Card>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="text-xs max-w-[220px]">
+                  {desc}
+                </TooltipContent>
+              </UITooltip>
+            </TooltipProvider>
           ))}
         </div>
       </div>
@@ -290,82 +341,116 @@ function PlatformPreview() {
   return (
     <section
       id="preview"
-      className="flex items-center border-t border-border bg-[var(--color-surface)]"
+      className="flex items-center border-t border-border bg-gradient-to-b from-background to-orange-50/30"
       style={{ minHeight: "100dvh" }}
     >
-      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 py-10">
+      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 py-12">
         <div className="mx-auto max-w-2xl text-center mb-8">
-          <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">Platform Preview</p>
-          <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
+          <Badge variant="outline" className="mb-3 rounded-full border-primary/30 bg-primary/5 text-primary text-[11px] font-semibold tracking-widest uppercase">
+            Platform Preview
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
             A control room for India's air quality
           </h2>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
+        <Card className="border-border shadow-soft p-2 sm:p-4">
           <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
-            <Card title="Current AQI" subtitle="New Delhi, India" className="flex flex-col items-center">
-              <AQIGauge value={168} />
+            {/* AQI Gauge */}
+            <Card className="border-border bg-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Current AQI</CardTitle>
+                <CardDescription className="text-xs">New Delhi, India</CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-center">
+                <AQIGauge value={168} />
+              </CardContent>
             </Card>
 
-            <Card title="10-Hour PM2.5 Forecast" subtitle="μg/m³ · LSTM model" className="lg:col-span-2">
-              <ResponsiveContainer width="100%" height={180}>
-                <AreaChart data={forecast24h.slice(0, 10)}>
-                  <defs>
-                    <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#F97316" stopOpacity={0.4} />
-                      <stop offset="100%" stopColor="#F97316" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.93 0.01 250)" vertical={false} />
-                  <XAxis dataKey="time" stroke="oklch(0.5 0.02 250)" fontSize={10} />
-                  <YAxis stroke="oklch(0.5 0.02 250)" fontSize={10} />
-                  <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid oklch(0.93 0.01 250)", fontSize: 11 }} />
-                  <Area type="monotone" dataKey="predicted" stroke="#F97316" strokeWidth={2} fill="url(#g1)" />
-                </AreaChart>
-              </ResponsiveContainer>
+            {/* Forecast Area Chart */}
+            <Card className="border-border bg-card lg:col-span-2">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">10-Hour PM2.5 Forecast</CardTitle>
+                <CardDescription className="text-xs">μg/m³ · LSTM model</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={170}>
+                  <AreaChart data={forecast24h.slice(0, 10)}>
+                    <defs>
+                      <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#F97316" stopOpacity={0.4} />
+                        <stop offset="100%" stopColor="#F97316" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.93 0.01 250)" vertical={false} />
+                    <XAxis dataKey="time" stroke="oklch(0.5 0.02 250)" fontSize={10} />
+                    <YAxis stroke="oklch(0.5 0.02 250)" fontSize={10} />
+                    <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid oklch(0.93 0.01 250)", fontSize: 11 }} />
+                    <Area type="monotone" dataKey="predicted" stroke="#F97316" strokeWidth={2} fill="url(#g1)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
             </Card>
 
-            <Card title="India AQI Heatmap" className="lg:col-span-2">
-              <IndiaHeatmap height={220} interactive />
+            {/* India Heatmap */}
+            <Card className="border-border bg-card lg:col-span-2">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">India AQI Heatmap</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <IndiaHeatmap height={200} interactive />
+              </CardContent>
             </Card>
 
-            <Card title="Monthly Comparison" subtitle="2025 vs 2024">
-              <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={monthly}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.93 0.01 250)" vertical={false} />
-                  <XAxis dataKey="month" stroke="oklch(0.5 0.02 250)" fontSize={9} />
-                  <YAxis stroke="oklch(0.5 0.02 250)" fontSize={9} />
-                  <Tooltip contentStyle={{ borderRadius: 10, fontSize: 11 }} />
-                  <Bar dataKey="last" fill="#FDBA74" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="pm25" fill="#F97316" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            {/* Monthly Bar */}
+            <Card className="border-border bg-card">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-sm">Monthly Comparison</CardTitle>
+                    <CardDescription className="text-xs">2025 vs 2024</CardDescription>
+                  </div>
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={170}>
+                  <BarChart data={monthly}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.93 0.01 250)" vertical={false} />
+                    <XAxis dataKey="month" stroke="oklch(0.5 0.02 250)" fontSize={9} />
+                    <YAxis stroke="oklch(0.5 0.02 250)" fontSize={9} />
+                    <Tooltip contentStyle={{ borderRadius: 10, fontSize: 11 }} />
+                    <Bar dataKey="last" fill="#FDBA74" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="pm25" fill="#F97316" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
             </Card>
           </div>
-        </div>
+        </Card>
       </div>
     </section>
   );
 }
 
 /* ══════════════════════════════════════════════
-   §5 – CONTACT  (Team + Feedback Form)
+   §5 – CONTACT  (Team + Form)
 ══════════════════════════════════════════════ */
 function Contact() {
   const team = [
-    { name: "Dabhi Chrisha Manish", role: "Team Leader",  photo: "/chrisha.JPG", init: "DC" },
-    { name: "Gajjar Antra",         role: "Team Member",  photo: "/antra.jpg",   init: "GA" },
-    { name: "Varu Pragati",          role: "Team Member",  photo: "/pragati.jpg", init: "VP" },
+    { name: "Dabhi Chrisha Manish", role: "Team Leader",  photo: "/chrisha.JPG", init: "DC", color: "from-orange-400 to-amber-500" },
+    { name: "Gajjar Antra",         role: "Team Member",  photo: "/antra.jpg",   init: "GA", color: "from-rose-400 to-pink-500" },
+    { name: "Varu Pragati",          role: "Team Member",  photo: "/pragati.jpg", init: "VP", color: "from-teal-400 to-emerald-500" },
   ];
 
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [sent, setSent] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
+    toast.success("Report received!", {
+      description: "Our team will review your submission shortly.",
+    });
     setForm({ name: "", email: "", message: "" });
-    setTimeout(() => setSent(false), 5000);
   };
 
   return (
@@ -374,12 +459,14 @@ function Contact() {
       className="flex items-start border-t border-border"
       style={{ minHeight: "100dvh" }}
     >
-      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 py-10">
+      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 py-12">
 
         {/* ── Team ── */}
         <div className="text-center mb-8">
-          <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">Our Team</p>
-          <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
+          <Badge variant="outline" className="mb-3 rounded-full border-primary/30 bg-primary/5 text-primary text-[11px] font-semibold tracking-widest uppercase">
+            Our Team
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
             The minds behind AtmoAI
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -388,48 +475,51 @@ function Contact() {
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 max-w-4xl mx-auto mb-12">
-          {team.map((t) => (
-            <div
-              key={t.name}
-              className="group flex flex-col items-center rounded-2xl border border-border bg-card p-6 text-center transition hover:-translate-y-1 hover:shadow-soft"
-            >
-              <div className="relative h-20 w-20 sm:h-24 sm:w-24 flex-shrink-0">
-                <img
-                  src={t.photo}
-                  alt={t.name}
-                  onError={(e) => {
-                    const img = e.currentTarget as HTMLImageElement;
-                    img.style.display = "none";
-                    const fb = img.nextElementSibling as HTMLElement | null;
-                    if (fb) fb.style.display = "flex";
-                  }}
-                  className="h-full w-full rounded-full object-cover object-top ring-4 ring-primary/15 shadow-md"
-                />
-                <div
-                  className="hidden h-full w-full rounded-full gradient-primary items-center justify-center text-xl font-bold text-white shadow-glow ring-4 ring-primary/15"
-                  aria-hidden="true"
-                >
-                  {t.init}
+          {team.map((t, idx) => (
+            <Card key={t.name} className={`card-hover border-border text-center animate-fade-up animation-delay-${idx + 1}`}>
+              <CardContent className="pt-8 pb-6 flex flex-col items-center gap-3">
+                <Avatar className={`h-24 w-24 ring-4 bg-gradient-to-br ${t.color} ring-primary/15 shadow-md`}>
+                  <AvatarImage src={t.photo} alt={t.name} className="object-cover object-top" />
+                  <AvatarFallback className={`text-xl font-bold text-white bg-gradient-to-br ${t.color}`}>
+                    {t.init}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="text-sm sm:text-base font-semibold text-foreground leading-tight">{t.name}</h3>
+                  <p className="mt-0.5 text-xs sm:text-sm font-medium text-primary">{t.role}</p>
                 </div>
-              </div>
-              <h3 className="mt-4 text-sm sm:text-base font-semibold text-foreground leading-tight">{t.name}</h3>
-              <p className="mt-1 text-xs sm:text-sm font-medium text-primary">{t.role}</p>
-              <div className="mt-4 flex justify-center gap-2">
-                {[Github, Linkedin, Twitter].map((Icon, i) => (
-                  <a key={i} href="#" className="grid h-8 w-8 place-items-center rounded-lg border border-border text-muted-foreground transition hover:border-primary hover:text-primary">
-                    <Icon className="h-3.5 w-3.5" />
-                  </a>
-                ))}
-              </div>
-            </div>
+                <div className="flex justify-center gap-2 pt-1">
+                  {[
+                    { Icon: Github,   label: "GitHub" },
+                    { Icon: Linkedin, label: "LinkedIn" },
+                    { Icon: Twitter,  label: "Twitter" },
+                  ].map(({ Icon, label }) => (
+                    <UITooltip key={label}>
+                      <TooltipTrigger asChild>
+                        <Button asChild variant="outline" size="icon" className="h-8 w-8 rounded-lg border-border hover:border-primary hover:text-primary">
+                          <a href="#" aria-label={label}>
+                            <Icon className="h-3.5 w-3.5" />
+                          </a>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="text-xs">{label}</TooltipContent>
+                    </UITooltip>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
 
-        {/* ── Feedback Form ── */}
-        <div className="mx-auto max-w-2xl">
+        <Separator className="my-8 max-w-4xl mx-auto" />
+
+        {/* ── Form ── */}
+        <div className="mx-auto max-w-xl">
           <div className="text-center mb-6">
-            <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">Get Involved</p>
-            <h3 className="mt-2 text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+            <Badge variant="outline" className="mb-3 rounded-full border-primary/30 bg-primary/5 text-primary text-[11px] font-semibold tracking-widest uppercase">
+              Get Involved
+            </Badge>
+            <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
               Submit Feedback or Report Pollution
             </h3>
             <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
@@ -437,52 +527,49 @@ function Contact() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-            {sent ? (
-              <div className="flex flex-col items-center gap-3 py-8 text-center">
-                <div className="grid h-14 w-14 place-items-center rounded-full bg-emerald-100 text-emerald-600">
-                  <ShieldCheck className="h-7 w-7" />
-                </div>
-                <p className="text-base font-semibold text-foreground">Report received — thank you!</p>
-                <p className="text-sm text-muted-foreground">Our team will review your submission shortly.</p>
-              </div>
-            ) : (
+          <Card className="border-border shadow-soft">
+            <CardContent className="pt-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                   <div className="flex flex-col gap-1.5">
-                    <label htmlFor="f-name" className="text-xs font-medium text-foreground">Full Name</label>
-                    <input
+                    <Label htmlFor="f-name" className="text-xs font-medium">Full Name</Label>
+                    <Input
                       id="f-name" type="text" required placeholder="Chrisha Dabhi"
-                      value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition"
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      className="rounded-xl border-border focus-visible:ring-primary/30 text-sm"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label htmlFor="f-email" className="text-xs font-medium text-foreground">Email Address</label>
-                    <input
+                    <Label htmlFor="f-email" className="text-xs font-medium">Email Address</Label>
+                    <Input
                       id="f-email" type="email" required placeholder="you@example.com"
-                      value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      className="rounded-xl border-border focus-visible:ring-primary/30 text-sm"
                     />
                   </div>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="f-msg" className="text-xs font-medium text-foreground">Message / Incident Description</label>
-                  <textarea
-                    id="f-msg" required rows={4} placeholder="Describe the pollution incident or your feedback..."
-                    value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })}
-                    className="resize-none rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition"
+                  <Label htmlFor="f-msg" className="text-xs font-medium">Message / Incident Description</Label>
+                  <Textarea
+                    id="f-msg" required rows={4}
+                    placeholder="Describe the pollution incident or your feedback..."
+                    value={form.message}
+                    onChange={(e) => setForm({ ...form, message: e.target.value })}
+                    className="resize-none rounded-xl border-border focus-visible:ring-primary/30 text-sm"
                   />
                 </div>
-                <button
+                <Button
                   type="submit"
-                  className="w-full rounded-xl gradient-primary py-3 text-sm font-semibold text-white shadow-glow transition hover:opacity-95 active:scale-95"
+                  size="lg"
+                  className="w-full rounded-xl gradient-primary text-white shadow-glow hover:opacity-90 transition-all active:scale-95"
                 >
                   Submit Report
-                </button>
+                </Button>
               </form>
-            )}
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
       </div>
