@@ -26,7 +26,7 @@ export function Navbar() {
           <Link to="/signin" className="hidden rounded-xl px-4 py-2 text-sm font-medium text-foreground hover:bg-accent sm:inline-flex">
             Sign In
           </Link>
-          <Link to="/signup" className="inline-flex items-center gap-2 rounded-xl gradient-primary px-4 py-2 text-sm font-semibold text-white shadow-glow transition hover:opacity-95">
+          <Link to="/app/admin" className="inline-flex items-center gap-2 rounded-xl gradient-primary px-4 py-2 text-sm font-semibold text-white shadow-glow transition hover:opacity-95">
             Get Started
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
           </Link>

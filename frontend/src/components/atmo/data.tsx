@@ -1,17 +1,17 @@
 // Shared mock data and small primitives for the AtmoAI app
-export const countries = [
-  { code: "IN", name: "India", aqi: 168, pm25: 89, pm10: 142, temp: 32, humidity: 68, lat: 22, lng: 78 },
-  { code: "CN", name: "China", aqi: 142, pm25: 72, pm10: 118, temp: 18, humidity: 55, lat: 35, lng: 104 },
-  { code: "US", name: "United States", aqi: 52, pm25: 14, pm10: 28, temp: 21, humidity: 48, lat: 38, lng: -97 },
-  { code: "BR", name: "Brazil", aqi: 78, pm25: 28, pm10: 52, temp: 27, humidity: 72, lat: -10, lng: -55 },
-  { code: "DE", name: "Germany", aqi: 38, pm25: 10, pm10: 22, temp: 14, humidity: 60, lat: 51, lng: 10 },
-  { code: "JP", name: "Japan", aqi: 45, pm25: 12, pm10: 24, temp: 19, humidity: 65, lat: 36, lng: 138 },
-  { code: "AU", name: "Australia", aqi: 32, pm25: 8, pm10: 18, temp: 22, humidity: 50, lat: -25, lng: 133 },
-  { code: "ZA", name: "South Africa", aqi: 88, pm25: 34, pm10: 62, temp: 24, humidity: 55, lat: -30, lng: 25 },
-  { code: "MX", name: "Mexico", aqi: 112, pm25: 48, pm10: 86, temp: 25, humidity: 58, lat: 23, lng: -102 },
-  { code: "RU", name: "Russia", aqi: 65, pm25: 22, pm10: 44, temp: 8, humidity: 62, lat: 60, lng: 100 },
-  { code: "FR", name: "France", aqi: 42, pm25: 11, pm10: 25, temp: 16, humidity: 64, lat: 46, lng: 2 },
-  { code: "GB", name: "United Kingdom", aqi: 48, pm25: 13, pm10: 26, temp: 13, humidity: 70, lat: 54, lng: -2 },
+export const indianCities = [
+  { code: "DEL", name: "New Delhi", aqi: 248, pm25: 145, pm10: 210, temp: 32, humidity: 45, lat: 28.61, lng: 77.23 },
+  { code: "MUM", name: "Mumbai", aqi: 112, pm25: 55, pm10: 95, temp: 29, humidity: 75, lat: 19.07, lng: 72.87 },
+  { code: "BLR", name: "Bengaluru", aqi: 65, pm25: 28, pm10: 55, temp: 26, humidity: 60, lat: 12.97, lng: 77.59 },
+  { code: "KOL", name: "Kolkata", aqi: 156, pm25: 85, pm10: 135, temp: 31, humidity: 82, lat: 22.57, lng: 88.36 },
+  { code: "CHE", name: "Chennai", aqi: 78, pm25: 35, pm10: 65, temp: 33, humidity: 70, lat: 13.08, lng: 80.27 },
+  { code: "HYD", name: "Hyderabad", aqi: 95, pm25: 42, pm10: 80, temp: 30, humidity: 55, lat: 17.38, lng: 78.48 },
+  { code: "AMD", name: "Ahmedabad", aqi: 185, pm25: 95, pm10: 160, temp: 35, humidity: 40, lat: 23.02, lng: 72.57 },
+  { code: "PUN", name: "Pune", aqi: 82, pm25: 38, pm10: 70, temp: 28, humidity: 65, lat: 18.52, lng: 73.85 },
+  { code: "PAT", name: "Patna", aqi: 210, pm25: 120, pm10: 185, temp: 33, humidity: 50, lat: 25.59, lng: 85.13 },
+  { code: "JAI", name: "Jaipur", aqi: 165, pm25: 88, pm10: 145, temp: 34, humidity: 35, lat: 26.91, lng: 75.78 },
+  { code: "LKO", name: "Lucknow", aqi: 230, pm25: 135, pm10: 195, temp: 32, humidity: 55, lat: 26.84, lng: 80.94 },
+  { code: "BHO", name: "Bhopal", aqi: 115, pm25: 58, pm10: 105, temp: 31, humidity: 48, lat: 23.25, lng: 77.41 },
 ];
 
 export function aqiCategory(aqi: number) {

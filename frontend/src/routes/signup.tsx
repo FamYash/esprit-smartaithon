@@ -1,10 +1,16 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Logo } from "@/components/atmo/Logo";
 import { User, Mail, Lock, Globe, ArrowRight, Check } from "lucide-react";
 
 export const Route = createFileRoute("/signup")({ component: SignUp });
 
 function SignUp() {
+  const navigate = useNavigate();
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate({ to: "/app/dashboard" });
+  };
+
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="flex items-center justify-center bg-background px-6 py-12 order-2 lg:order-1">
@@ -13,7 +19,7 @@ function SignUp() {
           <h1 className="text-3xl font-bold tracking-tight">Create your account</h1>
           <p className="mt-2 text-sm text-muted-foreground">Start forecasting air quality in seconds — no credit card.</p>
 
-          <form className="mt-8 space-y-4">
+          <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
             <Field icon={<User className="h-4 w-4"/>} label="Full Name" type="text" placeholder="Jane Doe"/>
             <Field icon={<Mail className="h-4 w-4"/>} label="Email" type="email" placeholder="you@company.com"/>
             <div className="grid grid-cols-2 gap-4">
@@ -33,7 +39,7 @@ function SignUp() {
               <input type="checkbox" className="mt-0.5 h-4 w-4 rounded border-border accent-[color:var(--color-primary)]"/>
               I agree to AtmoAI's <a className="text-primary font-semibold" href="#">Terms</a> and <a className="text-primary font-semibold" href="#">Privacy Policy</a>.
             </label>
-            <button type="button" className="flex w-full items-center justify-center gap-2 rounded-xl gradient-primary px-4 py-3 text-sm font-semibold text-white shadow-glow hover:opacity-95">
+            <button type="submit" className="flex w-full items-center justify-center gap-2 rounded-xl gradient-primary px-4 py-3 text-sm font-semibold text-white shadow-glow hover:opacity-95">
               Create Account <ArrowRight className="h-4 w-4"/>
             </button>
           </form>

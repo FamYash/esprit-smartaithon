@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Navbar } from "@/components/atmo/Navbar";
 import { Footer } from "@/components/atmo/Footer";
-import { WorldHeatmap, AQIGauge } from "@/components/atmo/Visualizations";
+import { IndiaHeatmap, AQIGauge } from "@/components/atmo/Visualizations";
 import { forecast24h, monthly, StatCard, Card } from "@/components/atmo/data";
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar, ResponsiveContainer,
@@ -58,7 +58,7 @@ function Hero() {
               Explore Dashboard
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
             </Link>
-            <Link to="/app/forecast" className="inline-flex items-center gap-2 rounded-2xl border border-border bg-background px-6 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary">
+            <Link to="/app/dashboard/pollution" className="inline-flex items-center gap-2 rounded-2xl border border-border bg-background px-6 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary">
               View Forecasts
             </Link>
           </div>
@@ -74,7 +74,7 @@ function Hero() {
 
         <div className="relative">
           <div className="relative rounded-3xl border border-border bg-card p-4 shadow-soft">
-            <WorldHeatmap height={420} interactive />
+            <IndiaHeatmap height={420} interactive />
           </div>
           {/* Floating cards */}
           <div className="absolute -left-6 top-12 hidden rounded-2xl glass p-4 shadow-soft md:block">
@@ -186,8 +186,8 @@ function Preview() {
                 </AreaChart>
               </ResponsiveContainer>
             </Card>
-            <Card title="Global Pollution Heatmap" className="lg:col-span-2">
-              <WorldHeatmap height={300} interactive/>
+            <Card title="India Pollution Heatmap" className="lg:col-span-2">
+              <IndiaHeatmap height={300} interactive/>
             </Card>
             <Card title="Monthly Comparison" subtitle="2025 vs 2024">
               <ResponsiveContainer width="100%" height={220}>
@@ -231,7 +231,7 @@ function About() {
           </div>
         </div>
         <div className="relative rounded-3xl border border-border bg-gradient-to-br from-orange-50 to-amber-50 p-8 shadow-soft">
-          <WorldHeatmap height={360}/>
+          <IndiaHeatmap height={360}/>
         </div>
       </div>
     </section>
