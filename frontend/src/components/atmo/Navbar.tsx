@@ -4,11 +4,12 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 
 const links = [
-  { label: "Home",             href: "#home" },
-  { label: "Forecasting",      href: "#forecasting" },
-  { label: "Features",         href: "#features" },
+  { label: "Home", href: "#home" },
+  { label: "Features", href: "#features" },
+  { label: "Forecasting", href: "#forecasting" },
+  { label: "Analytics", to: "/app/dashboard/analytics" },
   { label: "Platform Preview", href: "#preview" },
-  { label: "Contact",          href: "#contact" },
+  { label: "Contact", href: "#contact" },
 ];
 
 export function Navbar() {
@@ -27,16 +28,26 @@ export function Navbar() {
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-0.5 lg:flex">
-          {links.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              onClick={(e) => scrollTo(e, l.href)}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground whitespace-nowrap"
-            >
-              {l.label}
-            </a>
-          ))}
+          {links.map((l) =>
+            "to" in l ? (
+              <Link
+                key={l.label}
+                to={l.to}
+                className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground whitespace-nowrap"
+              >
+                {l.label}
+              </Link>
+            ) : (
+              <a
+                key={l.label}
+                href={l.href}
+                onClick={(e) => scrollTo(e, l.href)}
+                className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground whitespace-nowrap"
+              >
+                {l.label}
+              </a>
+            ),
+          )}
         </nav>
 
         {/* CTA buttons */}
@@ -52,7 +63,14 @@ export function Navbar() {
             className="inline-flex items-center gap-1.5 rounded-xl gradient-primary px-4 py-2 text-sm font-semibold text-white shadow-glow transition hover:opacity-95 active:scale-95"
           >
             Get Started
-            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <svg
+              className="h-3.5 w-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            >
               <path d="M5 12h14M13 5l7 7-7 7" />
             </svg>
           </Link>
@@ -71,16 +89,27 @@ export function Navbar() {
       {/* Mobile drawer */}
       {open && (
         <nav className="border-t border-border bg-background/95 backdrop-blur-md px-4 py-3 space-y-0.5 lg:hidden">
-          {links.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              onClick={(e) => scrollTo(e, l.href)}
-              className="block rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground"
-            >
-              {l.label}
-            </a>
-          ))}
+          {links.map((l) =>
+            "to" in l ? (
+              <Link
+                key={l.label}
+                to={l.to}
+                className="block rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground"
+                onClick={() => setOpen(false)}
+              >
+                {l.label}
+              </Link>
+            ) : (
+              <a
+                key={l.label}
+                href={l.href}
+                onClick={(e) => scrollTo(e, l.href)}
+                className="block rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground"
+              >
+                {l.label}
+              </a>
+            ),
+          )}
           <Link
             to="/signin"
             className="block rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground"

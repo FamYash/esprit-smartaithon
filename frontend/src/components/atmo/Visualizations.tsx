@@ -1,6 +1,12 @@
 import { indianCities, aqiCategory } from "./data";
 
-export function IndiaHeatmap({ height = 360, interactive = false }: { height?: number; interactive?: boolean }) {
+export function IndiaHeatmap({
+  height = 360,
+  interactive = false,
+}: {
+  height?: number;
+  interactive?: boolean;
+}) {
   // Approximate bounding box of the physical map image
   // Longitude ~66°E to 98°E, Latitude ~6°N to 37°N
   const project = (lat: number, lng: number) => {
@@ -105,19 +111,39 @@ export function AQIGauge({ value, size = 220 }: { value: number; size?: number }
     <div className="relative inline-flex flex-col items-center">
       <svg width={size} height={size * 0.75} viewBox={`0 0 ${size} ${size * 0.85}`}>
         {segments.map((s, i) => (
-          <path key={i} d={arcPath(s.from + 90, s.to + 90)} stroke={s.c} strokeWidth="18" fill="none" strokeLinecap="round" opacity="0.85" />
+          <path
+            key={i}
+            d={arcPath(s.from + 90, s.to + 90)}
+            stroke={s.c}
+            strokeWidth="18"
+            fill="none"
+            strokeLinecap="round"
+            opacity="0.85"
+          />
         ))}
         {/* Needle */}
         <g transform={`rotate(${angle} ${cx} ${cy})`}>
-          <line x1={cx} y1={cy} x2={cx} y2={cy - r + 8} stroke="oklch(0.2 0.02 250)" strokeWidth="3" strokeLinecap="round" />
+          <line
+            x1={cx}
+            y1={cy}
+            x2={cx}
+            y2={cy - r + 8}
+            stroke="oklch(0.2 0.02 250)"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
           <circle cx={cx} cy={cy} r="8" fill="oklch(0.2 0.02 250)" />
           <circle cx={cx} cy={cy} r="4" fill="white" />
         </g>
       </svg>
       <div className="-mt-8 text-center">
         <div className="text-5xl font-bold tracking-tight text-foreground">{value}</div>
-        <div className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">AQI</div>
-        <div className={`mt-2 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${cat.bg} ${cat.text}`}>
+        <div className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          AQI
+        </div>
+        <div
+          className={`mt-2 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${cat.bg} ${cat.text}`}
+        >
           {cat.label}
         </div>
       </div>

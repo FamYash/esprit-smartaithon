@@ -22,6 +22,7 @@ import { Route as AppDashboardSafeLocationsRouteImport } from './routes/app.dash
 import { Route as AppDashboardProfileRouteImport } from './routes/app.dashboard.profile'
 import { Route as AppDashboardPollutionRouteImport } from './routes/app.dashboard.pollution'
 import { Route as AppDashboardFeedbackRouteImport } from './routes/app.dashboard.feedback'
+import { Route as AppDashboardAnalyticsRouteImport } from './routes/app.dashboard.analytics'
 import { Route as AppDashboardAlertsRouteImport } from './routes/app.dashboard.alerts'
 import { Route as AppDashboardAirIndiaRouteImport } from './routes/app.dashboard.air-india'
 import { Route as AppAdminUsersRouteImport } from './routes/app.admin.users'
@@ -97,6 +98,11 @@ const AppDashboardFeedbackRoute = AppDashboardFeedbackRouteImport.update({
   path: '/feedback',
   getParentRoute: () => AppDashboardRoute,
 } as any)
+const AppDashboardAnalyticsRoute = AppDashboardAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AppDashboardRoute,
+} as any)
 const AppDashboardAlertsRoute = AppDashboardAlertsRouteImport.update({
   id: '/alerts',
   path: '/alerts',
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/app/admin/users': typeof AppAdminUsersRoute
   '/app/dashboard/air-india': typeof AppDashboardAirIndiaRoute
   '/app/dashboard/alerts': typeof AppDashboardAlertsRoute
+  '/app/dashboard/analytics': typeof AppDashboardAnalyticsRoute
   '/app/dashboard/feedback': typeof AppDashboardFeedbackRoute
   '/app/dashboard/pollution': typeof AppDashboardPollutionRoute
   '/app/dashboard/profile': typeof AppDashboardProfileRoute
@@ -174,6 +181,7 @@ export interface FileRoutesByTo {
   '/app/admin/users': typeof AppAdminUsersRoute
   '/app/dashboard/air-india': typeof AppDashboardAirIndiaRoute
   '/app/dashboard/alerts': typeof AppDashboardAlertsRoute
+  '/app/dashboard/analytics': typeof AppDashboardAnalyticsRoute
   '/app/dashboard/feedback': typeof AppDashboardFeedbackRoute
   '/app/dashboard/pollution': typeof AppDashboardPollutionRoute
   '/app/dashboard/profile': typeof AppDashboardProfileRoute
@@ -198,6 +206,7 @@ export interface FileRoutesById {
   '/app/admin/users': typeof AppAdminUsersRoute
   '/app/dashboard/air-india': typeof AppDashboardAirIndiaRoute
   '/app/dashboard/alerts': typeof AppDashboardAlertsRoute
+  '/app/dashboard/analytics': typeof AppDashboardAnalyticsRoute
   '/app/dashboard/feedback': typeof AppDashboardFeedbackRoute
   '/app/dashboard/pollution': typeof AppDashboardPollutionRoute
   '/app/dashboard/profile': typeof AppDashboardProfileRoute
@@ -223,6 +232,7 @@ export interface FileRouteTypes {
     | '/app/admin/users'
     | '/app/dashboard/air-india'
     | '/app/dashboard/alerts'
+    | '/app/dashboard/analytics'
     | '/app/dashboard/feedback'
     | '/app/dashboard/pollution'
     | '/app/dashboard/profile'
@@ -243,6 +253,7 @@ export interface FileRouteTypes {
     | '/app/admin/users'
     | '/app/dashboard/air-india'
     | '/app/dashboard/alerts'
+    | '/app/dashboard/analytics'
     | '/app/dashboard/feedback'
     | '/app/dashboard/pollution'
     | '/app/dashboard/profile'
@@ -266,6 +277,7 @@ export interface FileRouteTypes {
     | '/app/admin/users'
     | '/app/dashboard/air-india'
     | '/app/dashboard/alerts'
+    | '/app/dashboard/analytics'
     | '/app/dashboard/feedback'
     | '/app/dashboard/pollution'
     | '/app/dashboard/profile'
@@ -374,6 +386,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardFeedbackRouteImport
       parentRoute: typeof AppDashboardRoute
     }
+    '/app/dashboard/analytics': {
+      id: '/app/dashboard/analytics'
+      path: '/analytics'
+      fullPath: '/app/dashboard/analytics'
+      preLoaderRoute: typeof AppDashboardAnalyticsRouteImport
+      parentRoute: typeof AppDashboardRoute
+    }
     '/app/dashboard/alerts': {
       id: '/app/dashboard/alerts'
       path: '/alerts'
@@ -460,6 +479,7 @@ const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
 interface AppDashboardRouteChildren {
   AppDashboardAirIndiaRoute: typeof AppDashboardAirIndiaRoute
   AppDashboardAlertsRoute: typeof AppDashboardAlertsRoute
+  AppDashboardAnalyticsRoute: typeof AppDashboardAnalyticsRoute
   AppDashboardFeedbackRoute: typeof AppDashboardFeedbackRoute
   AppDashboardPollutionRoute: typeof AppDashboardPollutionRoute
   AppDashboardProfileRoute: typeof AppDashboardProfileRoute
@@ -470,6 +490,7 @@ interface AppDashboardRouteChildren {
 const AppDashboardRouteChildren: AppDashboardRouteChildren = {
   AppDashboardAirIndiaRoute: AppDashboardAirIndiaRoute,
   AppDashboardAlertsRoute: AppDashboardAlertsRoute,
+  AppDashboardAnalyticsRoute: AppDashboardAnalyticsRoute,
   AppDashboardFeedbackRoute: AppDashboardFeedbackRoute,
   AppDashboardPollutionRoute: AppDashboardPollutionRoute,
   AppDashboardProfileRoute: AppDashboardProfileRoute,

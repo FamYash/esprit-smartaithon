@@ -8,13 +8,76 @@ export const Route = createFileRoute("/app/dashboard/air-india")({ component: Ai
 
 // Mock data
 const cityMarkers = [
-  { id: "M-1", name: "New Delhi", cx: 120, cy: 110, aqi: 198, state: "Delhi", pm25: 145, status: "Critical" },
-  { id: "M-2", name: "Mumbai", cx: 70, cy: 220, aqi: 98, state: "Maharashtra", pm25: 55, status: "Satisfactory" },
-  { id: "M-3", name: "Bengaluru", cx: 110, cy: 290, aqi: 72, state: "Karnataka", pm25: 42, status: "Good" },
-  { id: "M-4", name: "Kolkata", cx: 220, cy: 180, aqi: 130, state: "West Bengal", pm25: 68, status: "Poor" },
-  { id: "M-5", name: "Chennai", cx: 130, cy: 300, aqi: 48, state: "Tamil Nadu", pm25: 28, status: "Good" },
-  { id: "M-6", name: "Patna", cx: 190, cy: 140, aqi: 153, state: "Bihar", pm25: 85, status: "Poor" },
-  { id: "M-7", name: "Srinagar", cx: 100, cy: 40, aqi: 62, state: "Jammu & Kashmir", pm25: 35, status: "Good" },
+  {
+    id: "M-1",
+    name: "New Delhi",
+    cx: 120,
+    cy: 110,
+    aqi: 198,
+    state: "Delhi",
+    pm25: 145,
+    status: "Critical",
+  },
+  {
+    id: "M-2",
+    name: "Mumbai",
+    cx: 70,
+    cy: 220,
+    aqi: 98,
+    state: "Maharashtra",
+    pm25: 55,
+    status: "Satisfactory",
+  },
+  {
+    id: "M-3",
+    name: "Bengaluru",
+    cx: 110,
+    cy: 290,
+    aqi: 72,
+    state: "Karnataka",
+    pm25: 42,
+    status: "Good",
+  },
+  {
+    id: "M-4",
+    name: "Kolkata",
+    cx: 220,
+    cy: 180,
+    aqi: 130,
+    state: "West Bengal",
+    pm25: 68,
+    status: "Poor",
+  },
+  {
+    id: "M-5",
+    name: "Chennai",
+    cx: 130,
+    cy: 300,
+    aqi: 48,
+    state: "Tamil Nadu",
+    pm25: 28,
+    status: "Good",
+  },
+  {
+    id: "M-6",
+    name: "Patna",
+    cx: 190,
+    cy: 140,
+    aqi: 153,
+    state: "Bihar",
+    pm25: 85,
+    status: "Poor",
+  },
+  {
+    id: "M-7",
+    name: "Srinagar",
+    cx: 100,
+    cy: 40,
+    aqi: 62,
+    state: "Jammu & Kashmir",
+    pm25: 35,
+    status: "Good",
+  },
 ];
 
 const regionalData = [
@@ -32,8 +95,13 @@ function AirAcrossIndiaView() {
     <div className="space-y-8 font-sans">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground font-sans">Air Across India</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground font-sans">National atmospheric telemetry overview, state comparisons, and emerging hotspots prediction</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground font-sans">
+            Air Across India
+          </h1>
+          <p className="mt-1.5 text-sm text-muted-foreground font-sans">
+            National atmospheric telemetry overview, state comparisons, and emerging hotspots
+            prediction
+          </p>
         </div>
       </div>
 
@@ -61,9 +129,12 @@ function AirAcrossIndiaView() {
           <div>
             <AlertTriangle className="h-8 w-8 text-orange-500" />
             <h3 className="text-sm font-bold text-orange-800 mt-3">Active Hotspot Warning</h3>
-            <p className="text-base font-bold text-orange-950 mt-1">Indo-Gangetic Plain Stagnation</p>
+            <p className="text-base font-bold text-orange-950 mt-1">
+              Indo-Gangetic Plain Stagnation
+            </p>
             <p className="text-xs text-orange-800 mt-2 leading-relaxed">
-              High particulate accumulation remains active across Punjab, Haryana, Delhi, and Bihar due to low-altitude planetary boundary layer compression.
+              High particulate accumulation remains active across Punjab, Haryana, Delhi, and Bihar
+              due to low-altitude planetary boundary layer compression.
             </p>
           </div>
         </div>
@@ -72,34 +143,54 @@ function AirAcrossIndiaView() {
       {/* Interactive India Map representation */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Map visualization */}
-        <Card title="Interactive National Telemetry Map" subtitle="Click on cities to inspect regional air sensors" className="lg:col-span-2 flex flex-col items-center justify-center p-6 min-h-[420px]">
+        <Card
+          title="Interactive National Telemetry Map"
+          subtitle="Click on cities to inspect regional air sensors"
+          className="lg:col-span-2 flex flex-col items-center justify-center p-6 min-h-[420px]"
+        >
           <div className="relative w-full max-w-[320px] aspect-[4/5] bg-accent/35 rounded-3xl border border-border p-4">
             {/* SVG stylized outline of India */}
-            <svg viewBox="0 0 300 360" className="w-full h-full text-foreground/20" fill="currentColor">
+            <svg
+              viewBox="0 0 300 360"
+              className="w-full h-full text-foreground/20"
+              fill="currentColor"
+            >
               {/* Stylized abstract India shape paths */}
-              <path d="M120 20 L150 30 L160 50 L140 70 L150 90 L120 110 L100 130 L70 200 L65 240 L85 260 L110 320 L125 340 L135 320 L130 290 L160 250 L195 210 L220 180 L230 160 L210 140 L190 120 L180 100 L185 80 L165 70 L145 50 Z" className="fill-muted stroke-border/40" strokeWidth="2" />
+              <path
+                d="M120 20 L150 30 L160 50 L140 70 L150 90 L120 110 L100 130 L70 200 L65 240 L85 260 L110 320 L125 340 L135 320 L130 290 L160 250 L195 210 L220 180 L230 160 L210 140 L190 120 L180 100 L185 80 L165 70 L145 50 Z"
+                className="fill-muted stroke-border/40"
+                strokeWidth="2"
+              />
               {/* Grid backdrop */}
               <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
                 <rect width="20" height="20" fill="none" />
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="oklch(0.93 0.01 250)" strokeWidth="1" />
+                <path
+                  d="M 20 0 L 0 0 0 20"
+                  fill="none"
+                  stroke="oklch(0.93 0.01 250)"
+                  strokeWidth="1"
+                />
               </pattern>
-              <rect width="300" height="360" fill="url(#grid)" className="opacity-40 pointer-events-none" />
+              <rect
+                width="300"
+                height="360"
+                fill="url(#grid)"
+                className="opacity-40 pointer-events-none"
+              />
 
               {/* Pulser points */}
               {cityMarkers.map((m) => {
                 const colors =
-                  m.status === "Critical" ? "text-red-500 fill-red-500" :
-                  m.status === "Poor" ? "text-orange-500 fill-orange-500" :
-                  "text-emerald-500 fill-emerald-500";
+                  m.status === "Critical"
+                    ? "text-red-500 fill-red-500"
+                    : m.status === "Poor"
+                      ? "text-orange-500 fill-orange-500"
+                      : "text-emerald-500 fill-emerald-500";
 
                 const isSelected = selectedCity.id === m.id;
 
                 return (
-                  <g
-                    key={m.id}
-                    onClick={() => setSelectedCity(m)}
-                    className="cursor-pointer group"
-                  >
+                  <g key={m.id} onClick={() => setSelectedCity(m)} className="cursor-pointer group">
                     {/* Ring animation */}
                     <circle
                       cx={m.cx}
@@ -121,13 +212,19 @@ function AirAcrossIndiaView() {
 
             {/* Labels overlay */}
             <div className="absolute top-4 left-4 pointer-events-none">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground bg-background px-2 py-1 rounded-lg border border-border">National Grid v1.0</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground bg-background px-2 py-1 rounded-lg border border-border">
+                National Grid v1.0
+              </span>
             </div>
           </div>
         </Card>
 
         {/* Selected city information */}
-        <Card title="Sensor Station Telemetry" subtitle={selectedCity.name} className="flex flex-col justify-between">
+        <Card
+          title="Sensor Station Telemetry"
+          subtitle={selectedCity.name}
+          className="flex flex-col justify-between"
+        >
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <span className="text-xs font-semibold text-muted-foreground">State Region:</span>
@@ -138,15 +235,28 @@ function AirAcrossIndiaView() {
               <span className="text-sm font-extrabold text-primary">{selectedCity.aqi}</span>
             </div>
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <span className="text-xs font-semibold text-muted-foreground">PM2.5 concentration:</span>
-              <span className="text-sm font-extrabold text-foreground">{selectedCity.pm25} μg/m³</span>
+              <span className="text-xs font-semibold text-muted-foreground">
+                PM2.5 concentration:
+              </span>
+              <span className="text-sm font-extrabold text-foreground">
+                {selectedCity.pm25} μg/m³
+              </span>
             </div>
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <span className="text-xs font-semibold text-muted-foreground">Pollution Category:</span>
-              <span className={`text-xs font-bold uppercase ${
-                selectedCity.status === "Critical" ? "text-red-600" :
-                selectedCity.status === "Poor" ? "text-orange-500" : "text-emerald-600"
-              }`}>{selectedCity.status}</span>
+              <span className="text-xs font-semibold text-muted-foreground">
+                Pollution Category:
+              </span>
+              <span
+                className={`text-xs font-bold uppercase ${
+                  selectedCity.status === "Critical"
+                    ? "text-red-600"
+                    : selectedCity.status === "Poor"
+                      ? "text-orange-500"
+                      : "text-emerald-600"
+                }`}
+              >
+                {selectedCity.status}
+              </span>
             </div>
 
             <div className="rounded-2xl bg-[var(--color-surface)] border border-border p-4 flex gap-3">
@@ -154,27 +264,34 @@ function AirAcrossIndiaView() {
               <div>
                 <p className="text-xs font-bold text-foreground">Regional Recommendation</p>
                 <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
-                  {selectedCity.status === "Critical" ? "N95 masks advised for all outdoor tasks. Minimize prolonged periods outdoors." : "Conditions are acceptable for normal outdoor exercises."}
+                  {selectedCity.status === "Critical"
+                    ? "N95 masks advised for all outdoor tasks. Minimize prolonged periods outdoors."
+                    : "Conditions are acceptable for normal outdoor exercises."}
                 </p>
               </div>
             </div>
           </div>
 
           <div className="mt-5 border-t border-border pt-4">
-            <p className="text-[10px] text-muted-foreground italic">Sensor data verified via National CPCB Feed</p>
+            <p className="text-[10px] text-muted-foreground italic">
+              Sensor data verified via National CPCB Feed
+            </p>
           </div>
         </Card>
       </div>
 
       {/* Regional Comparison Chart */}
-      <Card title="Regional AQI Comparisons" subtitle="Weighted average AQI across regional divisions">
+      <Card
+        title="Regional AQI Comparisons"
+        subtitle="Weighted average AQI across regional divisions"
+      >
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={regionalData}>
             <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.93 0.01 250)" vertical={false} />
             <XAxis dataKey="region" stroke="oklch(0.5 0.02 250)" fontSize={11} />
             <YAxis stroke="oklch(0.5 0.02 250)" fontSize={11} />
             <Tooltip contentStyle={{ borderRadius: 12 }} />
-            <Bar name="Avg AQI" dataKey="avgAQI" fill="#F97316" radius={[6,6,0,0]}>
+            <Bar name="Avg AQI" dataKey="avgAQI" fill="#F97316" radius={[6, 6, 0, 0]}>
               {regionalData.map((entry, index) => {
                 const colors = ["#EF4444", "#F59E0B", "#F59E0B", "#10B981", "#10B981"];
                 return <Cell key={`cell-${index}`} fill={colors[index]} />;

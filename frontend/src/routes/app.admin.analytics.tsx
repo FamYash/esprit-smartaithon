@@ -1,11 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Card } from "@/components/atmo/data";
 import {
-  BarChart, Bar, LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip,
-  CartesianGrid, Legend, Cell, AreaChart, Area, PieChart, Pie
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Legend,
+  Cell,
+  AreaChart,
+  Area,
+  PieChart,
+  Pie,
 } from "recharts";
 import {
-  Activity, Users, Award, ShieldAlert, CheckCircle, TrendingUp, HelpCircle
+  Activity,
+  Users,
+  Award,
+  ShieldAlert,
+  CheckCircle,
+  TrendingUp,
+  HelpCircle,
 } from "lucide-react";
 
 export const Route = createFileRoute("/app/admin/analytics")({ component: AdminAnalytics });
@@ -53,16 +72,76 @@ const historicalTrend = [
 ];
 
 const hotspotCities = [
-  { city: "Ghaziabad", state: "Uttar Pradesh", currentAQI: 245, alertLevel: "Severe", coordinates: "28.6692° N, 77.4538° E" },
-  { city: "Faridabad", state: "Haryana", currentAQI: 232, alertLevel: "Severe", coordinates: "28.4089° N, 77.3178° E" },
-  { city: "Bhiwadi", state: "Rajasthan", currentAQI: 218, alertLevel: "Severe", coordinates: "28.2072° N, 76.8407° E" },
-  { city: "Noida", state: "Uttar Pradesh", currentAQI: 195, alertLevel: "Poor", coordinates: "28.5355° N, 77.3910° E" },
-  { city: "Patna", state: "Bihar", currentAQI: 185, alertLevel: "Poor", coordinates: "25.5941° N, 85.1376° E" },
-  { city: "Muzaffarpur", state: "Bihar", currentAQI: 180, alertLevel: "Poor", coordinates: "26.1197° N, 85.3910° E" },
-  { city: "Gurugram", state: "Haryana", currentAQI: 175, alertLevel: "Poor", coordinates: "28.4595° N, 77.0266° E" },
-  { city: "Meerut", state: "Uttar Pradesh", currentAQI: 168, alertLevel: "Poor", coordinates: "28.9845° N, 77.7064° E" },
-  { city: "Lucknow", state: "Uttar Pradesh", currentAQI: 162, alertLevel: "Poor", coordinates: "26.8467° N, 80.9462° E" },
-  { city: "Jodhpur", state: "Rajasthan", currentAQI: 158, alertLevel: "Poor", coordinates: "26.2389° N, 73.0243° E" },
+  {
+    city: "Ghaziabad",
+    state: "Uttar Pradesh",
+    currentAQI: 245,
+    alertLevel: "Severe",
+    coordinates: "28.6692° N, 77.4538° E",
+  },
+  {
+    city: "Faridabad",
+    state: "Haryana",
+    currentAQI: 232,
+    alertLevel: "Severe",
+    coordinates: "28.4089° N, 77.3178° E",
+  },
+  {
+    city: "Bhiwadi",
+    state: "Rajasthan",
+    currentAQI: 218,
+    alertLevel: "Severe",
+    coordinates: "28.2072° N, 76.8407° E",
+  },
+  {
+    city: "Noida",
+    state: "Uttar Pradesh",
+    currentAQI: 195,
+    alertLevel: "Poor",
+    coordinates: "28.5355° N, 77.3910° E",
+  },
+  {
+    city: "Patna",
+    state: "Bihar",
+    currentAQI: 185,
+    alertLevel: "Poor",
+    coordinates: "25.5941° N, 85.1376° E",
+  },
+  {
+    city: "Muzaffarpur",
+    state: "Bihar",
+    currentAQI: 180,
+    alertLevel: "Poor",
+    coordinates: "26.1197° N, 85.3910° E",
+  },
+  {
+    city: "Gurugram",
+    state: "Haryana",
+    currentAQI: 175,
+    alertLevel: "Poor",
+    coordinates: "28.4595° N, 77.0266° E",
+  },
+  {
+    city: "Meerut",
+    state: "Uttar Pradesh",
+    currentAQI: 168,
+    alertLevel: "Poor",
+    coordinates: "28.9845° N, 77.7064° E",
+  },
+  {
+    city: "Lucknow",
+    state: "Uttar Pradesh",
+    currentAQI: 162,
+    alertLevel: "Poor",
+    coordinates: "26.8467° N, 80.9462° E",
+  },
+  {
+    city: "Jodhpur",
+    state: "Rajasthan",
+    currentAQI: 158,
+    alertLevel: "Poor",
+    coordinates: "26.2389° N, 73.0243° E",
+  },
 ];
 
 const engagementStats = [
@@ -98,8 +177,12 @@ function AdminAnalytics() {
       {/* Title Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground font-sans">Advanced Analytics</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground font-sans">Enterprise pollution trends, model performance diagnostics, and system engagement audit</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground font-sans">
+            Advanced Analytics
+          </h1>
+          <p className="mt-1.5 text-sm text-muted-foreground font-sans">
+            Enterprise pollution trends, model performance diagnostics, and system engagement audit
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <select className="rounded-xl border border-border bg-card px-4 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20">
@@ -115,15 +198,46 @@ function AdminAnalytics() {
       {/* Grid: 5. Prediction Performance Metrics (Top Row) */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: "Forecast Accuracy", value: "94.72%", sub: "Avg across 30 days", desc: "+0.32% improvement", icon: <Award className="text-emerald-500 h-5 w-5"/> },
-          { label: "RMSE Value", value: "6.84", sub: "Root Mean Square Error", desc: "-0.18 decrease (better)", icon: <Activity className="text-primary h-5 w-5"/> },
-          { label: "MAE Value", value: "4.92", sub: "Mean Absolute Error", desc: "-0.11 decrease (better)", icon: <CheckCircle className="text-blue-500 h-5 w-5"/> },
-          { label: "Forecast Confidence", value: "96.4%", sub: "Validation interval", desc: "95% confidence bounds", icon: <TrendingUp className="text-amber-500 h-5 w-5"/> },
+          {
+            label: "Forecast Accuracy",
+            value: "94.72%",
+            sub: "Avg across 30 days",
+            desc: "+0.32% improvement",
+            icon: <Award className="text-emerald-500 h-5 w-5" />,
+          },
+          {
+            label: "RMSE Value",
+            value: "6.84",
+            sub: "Root Mean Square Error",
+            desc: "-0.18 decrease (better)",
+            icon: <Activity className="text-primary h-5 w-5" />,
+          },
+          {
+            label: "MAE Value",
+            value: "4.92",
+            sub: "Mean Absolute Error",
+            desc: "-0.11 decrease (better)",
+            icon: <CheckCircle className="text-blue-500 h-5 w-5" />,
+          },
+          {
+            label: "Forecast Confidence",
+            value: "96.4%",
+            sub: "Validation interval",
+            desc: "95% confidence bounds",
+            icon: <TrendingUp className="text-amber-500 h-5 w-5" />,
+          },
         ].map((m) => (
-          <div key={m.label} className="rounded-2xl border border-border bg-card p-6 shadow-card transition duration-200 hover:shadow-soft">
+          <div
+            key={m.label}
+            className="rounded-2xl border border-border bg-card p-6 shadow-card transition duration-200 hover:shadow-soft"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{m.label}</span>
-              <div className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--color-surface)]">{m.icon}</div>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                {m.label}
+              </span>
+              <div className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--color-surface)]">
+                {m.icon}
+              </div>
             </div>
             <div className="mt-4">
               <p className="text-3xl font-extrabold tracking-tight">{m.value}</p>
@@ -138,16 +252,29 @@ function AdminAnalytics() {
 
       {/* Section 1: State-wise Pollution Statistics */}
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card title="State-wise PM2.5 Statistics" subtitle="Top polluted states and regions" className="lg:col-span-2">
+        <Card
+          title="State-wise PM2.5 Statistics"
+          subtitle="Top polluted states and regions"
+          className="lg:col-span-2"
+        >
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={statePollution.slice(0, 8)}>
               <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.93 0.01 250)" vertical={false} />
               <XAxis dataKey="name" stroke="oklch(0.5 0.02 250)" fontSize={11} />
-              <YAxis stroke="oklch(0.5 0.02 250)" fontSize={11} label={{ value: "μg/m³", angle: -90, position: 'insideLeft', style: { fontSize: 11 } }} />
+              <YAxis
+                stroke="oklch(0.5 0.02 250)"
+                fontSize={11}
+                label={{
+                  value: "μg/m³",
+                  angle: -90,
+                  position: "insideLeft",
+                  style: { fontSize: 11 },
+                }}
+              />
               <Tooltip contentStyle={{ borderRadius: 12 }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Bar name="PM2.5 Avg" dataKey="pm25" fill="#F97316" radius={[6,6,0,0]} />
-              <Bar name="PM10 Avg" dataKey="pm10" fill="#FDBA74" radius={[6,6,0,0]} />
+              <Bar name="PM2.5 Avg" dataKey="pm25" fill="#F97316" radius={[6, 6, 0, 0]} />
+              <Bar name="PM10 Avg" dataKey="pm10" fill="#FDBA74" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </Card>
@@ -166,18 +293,28 @@ function AdminAnalytics() {
                 {statePollution.map((s, idx) => (
                   <tr key={s.name} className="hover:bg-accent/40">
                     <td className="py-2.5 font-medium flex items-center gap-2">
-                      <span className="grid h-5 w-5 place-items-center rounded-lg bg-muted text-[10px] font-bold">{idx + 1}</span>
+                      <span className="grid h-5 w-5 place-items-center rounded-lg bg-muted text-[10px] font-bold">
+                        {idx + 1}
+                      </span>
                       {s.name}
                     </td>
                     <td className="py-2.5 text-right font-bold text-primary">{s.aqi}</td>
                     <td className="py-2.5 text-right">
-                      <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
-                        s.status === "Critical" ? "bg-red-50 text-red-700" :
-                        s.status === "Severe" ? "bg-orange-50 text-orange-700" :
-                        s.status === "Poor" ? "bg-yellow-50 text-yellow-700" :
-                        s.status === "Moderate" ? "bg-amber-50 text-amber-700" :
-                        "bg-emerald-50 text-emerald-700"
-                      }`}>{s.status}</span>
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
+                          s.status === "Critical"
+                            ? "bg-red-50 text-red-700"
+                            : s.status === "Severe"
+                              ? "bg-orange-50 text-orange-700"
+                              : s.status === "Poor"
+                                ? "bg-yellow-50 text-yellow-700"
+                                : s.status === "Moderate"
+                                  ? "bg-amber-50 text-amber-700"
+                                  : "bg-emerald-50 text-emerald-700"
+                        }`}
+                      >
+                        {s.status}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -190,16 +327,32 @@ function AdminAnalytics() {
       {/* Section 2 & 3: City PM2.5 Comparison and Hotspots */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Section 2: City-wise PM2.5 Comparison */}
-        <Card title="City-wise PM2.5 Comparison" subtitle="Comparing critical hotspots across regions">
+        <Card
+          title="City-wise PM2.5 Comparison"
+          subtitle="Comparing critical hotspots across regions"
+        >
           <ResponsiveContainer width="100%" height={320}>
             <BarChart data={cityComparison} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.93 0.01 250)" horizontal={false} />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="oklch(0.93 0.01 250)"
+                horizontal={false}
+              />
               <XAxis type="number" stroke="oklch(0.5 0.02 250)" fontSize={11} />
-              <YAxis dataKey="city" type="category" stroke="oklch(0.5 0.02 250)" fontSize={11} width={80} />
+              <YAxis
+                dataKey="city"
+                type="category"
+                stroke="oklch(0.5 0.02 250)"
+                fontSize={11}
+                width={80}
+              />
               <Tooltip contentStyle={{ borderRadius: 12 }} />
               <Bar dataKey="pm25" fill="url(#cityGrad)" radius={[0, 6, 6, 0]}>
                 {cityComparison.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.pm25 > 100 ? "#F97316" : entry.pm25 > 50 ? "#FDBA74" : "#10B981"} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={entry.pm25 > 100 ? "#F97316" : entry.pm25 > 50 ? "#FDBA74" : "#10B981"}
+                  />
                 ))}
               </Bar>
               <defs>
@@ -213,7 +366,10 @@ function AdminAnalytics() {
         </Card>
 
         {/* Section 3: Pollution Hotspot Analytics */}
-        <Card title="Pollution Hotspot Heatmap Style Grid" subtitle="Live sensors reporting critical metrics">
+        <Card
+          title="Pollution Hotspot Heatmap Style Grid"
+          subtitle="Live sensors reporting critical metrics"
+        >
           <div className="grid grid-cols-5 gap-2.5">
             {Array.from({ length: 25 }).map((_, idx) => {
               const aqiValues = [285, 260, 245, 230, 198, 185, 170, 150, 120, 95, 80, 45, 30];
@@ -224,30 +380,47 @@ function AdminAnalytics() {
                 <div
                   key={idx}
                   className={`group relative flex h-14 flex-col items-center justify-center rounded-xl border border-border/80 transition cursor-help ${
-                    isCrit ? "bg-rose-500/10 border-rose-500/30 text-rose-700 font-bold" :
-                    isMod ? "bg-orange-500/10 border-orange-500/30 text-orange-700 font-bold" :
-                    "bg-emerald-500/10 border-emerald-500/30 text-emerald-700"
+                    isCrit
+                      ? "bg-rose-500/10 border-rose-500/30 text-rose-700 font-bold"
+                      : isMod
+                        ? "bg-orange-500/10 border-orange-500/30 text-orange-700 font-bold"
+                        : "bg-emerald-500/10 border-emerald-500/30 text-emerald-700"
                   }`}
                 >
-                  <span className="text-[10px] text-muted-foreground leading-none">S-{idx+101}</span>
+                  <span className="text-[10px] text-muted-foreground leading-none">
+                    S-{idx + 101}
+                  </span>
                   <span className="text-sm mt-1">{aqi}</span>
                   <div className="pointer-events-none absolute bottom-full mb-1.5 scale-0 group-hover:scale-100 transition whitespace-nowrap rounded-lg bg-foreground px-2.5 py-1.5 text-[10px] text-background shadow-lg z-20 font-medium">
-                    Sensor #{idx+101} · AQI {aqi} ({aqi > 200 ? "Severe" : aqi > 100 ? "Poor" : "Good"})
+                    Sensor #{idx + 101} · AQI {aqi} (
+                    {aqi > 200 ? "Severe" : aqi > 100 ? "Poor" : "Good"})
                   </div>
                 </div>
               );
             })}
           </div>
           <div className="mt-5 flex items-center justify-between text-xs text-muted-foreground border-t border-border pt-4">
-            <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-rose-500" />Severe (&gt;200)</div>
-            <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-orange-50" />Poor (100-200)</div>
-            <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-emerald-500" />Good (&lt;100)</div>
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded bg-rose-500" />
+              Severe (&gt;200)
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded bg-orange-50" />
+              Poor (100-200)
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded bg-emerald-500" />
+              Good (&lt;100)
+            </div>
           </div>
         </Card>
       </div>
 
       {/* Top 10 Hotspot Cities Table */}
-      <Card title="Top 10 Hotspot Cities List" subtitle="Monitored areas with highest pollution indices">
+      <Card
+        title="Top 10 Hotspot Cities List"
+        subtitle="Monitored areas with highest pollution indices"
+      >
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
@@ -263,17 +436,27 @@ function AdminAnalytics() {
               {hotspotCities.map((h, idx) => (
                 <tr key={h.city} className="hover:bg-accent/40">
                   <td className="py-3 font-semibold flex items-center gap-2">
-                    <span className="grid h-6 w-6 place-items-center rounded-lg bg-red-100 text-red-700 text-xs font-bold">{idx + 1}</span>
+                    <span className="grid h-6 w-6 place-items-center rounded-lg bg-red-100 text-red-700 text-xs font-bold">
+                      {idx + 1}
+                    </span>
                     {h.city}
                   </td>
                   <td className="py-3 text-muted-foreground">{h.state}</td>
                   <td className="py-3 text-right font-bold text-red-600">{h.currentAQI}</td>
                   <td className="py-3 text-right">
-                    <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                      h.alertLevel === "Severe" ? "bg-red-50 text-red-700 border border-red-200" : "bg-orange-50 text-orange-700 border border-orange-200"
-                    }`}>{h.alertLevel}</span>
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                        h.alertLevel === "Severe"
+                          ? "bg-red-50 text-red-700 border border-red-200"
+                          : "bg-orange-50 text-orange-700 border border-orange-200"
+                      }`}
+                    >
+                      {h.alertLevel}
+                    </span>
                   </td>
-                  <td className="py-3 text-right text-xs font-mono text-muted-foreground">{h.coordinates}</td>
+                  <td className="py-3 text-right text-xs font-mono text-muted-foreground">
+                    {h.coordinates}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -282,7 +465,10 @@ function AdminAnalytics() {
       </Card>
 
       {/* Section 4: Historical Pollution Trends */}
-      <Card title="Historical Pollution Trends (12 Months)" subtitle="Decade-calibrated rolling pollutant observations">
+      <Card
+        title="Historical Pollution Trends (12 Months)"
+        subtitle="Decade-calibrated rolling pollutant observations"
+      >
         <ResponsiveContainer width="100%" height={320}>
           <LineChart data={historicalTrend}>
             <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.93 0.01 250)" vertical={false} />
@@ -290,9 +476,23 @@ function AdminAnalytics() {
             <YAxis stroke="oklch(0.5 0.02 250)" fontSize={11} />
             <Tooltip contentStyle={{ borderRadius: 12 }} />
             <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Line type="monotone" name="PM2.5" dataKey="pm25" stroke="#F97316" strokeWidth={3} activeDot={{ r: 6 }} />
+            <Line
+              type="monotone"
+              name="PM2.5"
+              dataKey="pm25"
+              stroke="#F97316"
+              strokeWidth={3}
+              activeDot={{ r: 6 }}
+            />
             <Line type="monotone" name="PM10" dataKey="pm10" stroke="#FDBA74" strokeWidth={2} />
-            <Line type="monotone" name="NO₂" dataKey="no2" stroke="#3B82F6" strokeWidth={2} strokeDasharray="4 4" />
+            <Line
+              type="monotone"
+              name="NO₂"
+              dataKey="no2"
+              stroke="#3B82F6"
+              strokeWidth={2}
+              strokeDasharray="4 4"
+            />
           </LineChart>
         </ResponsiveContainer>
       </Card>
@@ -300,20 +500,34 @@ function AdminAnalytics() {
       {/* Section 6 & 7: User Engagement and Alert Generation Stats */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Section 6: User Engagement Statistics */}
-        <Card title="User Engagement" subtitle="Daily visits and active user counts" className="lg:col-span-2">
+        <Card
+          title="User Engagement"
+          subtitle="Daily visits and active user counts"
+          className="lg:col-span-2"
+        >
           <div className="grid grid-cols-3 gap-4 mb-4 border-b border-border/60 pb-4">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Daily Visits</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Daily Visits
+              </p>
               <p className="text-xl font-bold mt-1">12,842</p>
-              <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">+8.4% YoY</span>
+              <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">
+                +8.4% YoY
+              </span>
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Session Duration</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Session Duration
+              </p>
               <p className="text-xl font-bold mt-1">8m 42s</p>
-              <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">+4.2% MoM</span>
+              <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">
+                +4.2% MoM
+              </span>
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Feature Utilization</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Feature Utilization
+              </p>
               <p className="text-sm font-semibold mt-1">Forecaster Engine (42%)</p>
               <span className="text-[10px] text-muted-foreground">Most popular view</span>
             </div>
@@ -335,8 +549,22 @@ function AdminAnalytics() {
               <YAxis fontSize={11} />
               <Tooltip contentStyle={{ borderRadius: 12 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Area type="monotone" name="Active Users" dataKey="activeUsers" stroke="#F97316" fill="url(#usrAct)" strokeWidth={2.5} />
-              <Area type="monotone" name="Visits" dataKey="visits" stroke="#3B82F6" fill="url(#visits)" strokeWidth={2} />
+              <Area
+                type="monotone"
+                name="Active Users"
+                dataKey="activeUsers"
+                stroke="#F97316"
+                fill="url(#usrAct)"
+                strokeWidth={2.5}
+              />
+              <Area
+                type="monotone"
+                name="Visits"
+                dataKey="visits"
+                stroke="#3B82F6"
+                fill="url(#visits)"
+                strokeWidth={2}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </Card>
@@ -346,7 +574,14 @@ function AdminAnalytics() {
           <div className="flex flex-col items-center justify-center h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={alertDistribution} dataKey="value" nameKey="name" innerRadius={50} outerRadius={75} paddingAngle={4}>
+                <Pie
+                  data={alertDistribution}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={50}
+                  outerRadius={75}
+                  paddingAngle={4}
+                >
                   {alertDistribution.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
@@ -357,9 +592,15 @@ function AdminAnalytics() {
           </div>
           <div className="mt-4 space-y-2">
             {alertDistribution.map((entry) => (
-              <div key={entry.name} className="flex items-center justify-between text-xs border-b border-border/40 pb-1.5 last:border-0">
+              <div
+                key={entry.name}
+                className="flex items-center justify-between text-xs border-b border-border/40 pb-1.5 last:border-0"
+              >
                 <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
+                  <span
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: entry.color }}
+                  />
                   <span className="font-medium text-foreground">{entry.name}</span>
                 </div>
                 <span className="font-bold">{entry.value}%</span>
@@ -377,7 +618,14 @@ function AdminAnalytics() {
             <XAxis dataKey="day" fontSize={11} />
             <YAxis fontSize={11} />
             <Tooltip contentStyle={{ borderRadius: 12 }} />
-            <Line type="monotone" name="Alerts Count" dataKey="count" stroke="#EF4444" strokeWidth={3} dot={{ r: 5 }} />
+            <Line
+              type="monotone"
+              name="Alerts Count"
+              dataKey="count"
+              stroke="#EF4444"
+              strokeWidth={3}
+              dot={{ r: 5 }}
+            />
           </LineChart>
         </ResponsiveContainer>
       </Card>

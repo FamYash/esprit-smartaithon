@@ -6,9 +6,30 @@ import { MessageSquare, Star, Upload, CheckCircle2, AlertCircle } from "lucide-r
 export const Route = createFileRoute("/app/dashboard/feedback")({ component: UserFeedbackView });
 
 const initialComplaints = [
-  { id: "CMP-401", category: "Industrial Smoke Emissions", location: "Noida Phase-II Industrial Area", date: "May 18, 2026", status: "In Progress", details: "Assigned to Noida Pollution Control Board for field investigation." },
-  { id: "CMP-402", category: "Open Waste Burning", location: "Sector 137 Residential Block", date: "May 15, 2026", status: "Resolved", details: "Municipal team cleared the dumpsite and issued fine receipts." },
-  { id: "CMP-403", category: "Road Construction Dust", location: "Expressway Bypass Sector-62", date: "May 10, 2026", status: "Resolved", details: "Water sprinklers deployed; contractor instructed to spray twice daily." },
+  {
+    id: "CMP-401",
+    category: "Industrial Smoke Emissions",
+    location: "Noida Phase-II Industrial Area",
+    date: "May 18, 2026",
+    status: "In Progress",
+    details: "Assigned to Noida Pollution Control Board for field investigation.",
+  },
+  {
+    id: "CMP-402",
+    category: "Open Waste Burning",
+    location: "Sector 137 Residential Block",
+    date: "May 15, 2026",
+    status: "Resolved",
+    details: "Municipal team cleared the dumpsite and issued fine receipts.",
+  },
+  {
+    id: "CMP-403",
+    category: "Road Construction Dust",
+    location: "Expressway Bypass Sector-62",
+    date: "May 10, 2026",
+    status: "Resolved",
+    details: "Water sprinklers deployed; contractor instructed to spray twice daily.",
+  },
 ];
 
 function UserFeedbackView() {
@@ -32,9 +53,13 @@ function UserFeedbackView() {
       id: `CMP-${Math.floor(100 + Math.random() * 900)}`,
       category,
       location,
-      date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
+      date: new Date().toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+      }),
       status: "Submitted",
-      details: "Awaiting administrator validation."
+      details: "Awaiting administrator validation.",
     };
 
     setComplaints([newC, ...complaints]);
@@ -53,13 +78,21 @@ function UserFeedbackView() {
   return (
     <div className="space-y-8 font-sans">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground font-sans">Complaints & Platform Feedback</h1>
-        <p className="mt-1.5 text-sm text-muted-foreground font-sans">Report local pollution incidents, upload environmental proof, and rate our forecasting system</p>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground font-sans">
+          Complaints & Platform Feedback
+        </h1>
+        <p className="mt-1.5 text-sm text-muted-foreground font-sans">
+          Report local pollution incidents, upload environmental proof, and rate our forecasting
+          system
+        </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Complaint Submission Form */}
-        <Card title="Report Local Pollution Incident" subtitle="File telemetry reports directly with environmental bureaus">
+        <Card
+          title="Report Local Pollution Incident"
+          subtitle="File telemetry reports directly with environmental bureaus"
+        >
           <form onSubmit={handleComplaintSubmit} className="space-y-4">
             <div>
               <label className="text-xs font-bold text-foreground">Incident Category</label>
@@ -77,7 +110,9 @@ function UserFeedbackView() {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-foreground">Accurate Location / Landmark</label>
+              <label className="text-xs font-bold text-foreground">
+                Accurate Location / Landmark
+              </label>
               <input
                 required
                 type="text"
@@ -102,7 +137,9 @@ function UserFeedbackView() {
 
             {/* Evidence drag-drop area */}
             <div>
-              <label className="text-xs font-bold text-foreground">Upload Evidence (Images / PDF)</label>
+              <label className="text-xs font-bold text-foreground">
+                Upload Evidence (Images / PDF)
+              </label>
               <div className="mt-1.5 border-2 border-dashed border-border hover:border-primary transition rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer">
                 <Upload className="h-6 w-6 text-muted-foreground mb-2" />
                 <p className="text-xs font-bold">Drag and drop file here, or click to upload</p>
@@ -110,7 +147,10 @@ function UserFeedbackView() {
               </div>
             </div>
 
-            <button type="submit" className="w-full rounded-xl gradient-primary py-2.5 text-sm font-semibold text-white shadow-glow hover:opacity-95 transition">
+            <button
+              type="submit"
+              className="w-full rounded-xl gradient-primary py-2.5 text-sm font-semibold text-white shadow-glow hover:opacity-95 transition"
+            >
               File Incident Report
             </button>
 
@@ -124,10 +164,15 @@ function UserFeedbackView() {
 
         {/* Platform Feedback Form */}
         <div className="space-y-6">
-          <Card title="Rate AtmoAI Forecasting" subtitle="Your ratings calibrate our UX and modeling engines">
+          <Card
+            title="Rate AtmoAI Forecasting"
+            subtitle="Your ratings calibrate our UX and modeling engines"
+          >
             <form onSubmit={handleFeedbackSubmit} className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-foreground">Forecast Accuracy Rating</label>
+                <label className="text-xs font-bold text-foreground">
+                  Forecast Accuracy Rating
+                </label>
                 <div className="flex items-center gap-2 mt-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
@@ -159,7 +204,10 @@ function UserFeedbackView() {
                 />
               </div>
 
-              <button type="submit" className="w-full rounded-xl border border-border bg-card py-2.5 text-sm font-semibold text-foreground hover:bg-accent transition">
+              <button
+                type="submit"
+                className="w-full rounded-xl border border-border bg-card py-2.5 text-sm font-semibold text-foreground hover:bg-accent transition"
+              >
                 Submit Platform Feedback
               </button>
 
@@ -173,14 +221,19 @@ function UserFeedbackView() {
 
           <Card title="Why report incidents?">
             <p className="text-xs leading-relaxed text-muted-foreground">
-              Incident reports filed here are calibrated with satellite imagery. Valid reports are automatically logged onto our municipal agency dashboard for rapid mitigation of unregulated emissions.
+              Incident reports filed here are calibrated with satellite imagery. Valid reports are
+              automatically logged onto our municipal agency dashboard for rapid mitigation of
+              unregulated emissions.
             </p>
           </Card>
         </div>
       </div>
 
       {/* Previous Complaints tracking */}
-      <Card title="Filed Incident Status Tracking" subtitle="Real-time audit updates on your filed complaints">
+      <Card
+        title="Filed Incident Status Tracking"
+        subtitle="Real-time audit updates on your filed complaints"
+      >
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
@@ -194,19 +247,27 @@ function UserFeedbackView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
-              {complaints.map(c => (
+              {complaints.map((c) => (
                 <tr key={c.id} className="hover:bg-accent/40">
                   <td className="py-3.5 font-semibold text-primary font-mono">{c.id}</td>
                   <td className="py-3.5 text-muted-foreground">{c.date}</td>
                   <td className="py-3.5 font-semibold">{c.category}</td>
                   <td className="py-3.5 font-medium">{c.location}</td>
-                  <td className="py-3.5 text-right text-xs text-muted-foreground max-w-xs truncate">{c.details}</td>
+                  <td className="py-3.5 text-right text-xs text-muted-foreground max-w-xs truncate">
+                    {c.details}
+                  </td>
                   <td className="py-3.5 text-right">
-                    <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                      c.status === "Resolved" ? "bg-emerald-50 text-emerald-700" :
-                      c.status === "In Progress" ? "bg-yellow-50 text-yellow-700 animate-pulse" :
-                      "bg-blue-50 text-blue-700"
-                    }`}>{c.status}</span>
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                        c.status === "Resolved"
+                          ? "bg-emerald-50 text-emerald-700"
+                          : c.status === "In Progress"
+                            ? "bg-yellow-50 text-yellow-700 animate-pulse"
+                            : "bg-blue-50 text-blue-700"
+                      }`}
+                    >
+                      {c.status}
+                    </span>
                   </td>
                 </tr>
               ))}

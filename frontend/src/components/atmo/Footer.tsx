@@ -16,7 +16,8 @@ export function Footer() {
           <div className="md:col-span-2">
             <Logo />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              AI-powered PM2.5 forecasting and air quality intelligence for India — built on LSTM + Transformer architectures for a healthier future.
+              AI-powered PM2.5 forecasting and air quality intelligence for India — built on LSTM +
+              Transformer architectures for a healthier future.
             </p>
             <div className="mt-6 flex gap-3">
               {[Github, Twitter, Linkedin, Mail].map((Icon, i) => (
@@ -36,23 +37,40 @@ export function Footer() {
             <h4 className="text-sm font-semibold text-foreground">Product</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
               <li>
-                <a href="#features" onClick={(e) => handleAnchor(e, "#features")} className="transition hover:text-primary">
+                <a
+                  href="#features"
+                  onClick={(e) => handleAnchor(e, "#features")}
+                  className="transition hover:text-primary"
+                >
                   Features
                 </a>
               </li>
               <li>
-                <a href="#forecasting" onClick={(e) => handleAnchor(e, "#forecasting")} className="transition hover:text-primary">
+                <a
+                  href="#forecasting"
+                  onClick={(e) => handleAnchor(e, "#forecasting")}
+                  className="transition hover:text-primary"
+                >
                   Forecasting
                 </a>
               </li>
               <li>
-                <a href="#" className="transition hover:text-primary">API</a>
+                <a href="#" className="transition hover:text-primary">
+                  API
+                </a>
               </li>
               <li>
-                <a href="#" className="transition hover:text-primary">Privacy Policy</a>
+                <a href="#" className="transition hover:text-primary">
+                  Privacy Policy
+                </a>
               </li>
               <li>
-                <a href="https://github.com/Antra1312/atmoai-insights" target="_blank" rel="noopener noreferrer" className="transition hover:text-primary">
+                <a
+                  href="https://github.com/Antra1312/atmoai-insights"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition hover:text-primary"
+                >
                   GitHub
                 </a>
               </li>
@@ -64,12 +82,20 @@ export function Footer() {
             <h4 className="text-sm font-semibold text-foreground">Company</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
               <li>
-                <a href="#about" onClick={(e) => handleAnchor(e, "#about")} className="transition hover:text-primary">
+                <a
+                  href="#about"
+                  onClick={(e) => handleAnchor(e, "#about")}
+                  className="transition hover:text-primary"
+                >
                   About
                 </a>
               </li>
               <li>
-                <a href="#contact" onClick={(e) => handleAnchor(e, "#contact")} className="transition hover:text-primary">
+                <a
+                  href="#contact"
+                  onClick={(e) => handleAnchor(e, "#contact")}
+                  className="transition hover:text-primary"
+                >
                   Contact
                 </a>
               </li>

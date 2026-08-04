@@ -5,10 +5,42 @@ import { AlertCircle, ShieldAlert, BellRing, Settings2, Trash2 } from "lucide-re
 export const Route = createFileRoute("/app/admin/alerts")({ component: AdminAlerts });
 
 const activeAlerts = [
-  { id: "A-501", region: "Ghaziabad Hub", type: "Severe AQI Spike", threshold: "AQI > 200", recipients: 4500, status: "Active", time: "10 mins ago" },
-  { id: "A-502", region: "Patna Central", type: "PM2.5 Peak Alert", threshold: "PM2.5 > 150", recipients: 1800, status: "Active", time: "30 mins ago" },
-  { id: "A-503", region: "Faridabad Sector-15", type: "CO Level Warning", threshold: "CO > 10 ppm", recipients: 2100, status: "Active", time: "1 hour ago" },
-  { id: "A-504", region: "Mumbai Bandra", type: "Humidity High Warning", threshold: "RH > 90%", recipients: 920, status: "Suppressed", time: "4 hours ago" },
+  {
+    id: "A-501",
+    region: "Ghaziabad Hub",
+    type: "Severe AQI Spike",
+    threshold: "AQI > 200",
+    recipients: 4500,
+    status: "Active",
+    time: "10 mins ago",
+  },
+  {
+    id: "A-502",
+    region: "Patna Central",
+    type: "PM2.5 Peak Alert",
+    threshold: "PM2.5 > 150",
+    recipients: 1800,
+    status: "Active",
+    time: "30 mins ago",
+  },
+  {
+    id: "A-503",
+    region: "Faridabad Sector-15",
+    type: "CO Level Warning",
+    threshold: "CO > 10 ppm",
+    recipients: 2100,
+    status: "Active",
+    time: "1 hour ago",
+  },
+  {
+    id: "A-504",
+    region: "Mumbai Bandra",
+    type: "Humidity High Warning",
+    threshold: "RH > 90%",
+    recipients: 920,
+    status: "Suppressed",
+    time: "4 hours ago",
+  },
 ];
 
 function AdminAlerts() {
@@ -16,8 +48,12 @@ function AdminAlerts() {
     <div className="space-y-8 font-sans">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground font-sans">Alerts Management</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground font-sans">Configure threshold parameters, SMS notifications, and system warnings</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground font-sans">
+            Alerts Management
+          </h1>
+          <p className="mt-1.5 text-sm text-muted-foreground font-sans">
+            Configure threshold parameters, SMS notifications, and system warnings
+          </p>
         </div>
         <button className="rounded-xl gradient-primary px-5 py-2.5 text-sm font-semibold text-white shadow-glow">
           + Create Alert Rule
@@ -81,23 +117,37 @@ function AdminAlerts() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
-              {activeAlerts.map(a => (
+              {activeAlerts.map((a) => (
                 <tr key={a.id} className="hover:bg-accent/40">
                   <td className="py-3.5 font-semibold text-primary font-mono">{a.id}</td>
                   <td className="py-3.5 font-medium">{a.region}</td>
                   <td className="py-3.5 text-muted-foreground">{a.type}</td>
-                  <td className="py-3.5 text-right font-bold text-red-500 font-mono">{a.threshold}</td>
-                  <td className="py-3.5 text-right font-semibold">{a.recipients.toLocaleString()} users</td>
+                  <td className="py-3.5 text-right font-bold text-red-500 font-mono">
+                    {a.threshold}
+                  </td>
+                  <td className="py-3.5 text-right font-semibold">
+                    {a.recipients.toLocaleString()} users
+                  </td>
                   <td className="py-3.5 text-right text-xs text-muted-foreground">{a.time}</td>
                   <td className="py-3.5 text-right">
-                    <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                      a.status === "Active" ? "bg-red-50 text-red-700" : "bg-muted text-muted-foreground"
-                    }`}>{a.status}</span>
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                        a.status === "Active"
+                          ? "bg-red-50 text-red-700"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {a.status}
+                    </span>
                   </td>
                   <td className="py-3.5 text-right">
                     <div className="flex items-center justify-end gap-1.5">
-                      <button className="grid h-7 w-7 place-items-center rounded-lg hover:bg-accent"><Settings2 className="h-4 w-4"/></button>
-                      <button className="grid h-7 w-7 place-items-center rounded-lg text-red-500 hover:bg-red-50"><Trash2 className="h-4 w-4"/></button>
+                      <button className="grid h-7 w-7 place-items-center rounded-lg hover:bg-accent">
+                        <Settings2 className="h-4 w-4" />
+                      </button>
+                      <button className="grid h-7 w-7 place-items-center rounded-lg text-red-500 hover:bg-red-50">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </td>
                 </tr>

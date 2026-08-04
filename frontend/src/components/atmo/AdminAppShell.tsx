@@ -2,8 +2,16 @@ import { ReactNode, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Logo } from "./Logo";
 import {
-  LayoutDashboard, BarChart3, Wind, Bell, FileText, Users, Settings,
-  ChevronLeft, Search, ShieldCheck
+  LayoutDashboard,
+  BarChart3,
+  Wind,
+  Bell,
+  FileText,
+  Users,
+  Settings,
+  ChevronLeft,
+  Search,
+  ShieldCheck,
 } from "lucide-react";
 
 const nav = [
@@ -23,18 +31,25 @@ export function AdminAppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen bg-[var(--color-surface)]">
       {/* Sidebar */}
-      <aside className={`${collapsed ? "w-20" : "w-64"} sticky top-0 flex h-screen flex-col border-r border-border bg-background transition-all duration-300`}>
+      <aside
+        className={`${collapsed ? "w-20" : "w-64"} sticky top-0 flex h-screen flex-col border-r border-border bg-background transition-all duration-300`}
+      >
         <div className="flex h-16 items-center justify-between border-b border-border px-4">
           {!collapsed && <Logo />}
           {collapsed && <div className="mx-auto h-9 w-9 rounded-xl gradient-primary shadow-glow" />}
-          <button onClick={() => setCollapsed(!collapsed)} className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:bg-accent">
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:bg-accent"
+          >
             <ChevronLeft className={`h-4 w-4 transition ${collapsed ? "rotate-180" : ""}`} />
           </button>
         </div>
         <div className="flex-1 space-y-6 overflow-y-auto p-3">
           <div>
             {!collapsed && (
-              <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Admin Portal</p>
+              <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Admin Portal
+              </p>
             )}
             <nav className="mt-2 space-y-1">
               {nav.map((item) => {
@@ -65,7 +80,9 @@ export function AdminAppShell({ children }: { children: ReactNode }) {
               <ShieldCheck className="h-5 w-5 text-primary" />
               <p className="text-xs font-semibold text-foreground font-sans">Enterprise Tier</p>
             </div>
-            <p className="mt-1 text-[11px] text-muted-foreground">Monitoring active for 190+ countries</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Monitoring active for 190+ countries
+            </p>
           </div>
         )}
       </aside>
@@ -87,7 +104,9 @@ export function AdminAppShell({ children }: { children: ReactNode }) {
               <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary animate-pulse" />
             </button>
             <div className="flex items-center gap-3 rounded-xl border border-border bg-background px-3 py-1.5">
-              <div className="grid h-8 w-8 place-items-center rounded-lg gradient-primary text-xs font-bold text-white">AD</div>
+              <div className="grid h-8 w-8 place-items-center rounded-lg gradient-primary text-xs font-bold text-white">
+                AD
+              </div>
               <div className="hidden text-left sm:block">
                 <p className="text-xs font-semibold leading-tight">Admin Console</p>
                 <p className="text-[10px] text-muted-foreground">Root Administrator</p>
@@ -96,9 +115,7 @@ export function AdminAppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 p-8 overflow-y-auto">
-          {children}
-        </main>
+        <main className="flex-1 p-8 overflow-y-auto">{children}</main>
       </div>
     </div>
   );
