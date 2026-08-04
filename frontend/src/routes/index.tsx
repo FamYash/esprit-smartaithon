@@ -65,13 +65,13 @@ function Hero() {
       <div className="animate-blob absolute -top-40 -right-20 h-[500px] w-[500px] rounded-full bg-orange-300/20 blur-3xl pointer-events-none" />
       <div className="animate-blob animation-delay-blob absolute -bottom-40 -left-20 h-[400px] w-[400px] rounded-full bg-amber-200/20 blur-3xl pointer-events-none" />
 
-      {/* Dot grid */}
+      {/* Dot grid — tiny 1px dots */}
       <div
-        className="absolute inset-0 opacity-[0.04] pointer-events-none"
+        className="absolute inset-0 opacity-[0.06] pointer-events-none"
         style={{
           backgroundImage:
-            "radial-gradient(circle, oklch(0.4 0.02 250) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
+            "radial-gradient(circle, oklch(0.3 0.02 250) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
         }}
       />
 

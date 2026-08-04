@@ -10,29 +10,42 @@ export function IndiaHeatmap({ height = 360, interactive = false }: { height?: n
   };
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-[var(--color-surface)] to-background" style={{ height }}>
-      <div className="absolute inset-0 grid-bg opacity-40" />
-      {/* Physical Map Background */}
-      <img src="/india-physical.jpg" alt="India Map" className="w-full h-full object-cover object-center opacity-90" />
-      <div className="absolute inset-0 bg-[var(--color-surface)]/20" />
+    <div className="relative w-full rounded-2xl border border-border bg-sky-50" style={{ height }}>
+      {/* Physical Map — contain so full map is always visible */}
+      <img
+        src="/india-physical.jpg"
+        alt="India Physical Map"
+        className="absolute inset-0 w-full h-full"
+        style={{ objectFit: "contain", objectPosition: "center", opacity: 0.95 }}
+      />
+      {/* Subtle overlay so dots are readable */}
+      <div className="absolute inset-0 bg-white/10 rounded-2xl" />
 
       {indianCities.map((c) => {
         const { x, y } = project(c.lat, c.lng);
         const cat = aqiCategory(c.aqi);
-        const size = 16 + (c.aqi / 300) * 20;
+        // Compact dots: 6px (good) → 12px (hazardous)
+        const size = 6 + (c.aqi / 300) * 6;
         return (
           <div
             key={c.code}
-            className="group absolute -translate-x-1/2 -translate-y-1/2"
+            className="group absolute -translate-x-1/2 -translate-y-1/2 z-10"
             style={{ left: `${x}%`, top: `${y}%` }}
           >
             <div className="relative">
+              {/* Pulse ring — slightly bigger than the dot */}
               <div
-                className="absolute inset-0 rounded-full animate-pulse-ring"
-                style={{ background: cat.color, width: size, height: size }}
+                className="absolute rounded-full animate-pulse-ring"
+                style={{
+                  background: cat.color,
+                  width: size * 2,
+                  height: size * 2,
+                  top: -size / 2,
+                  left: -size / 2,
+                }}
               />
               <div
-                className="relative rounded-full ring-2 ring-white shadow-lg"
+                className="relative rounded-full ring-1 ring-white/80 shadow-md"
                 style={{ background: cat.color, width: size, height: size }}
               />
               {interactive && (

@@ -15,7 +15,7 @@ export function Logo({ className = "" }: { className?: string }) {
       </div>
       <div className="flex flex-col leading-none">
         <span className="text-base font-bold tracking-tight text-foreground">AtmoAI</span>
-        <span className="text-[10px] font-medium text-muted-foreground">Air Intelligence</span>
+        <span className="text-[10px] font-medium text-muted-foreground">Predict | Prevent | Protect</span>
       </div>
     </Link>
   );
