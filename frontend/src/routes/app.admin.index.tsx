@@ -1,446 +1,335 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Card, StatCard, countries, monthly } from "@/components/atmo/data";
-import { IndiaHeatmap } from "@/components/atmo/Visualizations";
 import {
   Users,
-  Activity,
-  Zap,
-  AlertTriangle,
-  Server,
-  Database,
-  Cpu,
-  Target,
-  Upload,
-  RefreshCcw,
-  CheckCircle2,
   Clock,
+  Calendar,
   MoreHorizontal,
-  ShieldCheck,
+  ChevronLeft,
+  ChevronRight,
+  TrendingUp,
+  Activity,
+  Award,
 } from "lucide-react";
 import {
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
   ResponsiveContainer,
   XAxis,
   YAxis,
   Tooltip,
   CartesianGrid,
+  Cell,
 } from "recharts";
 
 export const Route = createFileRoute("/app/admin/")({ component: AdminOverview });
 
-const users = [
-  {
-    name: "Chrisha Dabhi",
-    email: "chrisha@atmoai.com",
-    country: "India",
-    status: "Active",
-    role: "Admin",
-  },
-  {
-    name: "Antra Gajjar",
-    email: "antra@atmoai.com",
-    country: "India",
-    status: "Active",
-    role: "Researcher",
-  },
-  {
-    name: "Pragati Varu",
-    email: "pragati@atmoai.com",
-    country: "India",
-    status: "Active",
-    role: "Data Scientist",
-  },
-  {
-    name: "Dr. Rahul Mehta",
-    email: "rahul@iitb.ac.in",
-    country: "India",
-    status: "Active",
-    role: "Researcher",
-  },
-  { name: "Lin Wei", email: "lin@cas.cn", country: "China", status: "Pending", role: "Researcher" },
-  {
-    name: "Marie Dubois",
-    email: "marie@inra.fr",
-    country: "France",
-    status: "Active",
-    role: "Viewer",
-  },
-  {
-    name: "Carlos Mendez",
-    email: "carlos@unam.mx",
-    country: "Mexico",
-    status: "Inactive",
-    role: "Researcher",
-  },
+const monthlyTrends = [
+  { month: "JAN", val: 38 },
+  { month: "FEB", val: 33 },
+  { month: "MAR", val: 32 },
+  { month: "APR", val: 27 },
+  { month: "MAY", val: 27 },
+];
+
+const topCities = [
+  { name: "Delhi", aqi: 210, photo: "/chrisha.JPG" },
+  { name: "Noida", aqi: 206, photo: "/antra.jpg" },
+  { name: "Gurugram", aqi: 204, photo: "/pragati.jpg" },
+  { name: "Faridabad", aqi: 191, photo: "/antra.jpg" },
+  { name: "Meerut", aqi: 188, photo: "/chrisha.JPG" },
+];
+
+const topAlertRegions = [
+  { id: 1, name: "Delhi NCR", val: "70.0 Hrs", photo: "/chrisha.JPG", color: "bg-[#F59E0B]" },
+  { id: 2, name: "Punjab (Rural)", val: "69.0 Hrs", photo: "/antra.jpg", color: "bg-[#EC4899]" },
+  { id: 3, name: "Mumbai (Bandra)", val: "61.0 Hrs", photo: "/pragati.jpg", color: "bg-[#3B82F6]" },
+  { id: 4, name: "Kanpur Central", val: "61.0 Hrs", photo: "/antra.jpg", color: "bg-[#F59E0B]" },
+  { id: 5, name: "Ahmedabad (East)", val: "54.0 Hrs", photo: "/chrisha.JPG", color: "bg-[#3B82F6]" },
 ];
 
 function AdminOverview() {
+  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
   return (
-    <div>
+    <div className="font-sans text-[#1E293B] max-w-7xl mx-auto space-y-6">
       {/* Title Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground font-sans">
-          Dashboard Overview
-        </h1>
-        <p className="mt-1.5 text-sm text-muted-foreground font-sans">
-          Enterprise metrics, active states, system logs and configuration panel
-        </p>
-      </div>
-
-      {/* Cards */}
-      <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-6">
-        <StatCard
-          label="Total Forecast Requests"
-          value="2.8M"
-          sub="Today"
-          icon={<Zap className="h-5 w-5" />}
-        />
-        <StatCard
-          label="Active Users"
-          value="8,142"
-          delta="3.4% WoW"
-          icon={<Users className="h-5 w-5" />}
-        />
-        <StatCard
-          label="Pollution Hotspots"
-          value="18 Cities"
-          sub="Critically High"
-          icon={<Activity className="h-5 w-5" />}
-        />
-        <StatCard
-          label="Active Alerts"
-          value="324"
-          sub="Open alerts"
-          icon={<AlertTriangle className="h-5 w-5" />}
-        />
-        <StatCard
-          label="Forecast Accuracy"
-          value="94.7%"
-          delta="0.6% MoM"
-          icon={<Target className="h-5 w-5" />}
-        />
-        <StatCard
-          label="System Status"
-          value="Healthy"
-          sub="3/3 nodes active"
-          icon={<Server className="h-5 w-5" />}
-        />
-      </div>
-
-      {/* Global Heatmap and Alert Control */}
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <Card title="India AQI Heatmap" subtitle="All monitored cities" className="lg:col-span-2">
-          <IndiaHeatmap height={360} interactive />
-        </Card>
-
-        <Card title="Alert Control Panel">
-          <div className="space-y-4">
-            <Threshold label="Global AQI Threshold" value={150} max={300} />
-            <Threshold label="PM2.5 Threshold" value={75} max={250} />
-            <div className="flex items-center justify-between rounded-xl border border-border p-3">
-              <div>
-                <p className="text-sm font-semibold">Email Alerts</p>
-                <p className="text-[11px] text-muted-foreground">SMTP gateway</p>
-              </div>
-              <Switch on />
-            </div>
-            <div className="flex items-center justify-between rounded-xl border border-border p-3">
-              <div>
-                <p className="text-sm font-semibold">Push Notifications</p>
-                <p className="text-[11px] text-muted-foreground">FCM + APNS</p>
-              </div>
-              <Switch on />
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Dataset & Model Management */}
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <Card
-          title="Dataset Management"
-          action={
-            <button className="rounded-lg gradient-primary px-3 py-1.5 text-xs font-semibold text-white">
-              + New Dataset
-            </button>
-          }
-        >
-          <div className="space-y-3">
-            <DatasetRow
-              name="EPA AirNow · Global"
-              rows="48.2M rows"
-              updated="2 hours ago"
-              status="Validated"
-            />
-            <DatasetRow
-              name="OpenAQ Live Feed"
-              rows="12.4M rows"
-              updated="Streaming"
-              status="Live"
-            />
-            <DatasetRow
-              name="Sentinel-5P Satellite"
-              rows="2.1B obs"
-              updated="Yesterday"
-              status="Validated"
-            />
-            <DatasetRow
-              name="ECMWF Meteorology"
-              rows="892M rows"
-              updated="6 hours ago"
-              status="Validated"
-            />
-          </div>
-          <div className="mt-5 grid grid-cols-3 gap-2">
-            <button className="flex items-center justify-center gap-1.5 rounded-xl border border-border py-2 text-xs font-semibold hover:border-primary hover:text-primary">
-              <Upload className="h-3.5 w-3.5" /> Upload
-            </button>
-            <button className="flex items-center justify-center gap-1.5 rounded-xl border border-border py-2 text-xs font-semibold hover:border-primary hover:text-primary">
-              <RefreshCcw className="h-3.5 w-3.5" /> Update
-            </button>
-            <button className="flex items-center justify-center gap-1.5 rounded-xl border border-border py-2 text-xs font-semibold hover:border-primary hover:text-primary">
-              <CheckCircle2 className="h-3.5 w-3.5" /> Validate
-            </button>
-          </div>
-        </Card>
-
-        <Card title="Model Management" subtitle="Production model · v3.2.1">
-          <div className="grid grid-cols-2 gap-4">
-            <Metric label="Accuracy" value="94.7%" delta="+0.6%" />
-            <Metric label="RMSE" value="6.84" delta="-0.21" />
-            <Metric label="MAE" value="4.92" delta="-0.18" />
-            <Metric label="R² Score" value="0.921" delta="+0.012" />
-          </div>
-          <div className="mt-4">
-            <ResponsiveContainer width="100%" height={120}>
-              <AreaChart data={monthly}>
-                <defs>
-                  <linearGradient id="mg" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#F97316" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#F97316" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  vertical={false}
-                  stroke="oklch(0.93 0.01 250)"
-                />
-                <XAxis dataKey="month" fontSize={10} />
-                <YAxis fontSize={10} hide />
-                <Tooltip contentStyle={{ borderRadius: 12 }} />
-                <Area
-                  type="monotone"
-                  dataKey="pm25"
-                  stroke="#F97316"
-                  strokeWidth={2}
-                  fill="url(#mg)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5" />
-              Last trained: 4 days ago
-            </span>
-            <button className="rounded-lg gradient-primary px-3 py-1.5 text-xs font-semibold text-white shadow-glow">
-              Retrain
-            </button>
-          </div>
-        </Card>
-      </div>
-
-      {/* User Management and System Monitoring */}
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <Card title="User Management" className="lg:col-span-2">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-left text-xs uppercase tracking-wider text-muted-foreground">
-                  <th className="pb-3 font-semibold">Name</th>
-                  <th className="pb-3 font-semibold">Country</th>
-                  <th className="pb-3 font-semibold">Role</th>
-                  <th className="pb-3 font-semibold">Status</th>
-                  <th className="pb-3"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr key={u.email} className="border-b border-border/60 last:border-0">
-                    <td className="py-3.5">
-                      <div className="flex items-center gap-3">
-                        <div className="grid h-8 w-8 place-items-center rounded-lg gradient-primary text-[10px] font-bold text-white">
-                          {u.name
-                            .split(" ")
-                            .map((p) => p[0])
-                            .slice(0, 2)
-                            .join("")}
-                        </div>
-                        <div>
-                          <p className="font-semibold leading-tight">{u.name}</p>
-                          <p className="text-[11px] text-muted-foreground">{u.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3.5 text-xs">{u.country}</td>
-                    <td className="py-3.5">
-                      <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary">
-                        {u.role}
-                      </span>
-                    </td>
-                    <td className="py-3.5">
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${
-                          u.status === "Active"
-                            ? "bg-emerald-50 text-emerald-700"
-                            : u.status === "Pending"
-                              ? "bg-yellow-50 text-yellow-700"
-                              : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {u.status}
-                      </span>
-                    </td>
-                    <td className="py-3.5 text-right">
-                      <button className="grid h-7 w-7 place-items-center rounded-lg hover:bg-accent">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-
-        <Card title="System Monitoring">
-          <div className="space-y-3">
-            <SystemRow
-              icon={<Server className="h-4 w-4" />}
-              label="API Health"
-              value="Operational"
-              pct={99.98}
-            />
-            <SystemRow
-              icon={<Cpu className="h-4 w-4" />}
-              label="Prediction Latency"
-              value="68 ms"
-              pct={92}
-            />
-            <SystemRow
-              icon={<Database className="h-4 w-4" />}
-              label="Database Status"
-              value="Healthy"
-              pct={100}
-            />
-            <SystemRow
-              icon={<Activity className="h-4 w-4" />}
-              label="Server Status"
-              value="3/3 nodes"
-              pct={100}
-            />
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function Threshold({ label, value, max }: { label: string; value: number; max: number }) {
-  return (
-    <div>
-      <div className="flex items-center justify-between text-xs">
-        <span className="font-semibold">{label}</span>
-        <span className="font-bold text-primary">{value}</span>
-      </div>
-      <div className="mt-2 h-2 rounded-full bg-muted">
-        <div
-          className="h-full rounded-full gradient-primary"
-          style={{ width: `${(value / max) * 100}%` }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function Switch({ on }: { on?: boolean }) {
-  return (
-    <div className={`relative h-6 w-11 rounded-full ${on ? "bg-primary" : "bg-muted"}`}>
-      <div
-        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow ${on ? "left-[22px]" : "left-0.5"}`}
-      />
-    </div>
-  );
-}
-
-function DatasetRow({
-  name,
-  rows,
-  updated,
-  status,
-}: {
-  name: string;
-  rows: string;
-  updated: string;
-  status: string;
-}) {
-  return (
-    <div className="flex items-center justify-between rounded-xl border border-border p-3">
-      <div>
-        <p className="text-sm font-semibold">{name}</p>
-        <p className="text-[11px] text-muted-foreground">
-          {rows} · updated {updated}
-        </p>
-      </div>
-      <span
-        className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${status === "Live" ? "bg-emerald-50 text-emerald-700" : "bg-primary/10 text-primary"}`}
-      >
-        {status}
-      </span>
-    </div>
-  );
-}
-
-function Metric({ label, value, delta }: { label: string; value: string; delta: string }) {
-  const positive = delta.startsWith("+");
-  return (
-    <div className="rounded-xl border border-border p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-1 text-xl font-bold">{value}</p>
-      <p
-        className={`mt-0.5 text-[11px] font-semibold ${positive ? "text-emerald-600" : "text-blue-600"}`}
-      >
-        {delta}
-      </p>
-    </div>
-  );
-}
-
-function SystemRow({
-  icon,
-  label,
-  value,
-  pct,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  pct: number;
-}) {
-  return (
-    <div className="rounded-xl border border-border p-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-primary">{icon}</span>
-          <span className="text-sm font-semibold">{label}</span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/50 pb-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
+            ATMOAI ADMIN PANEL
+          </p>
         </div>
-        <span className="text-xs font-bold text-emerald-600">{value}</span>
+        <div className="rounded-full border border-emerald-100 bg-emerald-50/50 px-4 py-1.5 text-sm font-semibold text-emerald-700">
+          May 21, 2026
+        </div>
       </div>
-      <div className="mt-2 h-1.5 rounded-full bg-muted">
-        <div className="h-full rounded-full gradient-primary" style={{ width: `${pct}%` }} />
+
+      {/* Month Selector Bar */}
+      <div className="flex flex-wrap items-center gap-4 xl:gap-8 rounded-2xl bg-white p-2 px-4 shadow-sm">
+        <div className="flex items-center gap-3 font-semibold">
+          <button className="text-muted-foreground hover:text-foreground"><ChevronLeft className="h-4 w-4" /></button>
+          <span>2026</span>
+          <button className="text-muted-foreground hover:text-foreground"><ChevronRight className="h-4 w-4" /></button>
+        </div>
+        <div className="flex flex-1 items-center justify-between overflow-x-auto no-scrollbar gap-2 text-xs font-semibold text-muted-foreground">
+          {months.map((m) => (
+            <button
+              key={m}
+              className={`rounded-full px-4 py-1.5 transition-colors whitespace-nowrap ${
+                m === "MAY" ? "bg-[#1E293B] text-white" : "hover:text-[#1E293B] hover:bg-slate-100"
+              }`}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+        <div className="h-2 w-2 rounded-full bg-emerald-400 hidden lg:block" />
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        
+        {/* LEFT COLUMN (Takes 2/3 space on desktop) */}
+        <div className="xl:col-span-2 space-y-6">
+          
+          {/* Top 3 Stat Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="rounded-3xl bg-white p-5 shadow-sm border border-slate-100">
+              <div className="flex items-center gap-2 text-emerald-600 text-xs font-bold uppercase tracking-wider mb-2">
+                <Users className="h-4 w-4" /> ACTIVE USERS
+              </div>
+              <div className="text-4xl font-bold text-[#1E293B]">8,142</div>
+            </div>
+            
+            <div className="rounded-3xl bg-white p-5 shadow-sm border border-slate-100">
+              <div className="flex items-center gap-2 text-emerald-600 text-xs font-bold uppercase tracking-wider mb-2">
+                <Clock className="h-4 w-4" /> FORECAST HOURS
+              </div>
+              <div className="text-4xl font-bold text-[#1E293B]">1,047.5</div>
+            </div>
+
+            <div className="rounded-3xl bg-white p-5 shadow-sm border border-slate-100">
+              <div className="flex items-center gap-2 text-indigo-600 text-xs font-bold uppercase tracking-wider mb-2">
+                <Calendar className="h-4 w-4" /> ACTIVE MODELS
+              </div>
+              <div className="text-4xl font-bold text-[#1E293B]">6</div>
+            </div>
+          </div>
+
+          {/* Person Cards Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex items-center justify-between rounded-3xl bg-white p-4 shadow-sm border border-slate-100 relative overflow-hidden">
+              <div className="absolute top-0 right-0 h-16 w-16 bg-emerald-50 rounded-bl-full -z-0" />
+              <div className="flex items-center gap-3 z-10">
+                <div className="relative">
+                  <img src="/chrisha.JPG" className="h-12 w-12 rounded-full object-cover border-2 border-white shadow-sm" />
+                  <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-orange-400 rounded-full border-2 border-white flex items-center justify-center text-[10px] text-white">⭐</div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">SYSTEM ADMIN</p>
+                  <p className="text-sm font-bold">Chrisha Dabhi</p>
+                </div>
+              </div>
+              <div className="text-right z-10">
+                <p className="text-xl font-bold">37</p>
+                <p className="text-[10px] text-muted-foreground font-semibold">ALERTS</p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between rounded-3xl bg-white p-4 shadow-sm border border-slate-100 relative overflow-hidden">
+              <div className="absolute top-0 right-0 h-16 w-16 bg-blue-50 rounded-bl-full -z-0" />
+              <div className="flex items-center gap-3 z-10">
+                <div className="relative">
+                  <img src="/antra.jpg" className="h-12 w-12 rounded-full object-cover border-2 border-white shadow-sm" />
+                  <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-emerald-400 rounded-full border-2 border-white flex items-center justify-center text-[10px] text-white">🌿</div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">TOP RESEARCHER</p>
+                  <p className="text-sm font-bold">Antra Gajjar</p>
+                </div>
+              </div>
+              <div className="text-right z-10">
+                <p className="text-xl font-bold">70.0</p>
+                <p className="text-[10px] text-muted-foreground font-semibold">HOURS</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-auto lg:h-[320px]">
+            {/* Bar Chart: Top 5 Hotspots */}
+            <div className="rounded-3xl bg-white p-5 shadow-sm border border-slate-100 flex flex-col">
+              <div className="flex items-center gap-2 text-orange-500 text-xs font-bold uppercase tracking-wider mb-6">
+                <Activity className="h-4 w-4" /> TOP 5 HOTSPOTS (AQI)
+              </div>
+              <div className="flex-1 min-h-[220px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={topCities} margin={{ top: 20, right: 0, left: -20, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                    <XAxis 
+                      dataKey="name" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={false}
+                    />
+                    <YAxis 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fontSize: 10, fill: '#94A3B8' }} 
+                      domain={[0, 250]}
+                      ticks={[0, 55, 110, 165, 220]}
+                    />
+                    <Tooltip cursor={{ fill: '#F8FAFC' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                    <Bar dataKey="aqi" radius={[6, 6, 0, 0]} barSize={24}>
+                      {topCities.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={index === 0 ? "#F59E0B" : "#F97316"} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              {/* Custom X-axis labels with avatars */}
+              <div className="flex justify-between px-6 mt-[-10px]">
+                {topCities.map((city, idx) => (
+                  <div key={idx} className="flex flex-col items-center gap-1.5">
+                    <img src={city.photo} className="h-6 w-6 rounded-full object-cover ring-2 ring-white shadow-sm" />
+                    <span className="text-[9px] font-bold text-muted-foreground uppercase">{city.name.slice(0,5)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
+                <span className="text-xs font-bold text-orange-500 uppercase">TOTAL HOTSPOTS 35+</span>
+                <span className="text-xs font-bold text-emerald-500 flex items-center gap-1"><TrendingUp className="h-3 w-3"/> +12.4%</span>
+              </div>
+            </div>
+
+            {/* Line Chart: Monthly Trends */}
+            <div className="rounded-3xl bg-white p-5 shadow-sm border border-slate-100 flex flex-col">
+              <div className="flex items-center gap-2 text-emerald-500 text-xs font-bold uppercase tracking-wider mb-6">
+                <TrendingUp className="h-4 w-4" /> MONTHLY TRENDS
+              </div>
+              <div className="flex-1 min-h-[220px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={monthlyTrends} margin={{ top: 20, right: 10, left: -20, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                    <XAxis 
+                      dataKey="month" 
+                      axisLine={false} 
+                      tickLine={false}
+                      tick={false}
+                    />
+                    <YAxis 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fontSize: 10, fill: '#94A3B8' }}
+                      domain={[0, 40]}
+                      ticks={[0, 10, 20, 30, 40]}
+                    />
+                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                    <Line 
+                      type="monotone" 
+                      dataKey="val" 
+                      stroke="#10B981" 
+                      strokeWidth={3} 
+                      dot={{ r: 5, fill: "#10B981", strokeWidth: 2, stroke: "#fff" }} 
+                      activeDot={{ r: 7 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              {/* Custom X-axis labels with avatars */}
+              <div className="flex justify-between px-4 mt-[-10px]">
+                {topCities.map((city, idx) => (
+                  <div key={idx} className="flex flex-col items-center gap-1.5">
+                    <img src={city.photo} className="h-6 w-6 rounded-full object-cover ring-2 ring-white shadow-sm" />
+                    <span className="text-[9px] font-bold text-muted-foreground uppercase">{city.name.slice(0,5)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN (Takes 1/3 space on desktop) */}
+        <div className="space-y-6">
+          
+          {/* Highlights Box */}
+          <div className="rounded-3xl bg-[#F8FAFC] p-6 shadow-sm border border-slate-200 relative overflow-hidden">
+            {/* Decorative background dots */}
+            <div className="absolute top-4 right-4 h-2 w-2 bg-emerald-300 rounded-full" />
+            <div className="absolute top-12 right-12 h-1.5 w-1.5 bg-orange-300 rounded-full" />
+            <div className="absolute bottom-10 right-8 h-2.5 w-2.5 bg-blue-300 rounded-full" />
+            
+            <div className="grid grid-cols-2 gap-y-8 gap-x-4 relative z-10">
+              <div>
+                <p className="text-3xl font-extrabold text-[#1E293B]">4<span className="text-emerald-500 text-2xl">+</span></p>
+                <p className="text-[10px] font-bold text-muted-foreground mt-1 uppercase tracking-wider">AI MODELS</p>
+              </div>
+              <div>
+                <p className="text-3xl font-extrabold text-[#1E293B]">35<span className="text-emerald-500 text-2xl">+</span></p>
+                <p className="text-[10px] font-bold text-muted-foreground mt-1 uppercase tracking-wider">DATA SOURCES</p>
+              </div>
+              <div>
+                <p className="text-3xl font-extrabold text-[#1E293B]">10<span className="text-emerald-500 text-2xl">+</span></p>
+                <p className="text-[10px] font-bold text-muted-foreground mt-1 uppercase tracking-wider">NO. OF SENSORS</p>
+              </div>
+              <div>
+                <p className="text-3xl font-extrabold text-[#1E293B]">20<span className="text-emerald-500 text-2xl">+</span></p>
+                <p className="text-[10px] font-bold text-muted-foreground mt-1 uppercase tracking-wider">SERVER NODES</p>
+              </div>
+            </div>
+            
+            <div className="mt-8 pt-4 border-t border-slate-200/60">
+              <span className="text-xs font-bold italic text-slate-500">AtmoAI Intelligence Suite</span>
+            </div>
+          </div>
+
+          {/* Top Hours Dedicated List */}
+          <div className="rounded-3xl bg-white p-5 shadow-sm border border-slate-100 h-auto xl:h-[432px] flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2 text-indigo-600 text-xs font-bold uppercase tracking-wider">
+                <Clock className="h-4 w-4" /> TOP ALERT REGIONS
+              </div>
+              <button><MoreHorizontal className="h-4 w-4 text-muted-foreground" /></button>
+            </div>
+            
+            <div className="flex-1 space-y-4 mt-2">
+              {topAlertRegions.map((region) => (
+                <div key={region.id} className="flex items-center gap-3">
+                  <div className="h-6 w-6 rounded-full bg-slate-50 flex items-center justify-center text-[10px] font-bold text-emerald-600 border border-slate-100">
+                    {region.id}
+                  </div>
+                  <img src={region.photo} className="h-8 w-8 rounded-full object-cover" />
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-1.5">
+                      <p className="text-xs font-bold">{region.name}</p>
+                      <p className="text-xs font-bold text-muted-foreground">{region.val}</p>
+                    </div>
+                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                      <div className={`h-full ${region.color} rounded-full`} style={{ width: `${90 - (region.id * 8)}%` }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-slate-100 flex items-end justify-between">
+              <div>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">TOTAL HOURS</p>
+                <p className="text-xl font-bold">1047.5</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-bold text-emerald-500 flex items-center gap-1 justify-end">
+                  <TrendingUp className="h-3 w-3" /> 0.0%
+                </p>
+                <p className="text-[9px] font-bold text-muted-foreground uppercase mt-1">VS LAST MONTH</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   );

@@ -117,20 +117,20 @@ function Hero() {
               </span>
               <Badge variant="outline" className="rounded-full border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 px-4 py-1.5 text-[11px] font-semibold text-orange-600 shadow-sm gap-1.5">
                 <Sparkles className="h-3 w-3" />
-                AI-Powered · LSTM + Transformer · Live Forecasting
+                AI-Powered · LSTM + CNN · Live Forecasting
               </Badge>
             </div>
 
             {/* Headline */}
             <div className="animate-fade-up animation-delay-1 space-y-1">
               <h1 className="text-4xl sm:text-5xl lg:text-5xl xl:text-[3.5rem] font-extrabold tracking-tight leading-[1.08]">
-                <span className="text-foreground">Anticipate.</span>
+                <span className="text-foreground">Predict Future Air Quality with</span>
               </h1>
               <h1 className="text-4xl sm:text-5xl lg:text-5xl xl:text-[3.5rem] font-extrabold tracking-tight leading-[1.08]">
-                <span className="shimmer-text">Combat.</span>
+                <span className="shimmer-text">AI-Powered PM2.5</span>
               </h1>
               <h1 className="text-4xl sm:text-5xl lg:text-5xl xl:text-[3.5rem] font-extrabold tracking-tight leading-[1.08] text-foreground/70">
-                Protect.
+                Forecasting
               </h1>
             </div>
 
