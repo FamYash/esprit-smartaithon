@@ -226,24 +226,24 @@ export function StatCard({
   sub?: string;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-card transition hover:shadow-soft">
-      <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/5 blur-2xl transition group-hover:bg-primary/10" />
+    <div className="group relative overflow-hidden rounded-2xl border border-white/40 bg-white/60 backdrop-blur-xl p-5 shadow-sm transition-all hover:shadow-md hover:bg-white/80">
+      <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/10 blur-2xl transition group-hover:bg-primary/20" />
       <div className="relative flex items-start justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
             {label}
           </p>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-foreground">{value}</p>
-          {sub && <p className="mt-1 text-xs text-muted-foreground">{sub}</p>}
+          <p className="mt-1.5 text-2xl font-bold tracking-tight text-foreground">{value}</p>
+          {sub && <p className="mt-1 text-[10px] text-muted-foreground">{sub}</p>}
         </div>
         {icon && (
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+          <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary shrink-0">
             {icon}
           </div>
         )}
       </div>
       {delta && (
-        <div className="relative mt-4 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">
+        <div className="relative mt-4 inline-flex items-center gap-1 rounded-full bg-emerald-50/80 px-2 py-0.5 text-[10px] font-bold text-emerald-700 backdrop-blur-sm border border-emerald-100">
           <span>↑</span> {delta}
         </div>
       )}
@@ -265,12 +265,12 @@ export function Card({
   className?: string;
 }) {
   return (
-    <div className={`rounded-2xl border border-border bg-card p-6 shadow-card ${className}`}>
+    <div className={`rounded-2xl border border-white/40 bg-white/60 backdrop-blur-xl p-5 shadow-sm ${className}`}>
       {(title || action) && (
-        <div className="mb-5 flex items-start justify-between gap-4">
+        <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            {title && <h3 className="text-base font-semibold text-foreground">{title}</h3>}
-            {subtitle && <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>}
+            {title && <h3 className="text-sm font-bold text-foreground">{title}</h3>}
+            {subtitle && <p className="mt-0.5 text-[11px] text-muted-foreground">{subtitle}</p>}
           </div>
           {action}
         </div>

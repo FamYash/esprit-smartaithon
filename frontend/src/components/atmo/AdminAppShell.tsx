@@ -3,7 +3,6 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Logo } from "./Logo";
 import {
   LayoutDashboard,
-  BarChart3,
   Wind,
   Bell,
   FileText,
@@ -14,15 +13,22 @@ import {
   ShieldCheck,
   Menu,
   X,
+  Map,
+  MessageSquareWarning,
+  MapPin,
+  Database,
 } from "lucide-react";
 
 const nav = [
   { label: "Dashboard", to: "/app/admin", icon: LayoutDashboard },
-  { label: "Users", to: "/app/admin/users", icon: Users },
-  { label: "Pollution", to: "/app/admin/pollution", icon: Wind },
-  { label: "Reports", to: "/app/admin/reports", icon: FileText },
-  { label: "Alerts", to: "/app/admin/alerts", icon: Bell },
-  { label: "Analytics", to: "/app/admin/analytics", icon: BarChart3 },
+  { label: "Air Quality Monitoring", to: "/app/admin/monitoring", icon: Wind },
+  { label: "India AQI Explorer", to: "/app/admin/explorer", icon: Map },
+  { label: "Alert Management", to: "/app/admin/alerts", icon: Bell },
+  { label: "Complaints Management", to: "/app/admin/complaints", icon: MessageSquareWarning },
+  { label: "Safe Locations Management", to: "/app/admin/safe-locations", icon: MapPin },
+  { label: "User Management", to: "/app/admin/users", icon: Users },
+  { label: "Data Center", to: "/app/admin/data-center", icon: Database },
+  { label: "Reports & Exports", to: "/app/admin/reports", icon: FileText },
   { label: "Settings", to: "/app/admin/settings", icon: Settings },
 ] as const;
 
@@ -136,15 +142,6 @@ export function AdminAppShell({ children }: { children: ReactNode }) {
               <Bell className="h-4 w-4" />
               <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             </button>
-            <div className="flex items-center gap-3 rounded-full border border-border bg-background py-1.5 pl-1.5 pr-4">
-              <div className="grid h-8 w-8 place-items-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">
-                AD
-              </div>
-              <div className="hidden text-left sm:block">
-                <p className="text-xs font-bold leading-tight">Admin Console</p>
-                <p className="text-[10px] text-muted-foreground font-medium">Root Administrator</p>
-              </div>
-            </div>
           </div>
         </header>
 

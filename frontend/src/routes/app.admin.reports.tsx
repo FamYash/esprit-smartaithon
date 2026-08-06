@@ -1,147 +1,141 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Card } from "@/components/atmo/data";
-import { FileText, Download, Calendar, Mail, FileSpreadsheet, FileArchive } from "lucide-react";
+import { FileText, Download, FileJson, FileSpreadsheet, Plus, Filter, Search, Calendar } from "lucide-react";
 
 export const Route = createFileRoute("/app/admin/reports")({ component: AdminReports });
 
-const reports = [
-  {
-    id: "REP-901",
-    title: "National Air Quality Summary - May 2026",
-    range: "May 01 - May 20",
-    format: "PDF",
-    size: "4.2 MB",
-    createdBy: "System (Cron)",
-  },
-  {
-    id: "REP-902",
-    title: "Delhi NCR Pollution Hotspots In-Depth",
-    range: "May 10 - May 17",
-    format: "Excel",
-    size: "12.8 MB",
-    createdBy: "Antra Gajjar",
-  },
-  {
-    id: "REP-903",
-    title: "Model v3.2.1 Training & RMSE Validation",
-    range: "May 15",
-    format: "PDF",
-    size: "1.8 MB",
-    createdBy: "Pragati Varu",
-  },
-  {
-    id: "REP-904",
-    title: "Quarterly Environmental Agency Report Q1",
-    range: "Jan 01 - Mar 31",
-    format: "Zip Archive",
-    size: "85.2 MB",
-    createdBy: "Chrisha Dabhi",
-  },
+const reportHistory = [
+  { id: "REP-4091", name: "Daily AQI National Summary", type: "PDF", date: "2023-11-15 06:00", size: "2.4 MB", author: "System" },
+  { id: "REP-4090", name: "Monthly Pollution Trends (Oct)", type: "Excel", date: "2023-11-01 08:30", size: "15.1 MB", author: "Pragati Varu" },
+  { id: "REP-4089", name: "Q3 Alert Resolutions", type: "CSV", date: "2023-10-15 14:20", size: "840 KB", author: "Chrisha Dabhi" },
+  { id: "REP-4088", name: "Public Complaints Summary", type: "PDF", date: "2023-10-10 11:15", size: "4.2 MB", author: "Antra Gajjar" },
+  { id: "REP-4087", name: "Delhi Deep Dive Report", type: "PDF", date: "2023-10-05 09:45", size: "12.8 MB", author: "Dr. Rahul Mehta" },
 ];
 
 function AdminReports() {
   return (
-    <div className="space-y-8 font-sans">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="font-sans max-w-7xl mx-auto space-y-6 pb-12">
+      {/* Header */}
+      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border/40 pb-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground font-sans">
-            Reports & Export
+          <h1 className="text-2xl font-bold tracking-tight text-foreground font-sans">
+            Reports & Exports
           </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground font-sans">
-            Download system generated pollution summaries, models performance data, and telemetry
-            audits
+          <p className="mt-1 text-[13px] text-muted-foreground font-sans max-w-lg leading-relaxed">
+            Generate, schedule, and download environmental compliance and analytics reports.
           </p>
         </div>
-        <button className="rounded-xl gradient-primary px-5 py-2.5 text-sm font-semibold text-white shadow-glow">
-          Generate New Report
+        <button className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-emerald-600 transition-colors">
+          <Plus className="h-4 w-4" /> Custom Report
         </button>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card title="Scheduled Reports">
-          <div className="space-y-4">
-            <div className="flex items-start gap-3 rounded-xl border border-border p-3">
-              <Calendar className="h-5 w-5 text-primary mt-0.5" />
-              <div>
-                <p className="text-sm font-semibold">Weekly Telemetry Summary</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Every Sunday at 00:00 UTC</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 rounded-xl border border-border p-3">
-              <Mail className="h-5 w-5 text-blue-500 mt-0.5" />
-              <div>
-                <p className="text-sm font-semibold">Monthly Health Impact Report</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Dispatched to Environmental Ministry
-                </p>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        <Card title="Quick Export Tools" subtitle="Direct database table queries">
-          <div className="grid grid-cols-2 gap-3">
-            <button className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border p-4 hover:border-primary hover:text-primary transition">
-              <FileSpreadsheet className="h-6 w-6" />
-              <span className="text-xs font-bold">CSV / Excel</span>
-            </button>
-            <button className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border p-4 hover:border-primary hover:text-primary transition">
-              <FileArchive className="h-6 w-6" />
-              <span className="text-xs font-bold">JSON Dump</span>
-            </button>
-          </div>
-        </Card>
-
-        <Card title="Storage Allocation">
-          <div>
-            <div className="flex items-center justify-between text-sm font-semibold">
-              <span>Used Report Cache</span>
-              <span className="text-primary">48.2 GB / 100 GB</span>
-            </div>
-            <div className="mt-3 h-2.5 rounded-full bg-muted">
-              <div className="h-full rounded-full gradient-primary" style={{ width: "48.2%" }} />
-            </div>
-            <p className="text-[11px] text-muted-foreground mt-2">
-              Reports auto-expire after 90 days
-            </p>
-          </div>
-        </Card>
-      </div>
-
-      <Card title="Generated Reports Log" subtitle="History logs of PDF, Excel and CSV bundles">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-border pb-3 text-xs uppercase tracking-wider text-muted-foreground">
-                <th className="pb-3 font-semibold">Report ID</th>
-                <th className="pb-3 font-semibold">Report Title</th>
-                <th className="pb-3 font-semibold">Date Range</th>
-                <th className="pb-3 font-semibold text-right">Format</th>
-                <th className="pb-3 font-semibold text-right">Size</th>
-                <th className="pb-3 font-semibold text-right">Created By</th>
-                <th className="pb-3"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/60">
-              {reports.map((r) => (
-                <tr key={r.id} className="hover:bg-accent/40">
-                  <td className="py-3.5 font-semibold text-primary font-mono">{r.id}</td>
-                  <td className="py-3.5 font-medium">{r.title}</td>
-                  <td className="py-3.5 text-muted-foreground">{r.range}</td>
-                  <td className="py-3.5 text-right font-bold text-primary font-mono">{r.format}</td>
-                  <td className="py-3.5 text-right text-muted-foreground">{r.size}</td>
-                  <td className="py-3.5 text-right font-medium">{r.createdBy}</td>
-                  <td className="py-3.5 text-right">
-                    <button className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-xs font-semibold hover:border-primary hover:text-primary transition ml-auto">
-                      <Download className="h-3.5 w-3.5" /> Download
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Generate Reports Templates */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-bold text-foreground">Standard Templates</h3>
+          
+          <ReportTemplate 
+            title="Daily AQI Report"
+            description="24-hour summary of national air quality, hotspots, and active alerts."
+            icon={<Calendar className="text-blue-500" />}
+          />
+          <ReportTemplate 
+            title="Monthly Pollution Report"
+            description="Comprehensive analysis of pollution trends, station uptime, and ML forecast accuracy."
+            icon={<FileText className="text-purple-500" />}
+          />
+          <ReportTemplate 
+            title="Complaint Summary"
+            description="Overview of public grievances, resolution times, and recurring issues by region."
+            icon={<FileSpreadsheet className="text-amber-500" />}
+          />
+          <ReportTemplate 
+            title="Alert & Incident Summary"
+            description="Log of all critical alerts, system responses, and automated actions taken."
+            icon={<FileJson className="text-emerald-500" />}
+          />
         </div>
-      </Card>
+
+        {/* Report History Table */}
+        <div className="lg:col-span-2 rounded-2xl border border-white/40 bg-white/60 backdrop-blur-xl shadow-sm flex flex-col overflow-hidden">
+          <div className="p-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
+            <h3 className="text-sm font-bold text-foreground">Report History</h3>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search reports..."
+                  className="rounded-xl border border-slate-200 bg-white py-1.5 pl-9 pr-4 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 w-[200px]"
+                />
+              </div>
+              <button className="h-8 px-3 rounded-xl border border-slate-200 bg-white shadow-sm text-xs font-bold text-slate-700 flex items-center gap-1.5 hover:bg-slate-50 transition-colors">
+                <Filter className="h-3.5 w-3.5" /> Filter
+              </button>
+            </div>
+          </div>
+          
+          <div className="overflow-x-auto flex-1">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50/50 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <th className="py-3 px-4 font-bold">Report Name</th>
+                  <th className="py-3 px-4 font-bold">Generated</th>
+                  <th className="py-3 px-4 font-bold">Author</th>
+                  <th className="py-3 px-4 font-bold">Size</th>
+                  <th className="py-3 px-4 font-bold text-right">Download</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {reportHistory.map((rep) => (
+                  <tr key={rep.id} className="hover:bg-white/60 transition-colors">
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-1.5 rounded-lg border ${rep.type === 'PDF' ? 'bg-red-50 border-red-100 text-red-500' : rep.type === 'Excel' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-slate-100 border-slate-200 text-slate-600'}`}>
+                          {rep.type === 'PDF' ? <FileText className="h-4 w-4" /> : rep.type === 'Excel' ? <FileSpreadsheet className="h-4 w-4" /> : <FileJson className="h-4 w-4" />}
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-800">{rep.name}</p>
+                          <p className="text-[10px] text-muted-foreground font-mono mt-0.5">{rep.id}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-slate-500 font-medium">{rep.date}</td>
+                    <td className="py-3 px-4 font-medium text-slate-700">{rep.author}</td>
+                    <td className="py-3 px-4 text-slate-500 font-medium">{rep.size}</td>
+                    <td className="py-3 px-4 text-right">
+                      <button className="flex items-center justify-end gap-1.5 ml-auto rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-bold text-slate-700 shadow-sm hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-colors">
+                        <Download className="h-3 w-3" /> {rep.type}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReportTemplate({ title, description, icon }: { title: string; description: string; icon: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-white/40 bg-white/60 backdrop-blur-sm p-4 shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
+      <div className="flex items-start gap-4">
+        <div className="p-3 rounded-xl bg-white shadow-sm border border-slate-100 shrink-0 group-hover:scale-105 transition-transform">
+          {icon}
+        </div>
+        <div className="flex-1">
+          <h4 className="text-sm font-bold text-slate-800">{title}</h4>
+          <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">{description}</p>
+          <div className="mt-3 flex items-center gap-2">
+             <button className="text-[10px] font-bold px-3 py-1.5 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors">Generate PDF</button>
+             <button className="text-[10px] font-bold px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">Export Excel</button>
+             <button className="text-[10px] font-bold px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">Export CSV</button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
