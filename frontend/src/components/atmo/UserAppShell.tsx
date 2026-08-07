@@ -13,7 +13,6 @@ import {
   ChevronLeft,
   Search,
   LogOut,
-  ArrowUpRight,
 } from "lucide-react";
 
 const nav = [
@@ -94,20 +93,7 @@ export function UserAppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        {!collapsed && (
-          <div className="m-3 rounded-2xl border border-border/80 bg-accent/40 p-4">
-            <p className="text-xs font-bold text-foreground">Need Enterprise Tools?</p>
-            <p className="mt-1 text-[11px] text-muted-foreground">
-              Access neural net parameters, sensors telemetry, and audit logs.
-            </p>
-            <Link
-              to="/app/admin"
-              className="mt-3 flex items-center justify-center gap-1 rounded-xl bg-background border border-border py-1.5 text-xs font-semibold text-primary hover:border-primary transition"
-            >
-              Go to Admin Console <ArrowUpRight className="h-3 w-3" />
-            </Link>
-          </div>
-        )}
+        {/* Bottom enterprise card removed by user request */}
       </aside>
 
       {/* Main Content Area */}

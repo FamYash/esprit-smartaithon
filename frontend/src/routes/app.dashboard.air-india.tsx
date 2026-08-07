@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Card } from "@/components/atmo/data";
 import { useState } from "react";
 import { Globe, MapPin, ShieldCheck, Flame, Compass, AlertTriangle } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
 
 export const Route = createFileRoute("/app/dashboard/air-india")({ component: AirAcrossIndiaView });
 
@@ -146,13 +146,13 @@ function AirAcrossIndiaView() {
         <Card
           title="Interactive National Telemetry Map"
           subtitle="Click on cities to inspect regional air sensors"
-          className="lg:col-span-2 flex flex-col items-center justify-center p-6 min-h-[420px]"
+          className="lg:col-span-2 flex flex-col items-start justify-start p-6 min-h-[520px]"
         >
-          <div className="relative w-full max-w-[320px] aspect-[4/5] bg-accent/35 rounded-3xl border border-border p-4">
+          <div className="relative w-full max-w-full bg-accent/35 rounded-3xl border border-border p-4 overflow-auto" style={{ minHeight: 480 }}>
             {/* SVG stylized outline of India */}
             <svg
               viewBox="0 0 300 360"
-              className="w-full h-full text-foreground/20"
+              className="w-[720px] h-[900px] text-foreground/20 block mx-auto"
               fill="currentColor"
             >
               {/* Stylized abstract India shape paths */}
@@ -188,19 +188,23 @@ function AirAcrossIndiaView() {
                       : "text-emerald-500 fill-emerald-500";
 
                 const isSelected = selectedCity.id === m.id;
+                // Clamp markers to remain inside the 300x360 viewBox
+                const clamp = (v: number, mn = 2, mx = 298) => Math.max(mn, Math.min(mx, v));
+                const cx = clamp(m.cx, 2, 298);
+                const cy = Math.max(2, Math.min(358, m.cy));
 
                 return (
                   <g key={m.id} onClick={() => setSelectedCity(m)} className="cursor-pointer group">
                     {/* Ring animation */}
                     <circle
-                      cx={m.cx}
-                      cy={m.cy}
+                      cx={cx}
+                      cy={cy}
                       r={isSelected ? "12" : "8"}
                       className={`animate-ping opacity-25 ${colors}`}
                     />
                     <circle
-                      cx={m.cx}
-                      cy={m.cy}
+                      cx={cx}
+                      cy={cy}
                       r={isSelected ? "7" : "5"}
                       className={`${colors} stroke-white`}
                       strokeWidth={isSelected ? "2" : "1.5"}
