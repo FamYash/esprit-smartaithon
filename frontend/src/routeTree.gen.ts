@@ -27,8 +27,13 @@ import { Route as AppDashboardAlertsRouteImport } from './routes/app.dashboard.a
 import { Route as AppDashboardAirIndiaRouteImport } from './routes/app.dashboard.air-india'
 import { Route as AppAdminUsersRouteImport } from './routes/app.admin.users'
 import { Route as AppAdminSettingsRouteImport } from './routes/app.admin.settings'
+import { Route as AppAdminSafeLocationsRouteImport } from './routes/app.admin.safe-locations'
 import { Route as AppAdminReportsRouteImport } from './routes/app.admin.reports'
 import { Route as AppAdminPollutionRouteImport } from './routes/app.admin.pollution'
+import { Route as AppAdminMonitoringRouteImport } from './routes/app.admin.monitoring'
+import { Route as AppAdminExplorerRouteImport } from './routes/app.admin.explorer'
+import { Route as AppAdminDataCenterRouteImport } from './routes/app.admin.data-center'
+import { Route as AppAdminComplaintsRouteImport } from './routes/app.admin.complaints'
 import { Route as AppAdminAnalyticsRouteImport } from './routes/app.admin.analytics'
 import { Route as AppAdminAlertsRouteImport } from './routes/app.admin.alerts'
 
@@ -123,6 +128,11 @@ const AppAdminSettingsRoute = AppAdminSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminSafeLocationsRoute = AppAdminSafeLocationsRouteImport.update({
+  id: '/safe-locations',
+  path: '/safe-locations',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminReportsRoute = AppAdminReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -131,6 +141,26 @@ const AppAdminReportsRoute = AppAdminReportsRouteImport.update({
 const AppAdminPollutionRoute = AppAdminPollutionRouteImport.update({
   id: '/pollution',
   path: '/pollution',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminMonitoringRoute = AppAdminMonitoringRouteImport.update({
+  id: '/monitoring',
+  path: '/monitoring',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminExplorerRoute = AppAdminExplorerRouteImport.update({
+  id: '/explorer',
+  path: '/explorer',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminDataCenterRoute = AppAdminDataCenterRouteImport.update({
+  id: '/data-center',
+  path: '/data-center',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminComplaintsRoute = AppAdminComplaintsRouteImport.update({
+  id: '/complaints',
+  path: '/complaints',
   getParentRoute: () => AppAdminRoute,
 } as any)
 const AppAdminAnalyticsRoute = AppAdminAnalyticsRouteImport.update({
@@ -154,8 +184,13 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/app/admin/alerts': typeof AppAdminAlertsRoute
   '/app/admin/analytics': typeof AppAdminAnalyticsRoute
+  '/app/admin/complaints': typeof AppAdminComplaintsRoute
+  '/app/admin/data-center': typeof AppAdminDataCenterRoute
+  '/app/admin/explorer': typeof AppAdminExplorerRoute
+  '/app/admin/monitoring': typeof AppAdminMonitoringRoute
   '/app/admin/pollution': typeof AppAdminPollutionRoute
   '/app/admin/reports': typeof AppAdminReportsRoute
+  '/app/admin/safe-locations': typeof AppAdminSafeLocationsRoute
   '/app/admin/settings': typeof AppAdminSettingsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
   '/app/dashboard/air-india': typeof AppDashboardAirIndiaRoute
@@ -175,8 +210,13 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/app/admin/alerts': typeof AppAdminAlertsRoute
   '/app/admin/analytics': typeof AppAdminAnalyticsRoute
+  '/app/admin/complaints': typeof AppAdminComplaintsRoute
+  '/app/admin/data-center': typeof AppAdminDataCenterRoute
+  '/app/admin/explorer': typeof AppAdminExplorerRoute
+  '/app/admin/monitoring': typeof AppAdminMonitoringRoute
   '/app/admin/pollution': typeof AppAdminPollutionRoute
   '/app/admin/reports': typeof AppAdminReportsRoute
+  '/app/admin/safe-locations': typeof AppAdminSafeLocationsRoute
   '/app/admin/settings': typeof AppAdminSettingsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
   '/app/dashboard/air-india': typeof AppDashboardAirIndiaRoute
@@ -200,8 +240,13 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/app/admin/alerts': typeof AppAdminAlertsRoute
   '/app/admin/analytics': typeof AppAdminAnalyticsRoute
+  '/app/admin/complaints': typeof AppAdminComplaintsRoute
+  '/app/admin/data-center': typeof AppAdminDataCenterRoute
+  '/app/admin/explorer': typeof AppAdminExplorerRoute
+  '/app/admin/monitoring': typeof AppAdminMonitoringRoute
   '/app/admin/pollution': typeof AppAdminPollutionRoute
   '/app/admin/reports': typeof AppAdminReportsRoute
+  '/app/admin/safe-locations': typeof AppAdminSafeLocationsRoute
   '/app/admin/settings': typeof AppAdminSettingsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
   '/app/dashboard/air-india': typeof AppDashboardAirIndiaRoute
@@ -226,8 +271,13 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/admin/alerts'
     | '/app/admin/analytics'
+    | '/app/admin/complaints'
+    | '/app/admin/data-center'
+    | '/app/admin/explorer'
+    | '/app/admin/monitoring'
     | '/app/admin/pollution'
     | '/app/admin/reports'
+    | '/app/admin/safe-locations'
     | '/app/admin/settings'
     | '/app/admin/users'
     | '/app/dashboard/air-india'
@@ -247,8 +297,13 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/admin/alerts'
     | '/app/admin/analytics'
+    | '/app/admin/complaints'
+    | '/app/admin/data-center'
+    | '/app/admin/explorer'
+    | '/app/admin/monitoring'
     | '/app/admin/pollution'
     | '/app/admin/reports'
+    | '/app/admin/safe-locations'
     | '/app/admin/settings'
     | '/app/admin/users'
     | '/app/dashboard/air-india'
@@ -271,8 +326,13 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/admin/alerts'
     | '/app/admin/analytics'
+    | '/app/admin/complaints'
+    | '/app/admin/data-center'
+    | '/app/admin/explorer'
+    | '/app/admin/monitoring'
     | '/app/admin/pollution'
     | '/app/admin/reports'
+    | '/app/admin/safe-locations'
     | '/app/admin/settings'
     | '/app/admin/users'
     | '/app/dashboard/air-india'
@@ -421,6 +481,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminSettingsRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/app/admin/safe-locations': {
+      id: '/app/admin/safe-locations'
+      path: '/safe-locations'
+      fullPath: '/app/admin/safe-locations'
+      preLoaderRoute: typeof AppAdminSafeLocationsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/app/admin/reports': {
       id: '/app/admin/reports'
       path: '/reports'
@@ -433,6 +500,34 @@ declare module '@tanstack/react-router' {
       path: '/pollution'
       fullPath: '/app/admin/pollution'
       preLoaderRoute: typeof AppAdminPollutionRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/app/admin/monitoring': {
+      id: '/app/admin/monitoring'
+      path: '/monitoring'
+      fullPath: '/app/admin/monitoring'
+      preLoaderRoute: typeof AppAdminMonitoringRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/app/admin/explorer': {
+      id: '/app/admin/explorer'
+      path: '/explorer'
+      fullPath: '/app/admin/explorer'
+      preLoaderRoute: typeof AppAdminExplorerRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/app/admin/data-center': {
+      id: '/app/admin/data-center'
+      path: '/data-center'
+      fullPath: '/app/admin/data-center'
+      preLoaderRoute: typeof AppAdminDataCenterRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/app/admin/complaints': {
+      id: '/app/admin/complaints'
+      path: '/complaints'
+      fullPath: '/app/admin/complaints'
+      preLoaderRoute: typeof AppAdminComplaintsRouteImport
       parentRoute: typeof AppAdminRoute
     }
     '/app/admin/analytics': {
@@ -455,8 +550,13 @@ declare module '@tanstack/react-router' {
 interface AppAdminRouteChildren {
   AppAdminAlertsRoute: typeof AppAdminAlertsRoute
   AppAdminAnalyticsRoute: typeof AppAdminAnalyticsRoute
+  AppAdminComplaintsRoute: typeof AppAdminComplaintsRoute
+  AppAdminDataCenterRoute: typeof AppAdminDataCenterRoute
+  AppAdminExplorerRoute: typeof AppAdminExplorerRoute
+  AppAdminMonitoringRoute: typeof AppAdminMonitoringRoute
   AppAdminPollutionRoute: typeof AppAdminPollutionRoute
   AppAdminReportsRoute: typeof AppAdminReportsRoute
+  AppAdminSafeLocationsRoute: typeof AppAdminSafeLocationsRoute
   AppAdminSettingsRoute: typeof AppAdminSettingsRoute
   AppAdminUsersRoute: typeof AppAdminUsersRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
@@ -465,8 +565,13 @@ interface AppAdminRouteChildren {
 const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminAlertsRoute: AppAdminAlertsRoute,
   AppAdminAnalyticsRoute: AppAdminAnalyticsRoute,
+  AppAdminComplaintsRoute: AppAdminComplaintsRoute,
+  AppAdminDataCenterRoute: AppAdminDataCenterRoute,
+  AppAdminExplorerRoute: AppAdminExplorerRoute,
+  AppAdminMonitoringRoute: AppAdminMonitoringRoute,
   AppAdminPollutionRoute: AppAdminPollutionRoute,
   AppAdminReportsRoute: AppAdminReportsRoute,
+  AppAdminSafeLocationsRoute: AppAdminSafeLocationsRoute,
   AppAdminSettingsRoute: AppAdminSettingsRoute,
   AppAdminUsersRoute: AppAdminUsersRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,

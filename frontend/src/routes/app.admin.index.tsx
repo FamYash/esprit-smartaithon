@@ -1,447 +1,282 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Card, StatCard, countries, monthly } from "@/components/atmo/data";
-import { IndiaHeatmap } from "@/components/atmo/Visualizations";
 import {
-  Users,
-  Activity,
-  Zap,
   AlertTriangle,
-  Server,
-  Database,
-  Cpu,
-  Target,
-  Upload,
-  RefreshCcw,
-  CheckCircle2,
-  Clock,
-  MoreHorizontal,
+  MapPin,
+  MessageSquareWarning,
+  Activity,
+  Map,
   ShieldCheck,
 } from "lucide-react";
 import {
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
   ResponsiveContainer,
   XAxis,
   YAxis,
   Tooltip,
   CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 
-export const Route = createFileRoute("/app/admin/")({ component: AdminOverview });
+export const Route = createFileRoute("/app/admin/")({ component: AdminDashboard });
 
-const users = [
-  {
-    name: "Chrisha Dabhi",
-    email: "chrisha@atmoai.com",
-    country: "India",
-    status: "Active",
-    role: "Admin",
-  },
-  {
-    name: "Antra Gajjar",
-    email: "antra@atmoai.com",
-    country: "India",
-    status: "Active",
-    role: "Researcher",
-  },
-  {
-    name: "Pragati Varu",
-    email: "pragati@atmoai.com",
-    country: "India",
-    status: "Active",
-    role: "Data Scientist",
-  },
-  {
-    name: "Dr. Rahul Mehta",
-    email: "rahul@iitb.ac.in",
-    country: "India",
-    status: "Active",
-    role: "Researcher",
-  },
-  { name: "Lin Wei", email: "lin@cas.cn", country: "China", status: "Pending", role: "Researcher" },
-  {
-    name: "Marie Dubois",
-    email: "marie@inra.fr",
-    country: "France",
-    status: "Active",
-    role: "Viewer",
-  },
-  {
-    name: "Carlos Mendez",
-    email: "carlos@unam.mx",
-    country: "Mexico",
-    status: "Inactive",
-    role: "Researcher",
-  },
+// Mock Data for the Dashboard
+const aqiTrend30Days = Array.from({ length: 30 }, (_, i) => ({
+  day: i + 1,
+  aqi: Math.round(150 + Math.sin(i / 3) * 40 + Math.random() * 20),
+}));
+
+const pollutionDistribution = [
+  { name: "Good", value: 15, color: "#10B981" },
+  { name: "Moderate", value: 25, color: "#F59E0B" },
+  { name: "Poor", value: 30, color: "#F97316" },
+  { name: "Very Poor", value: 20, color: "#EF4444" },
+  { name: "Severe", value: 10, color: "#9333EA" },
 ];
 
-function AdminOverview() {
+const mostPollutedCities = [
+  { city: "New Delhi", aqi: 248, pm25: 145, status: "Severe" },
+  { city: "Patna", aqi: 210, pm25: 120, status: "Very Poor" },
+  { city: "Lucknow", aqi: 205, pm25: 115, status: "Very Poor" },
+  { city: "Kanpur", aqi: 198, pm25: 110, status: "Poor" },
+  { city: "Ahmedabad", aqi: 185, pm25: 95, status: "Poor" },
+];
+
+const recentAlerts = [
+  { location: "Delhi NCR", severity: "Critical", time: "10 mins ago", status: "Active" },
+  { location: "Mumbai (Bandra)", severity: "Warning", time: "1 hour ago", status: "Investigating" },
+  { location: "Punjab (Rural)", severity: "Critical", time: "2 hours ago", status: "Active" },
+  { location: "Bengaluru (CBD)", severity: "Warning", time: "3 hours ago", status: "Resolved" },
+];
+
+const recentComplaints = [
+  { id: "CMP-0842", category: "Industrial Emission", city: "Ahmedabad", status: "Open" },
+  { id: "CMP-0841", category: "Stubble Burning", city: "Amritsar", status: "In Progress" },
+  { id: "CMP-0840", category: "Construction Dust", city: "Pune", status: "Resolved" },
+  { id: "CMP-0839", category: "Vehicle Exhaust", city: "Bengaluru", status: "Open" },
+];
+
+function AdminDashboard() {
   return (
-    <div>
+    <div className="font-sans max-w-7xl mx-auto space-y-6 pb-12">
       {/* Title Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground font-sans">
-          Dashboard Overview
-        </h1>
-        <p className="mt-1.5 text-sm text-muted-foreground font-sans">
-          Enterprise metrics, active states, system logs and configuration panel
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border/40 pb-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground font-sans">
+            Executive Dashboard
+          </h1>
+          <p className="mt-1 text-[13px] text-muted-foreground font-sans max-w-lg leading-relaxed">
+            Centralized monitoring for national air quality, alerts, and public complaints.
+          </p>
+        </div>
+        <div className="rounded-full border border-emerald-100 bg-emerald-50/50 px-4 py-1.5 text-sm font-bold text-emerald-700 shadow-sm">
+          National Overview
+        </div>
       </div>
 
-      {/* Cards */}
-      <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-6">
-        <StatCard
-          label="Total Forecast Requests"
-          value="2.8M"
-          sub="Today"
-          icon={<Zap className="h-5 w-5" />}
-        />
-        <StatCard
-          label="Active Users"
-          value="8,142"
-          delta="3.4% WoW"
-          icon={<Users className="h-5 w-5" />}
-        />
-        <StatCard
-          label="Pollution Hotspots"
-          value="18 Cities"
-          sub="Critically High"
-          icon={<Activity className="h-5 w-5" />}
-        />
-        <StatCard
-          label="Active Alerts"
-          value="324"
-          sub="Open alerts"
-          icon={<AlertTriangle className="h-5 w-5" />}
-        />
-        <StatCard
-          label="Forecast Accuracy"
-          value="94.7%"
-          delta="0.6% MoM"
-          icon={<Target className="h-5 w-5" />}
-        />
-        <StatCard
-          label="System Status"
-          value="Healthy"
-          sub="3/3 nodes active"
-          icon={<Server className="h-5 w-5" />}
-        />
+      {/* KPI Cards Row */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <KPICard label="Average AQI" value="168" icon={<Activity className="h-5 w-5 text-orange-500" />} />
+        <KPICard label="Active Alerts" value="12" icon={<AlertTriangle className="h-5 w-5 text-red-500" />} />
+        <KPICard label="Monitored Cities" value="45" icon={<Map className="h-5 w-5 text-blue-500" />} />
+        <KPICard label="Open Complaints" value="26" icon={<MessageSquareWarning className="h-5 w-5 text-amber-500" />} />
+        <KPICard label="Safe Locations" value="18" icon={<ShieldCheck className="h-5 w-5 text-emerald-500" />} />
+        <KPICard label="Critical Regions" value="4" icon={<MapPin className="h-5 w-5 text-purple-500" />} />
       </div>
 
-      {/* Global Heatmap and Alert Control */}
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <Card title="India AQI Heatmap" subtitle="All monitored cities" className="lg:col-span-2">
-          <IndiaHeatmap height={360} interactive />
-        </Card>
-
-        <Card title="Alert Control Panel">
-          <div className="space-y-4">
-            <Threshold label="Global AQI Threshold" value={150} max={300} />
-            <Threshold label="PM2.5 Threshold" value={75} max={250} />
-            <div className="flex items-center justify-between rounded-xl border border-border p-3">
-              <div>
-                <p className="text-sm font-semibold">Email Alerts</p>
-                <p className="text-[11px] text-muted-foreground">SMTP gateway</p>
-              </div>
-              <Switch on />
-            </div>
-            <div className="flex items-center justify-between rounded-xl border border-border p-3">
-              <div>
-                <p className="text-sm font-semibold">Push Notifications</p>
-                <p className="text-[11px] text-muted-foreground">FCM + APNS</p>
-              </div>
-              <Switch on />
-            </div>
+      {/* Middle Row: Charts & Snapshot */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* AQI Trend Chart (Spans 2 columns) */}
+        <div className="lg:col-span-2 rounded-2xl border border-white/40 bg-white/60 backdrop-blur-xl p-5 shadow-sm">
+          <div className="mb-4">
+            <h3 className="text-sm font-bold text-foreground">AQI Trend</h3>
+            <p className="text-[11px] text-muted-foreground">National average over the last 30 days</p>
           </div>
-        </Card>
-      </div>
-
-      {/* Dataset & Model Management */}
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <Card
-          title="Dataset Management"
-          action={
-            <button className="rounded-lg gradient-primary px-3 py-1.5 text-xs font-semibold text-white">
-              + New Dataset
-            </button>
-          }
-        >
-          <div className="space-y-3">
-            <DatasetRow
-              name="EPA AirNow · Global"
-              rows="48.2M rows"
-              updated="2 hours ago"
-              status="Validated"
-            />
-            <DatasetRow
-              name="OpenAQ Live Feed"
-              rows="12.4M rows"
-              updated="Streaming"
-              status="Live"
-            />
-            <DatasetRow
-              name="Sentinel-5P Satellite"
-              rows="2.1B obs"
-              updated="Yesterday"
-              status="Validated"
-            />
-            <DatasetRow
-              name="ECMWF Meteorology"
-              rows="892M rows"
-              updated="6 hours ago"
-              status="Validated"
-            />
-          </div>
-          <div className="mt-5 grid grid-cols-3 gap-2">
-            <button className="flex items-center justify-center gap-1.5 rounded-xl border border-border py-2 text-xs font-semibold hover:border-primary hover:text-primary">
-              <Upload className="h-3.5 w-3.5" /> Upload
-            </button>
-            <button className="flex items-center justify-center gap-1.5 rounded-xl border border-border py-2 text-xs font-semibold hover:border-primary hover:text-primary">
-              <RefreshCcw className="h-3.5 w-3.5" /> Update
-            </button>
-            <button className="flex items-center justify-center gap-1.5 rounded-xl border border-border py-2 text-xs font-semibold hover:border-primary hover:text-primary">
-              <CheckCircle2 className="h-3.5 w-3.5" /> Validate
-            </button>
-          </div>
-        </Card>
-
-        <Card title="Model Management" subtitle="Production model · v3.2.1">
-          <div className="grid grid-cols-2 gap-4">
-            <Metric label="Accuracy" value="94.7%" delta="+0.6%" />
-            <Metric label="RMSE" value="6.84" delta="-0.21" />
-            <Metric label="MAE" value="4.92" delta="-0.18" />
-            <Metric label="R² Score" value="0.921" delta="+0.012" />
-          </div>
-          <div className="mt-4">
-            <ResponsiveContainer width="100%" height={120}>
-              <AreaChart data={monthly}>
-                <defs>
-                  <linearGradient id="mg" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#F97316" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#F97316" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  vertical={false}
-                  stroke="oklch(0.93 0.01 250)"
-                />
-                <XAxis dataKey="month" fontSize={10} />
-                <YAxis fontSize={10} hide />
-                <Tooltip contentStyle={{ borderRadius: 12 }} />
-                <Area
-                  type="monotone"
-                  dataKey="pm25"
-                  stroke="#F97316"
-                  strokeWidth={2}
-                  fill="url(#mg)"
-                />
-              </AreaChart>
+          <div className="h-[220px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={aqiTrend30Days} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94A3B8' }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94A3B8' }} />
+                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px', fontWeight: 'bold' }} />
+                <Line type="monotone" dataKey="aqi" stroke="#F97316" strokeWidth={3} dot={false} activeDot={{ r: 6, fill: "#F97316", stroke: "#fff", strokeWidth: 2 }} />
+              </LineChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5" />
-              Last trained: 4 days ago
-            </span>
-            <button className="rounded-lg gradient-primary px-3 py-1.5 text-xs font-semibold text-white shadow-glow">
-              Retrain
-            </button>
+        </div>
+
+        {/* Pollution Distribution Donut */}
+        <div className="rounded-2xl border border-white/40 bg-white/60 backdrop-blur-xl p-5 shadow-sm flex flex-col">
+          <div className="mb-2">
+            <h3 className="text-sm font-bold text-foreground">Distribution</h3>
+            <p className="text-[11px] text-muted-foreground">AQI categories nationwide</p>
           </div>
-        </Card>
+          <div className="flex-1 flex flex-col items-center justify-center relative min-h-[160px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={pollutionDistribution} dataKey="value" nameKey="name" innerRadius={50} outerRadius={70} paddingAngle={4} stroke="none">
+                  {pollutionDistribution.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px', fontWeight: 'bold' }} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-2xl font-black text-slate-800">45</span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase">Cities</span>
+            </div>
+          </div>
+        </div>
+
+        {/* India Snapshot Widget */}
+        <div className="rounded-2xl border border-white/40 bg-white/60 backdrop-blur-xl p-5 shadow-sm flex flex-col relative overflow-hidden">
+          <div className="absolute -right-4 -bottom-4 opacity-10">
+            <Map className="h-48 w-48 text-primary" />
+          </div>
+          <div className="relative z-10">
+            <h3 className="text-sm font-bold text-foreground">India Snapshot</h3>
+            <p className="text-[11px] text-muted-foreground">Quick geographic overview</p>
+            
+            <div className="mt-6 space-y-4">
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Most Polluted State</p>
+                <p className="text-sm font-bold text-red-600">Uttar Pradesh (Avg AQI: 204)</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Cleanest State</p>
+                <p className="text-sm font-bold text-emerald-600">Kerala (Avg AQI: 42)</p>
+              </div>
+              <div className="pt-3 border-t border-slate-100">
+                <button className="text-xs font-bold text-primary hover:text-orange-600 flex items-center gap-1">
+                  Open full Explorer <span aria-hidden="true">&rarr;</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* User Management and System Monitoring */}
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <Card title="User Management" className="lg:col-span-2">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+      {/* Bottom Row: Tables */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Most Polluted Cities Table */}
+        <div className="rounded-2xl border border-white/40 bg-white/60 backdrop-blur-xl p-5 shadow-sm overflow-hidden flex flex-col">
+          <div className="mb-4">
+            <h3 className="text-sm font-bold text-foreground">Most Polluted Cities</h3>
+          </div>
+          <div className="overflow-x-auto flex-1">
+            <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-border text-left text-xs uppercase tracking-wider text-muted-foreground">
-                  <th className="pb-3 font-semibold">Name</th>
-                  <th className="pb-3 font-semibold">Country</th>
-                  <th className="pb-3 font-semibold">Role</th>
-                  <th className="pb-3 font-semibold">Status</th>
-                  <th className="pb-3"></th>
+                <tr className="border-b border-slate-200 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <th className="pb-2 font-bold">City</th>
+                  <th className="pb-2 font-bold">AQI</th>
+                  <th className="pb-2 font-bold">PM2.5</th>
+                  <th className="pb-2 font-bold text-right">Status</th>
                 </tr>
               </thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr key={u.email} className="border-b border-border/60 last:border-0">
-                    <td className="py-3.5">
-                      <div className="flex items-center gap-3">
-                        <div className="grid h-8 w-8 place-items-center rounded-lg gradient-primary text-[10px] font-bold text-white">
-                          {u.name
-                            .split(" ")
-                            .map((p) => p[0])
-                            .slice(0, 2)
-                            .join("")}
-                        </div>
-                        <div>
-                          <p className="font-semibold leading-tight">{u.name}</p>
-                          <p className="text-[11px] text-muted-foreground">{u.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3.5 text-xs">{u.country}</td>
-                    <td className="py-3.5">
-                      <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary">
-                        {u.role}
+              <tbody className="divide-y divide-slate-100">
+                {mostPollutedCities.map((c) => (
+                  <tr key={c.city}>
+                    <td className="py-2.5 font-bold text-slate-700">{c.city}</td>
+                    <td className="py-2.5 font-bold">{c.aqi}</td>
+                    <td className="py-2.5 text-muted-foreground">{c.pm25}</td>
+                    <td className="py-2.5 text-right">
+                      <span className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-bold ${c.status === "Severe" ? "bg-purple-100 text-purple-700" : c.status === "Very Poor" ? "bg-red-100 text-red-700" : "bg-orange-100 text-orange-700"}`}>
+                        {c.status}
                       </span>
-                    </td>
-                    <td className="py-3.5">
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${
-                          u.status === "Active"
-                            ? "bg-emerald-50 text-emerald-700"
-                            : u.status === "Pending"
-                              ? "bg-yellow-50 text-yellow-700"
-                              : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {u.status}
-                      </span>
-                    </td>
-                    <td className="py-3.5 text-right">
-                      <button className="grid h-7 w-7 place-items-center rounded-lg hover:bg-accent">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </Card>
-
-        <Card title="System Monitoring">
-          <div className="space-y-3">
-            <SystemRow
-              icon={<Server className="h-4 w-4" />}
-              label="API Health"
-              value="Operational"
-              pct={99.98}
-            />
-            <SystemRow
-              icon={<Cpu className="h-4 w-4" />}
-              label="Prediction Latency"
-              value="68 ms"
-              pct={92}
-            />
-            <SystemRow
-              icon={<Database className="h-4 w-4" />}
-              label="Database Status"
-              value="Healthy"
-              pct={100}
-            />
-            <SystemRow
-              icon={<Activity className="h-4 w-4" />}
-              label="Server Status"
-              value="3/3 nodes"
-              pct={100}
-            />
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function Threshold({ label, value, max }: { label: string; value: number; max: number }) {
-  return (
-    <div>
-      <div className="flex items-center justify-between text-xs">
-        <span className="font-semibold">{label}</span>
-        <span className="font-bold text-primary">{value}</span>
-      </div>
-      <div className="mt-2 h-2 rounded-full bg-muted">
-        <div
-          className="h-full rounded-full gradient-primary"
-          style={{ width: `${(value / max) * 100}%` }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function Switch({ on }: { on?: boolean }) {
-  return (
-    <div className={`relative h-6 w-11 rounded-full ${on ? "bg-primary" : "bg-muted"}`}>
-      <div
-        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow ${on ? "left-[22px]" : "left-0.5"}`}
-      />
-    </div>
-  );
-}
-
-function DatasetRow({
-  name,
-  rows,
-  updated,
-  status,
-}: {
-  name: string;
-  rows: string;
-  updated: string;
-  status: string;
-}) {
-  return (
-    <div className="flex items-center justify-between rounded-xl border border-border p-3">
-      <div>
-        <p className="text-sm font-semibold">{name}</p>
-        <p className="text-[11px] text-muted-foreground">
-          {rows} · updated {updated}
-        </p>
-      </div>
-      <span
-        className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${status === "Live" ? "bg-emerald-50 text-emerald-700" : "bg-primary/10 text-primary"}`}
-      >
-        {status}
-      </span>
-    </div>
-  );
-}
-
-function Metric({ label, value, delta }: { label: string; value: string; delta: string }) {
-  const positive = delta.startsWith("+");
-  return (
-    <div className="rounded-xl border border-border p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-1 text-xl font-bold">{value}</p>
-      <p
-        className={`mt-0.5 text-[11px] font-semibold ${positive ? "text-emerald-600" : "text-blue-600"}`}
-      >
-        {delta}
-      </p>
-    </div>
-  );
-}
-
-function SystemRow({
-  icon,
-  label,
-  value,
-  pct,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  pct: number;
-}) {
-  return (
-    <div className="rounded-xl border border-border p-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-primary">{icon}</span>
-          <span className="text-sm font-semibold">{label}</span>
         </div>
-        <span className="text-xs font-bold text-emerald-600">{value}</span>
+
+        {/* Recent Alerts Table */}
+        <div className="rounded-2xl border border-white/40 bg-white/60 backdrop-blur-xl p-5 shadow-sm overflow-hidden flex flex-col">
+          <div className="mb-4">
+            <h3 className="text-sm font-bold text-foreground">Recent Alerts</h3>
+          </div>
+          <div className="overflow-x-auto flex-1">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <th className="pb-2 font-bold">Location</th>
+                  <th className="pb-2 font-bold">Severity</th>
+                  <th className="pb-2 font-bold text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {recentAlerts.map((a, i) => (
+                  <tr key={i}>
+                    <td className="py-2.5">
+                      <p className="font-bold text-slate-700">{a.location}</p>
+                      <p className="text-[10px] text-muted-foreground">{a.time}</p>
+                    </td>
+                    <td className="py-2.5">
+                      <span className={`inline-flex items-center gap-1 text-[10px] font-bold ${a.severity === "Critical" ? "text-red-600" : "text-orange-500"}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${a.severity === "Critical" ? "bg-red-600 animate-ping" : "bg-orange-500"}`} />
+                        {a.severity}
+                      </span>
+                    </td>
+                    <td className="py-2.5 text-right font-semibold text-slate-600">
+                      {a.status}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Recent Complaints Table */}
+        <div className="rounded-2xl border border-white/40 bg-white/60 backdrop-blur-xl p-5 shadow-sm overflow-hidden flex flex-col">
+          <div className="mb-4">
+            <h3 className="text-sm font-bold text-foreground">Recent Complaints</h3>
+          </div>
+          <div className="overflow-x-auto flex-1">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <th className="pb-2 font-bold">Complaint</th>
+                  <th className="pb-2 font-bold">City</th>
+                  <th className="pb-2 font-bold text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {recentComplaints.map((c) => (
+                  <tr key={c.id}>
+                    <td className="py-2.5">
+                      <p className="font-bold text-slate-700 truncate max-w-[120px]">{c.category}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono">{c.id}</p>
+                    </td>
+                    <td className="py-2.5 font-medium text-slate-600">{c.city}</td>
+                    <td className="py-2.5 text-right">
+                      <span className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-bold ${c.status === "Open" ? "bg-red-50 text-red-600 border border-red-100" : c.status === "In Progress" ? "bg-amber-50 text-amber-600 border border-amber-100" : "bg-slate-100 text-slate-600"}`}>
+                        {c.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div className="mt-2 h-1.5 rounded-full bg-muted">
-        <div className="h-full rounded-full gradient-primary" style={{ width: `${pct}%` }} />
+    </div>
+  );
+}
+
+function KPICard({ label, value, icon }: { label: string; value: string | number; icon: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-white/40 bg-white/60 backdrop-blur-sm p-4 shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{label}</p>
+        <div className="bg-white/80 p-1.5 rounded-lg shadow-sm border border-slate-100">{icon}</div>
       </div>
+      <p className="text-3xl font-black text-slate-800 tracking-tight">{value}</p>
     </div>
   );
 }

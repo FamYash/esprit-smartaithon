@@ -7,7 +7,7 @@ const links = [
   { label: "Home", href: "#home" },
   { label: "Features", href: "#features" },
   { label: "Forecasting", href: "#forecasting" },
-  { label: "Analytics", to: "/app/dashboard/analytics" },
+  { label: "Analytics", to: "/app/admin/monitoring" },
   { label: "Platform Preview", href: "#preview" },
   { label: "Contact", href: "#contact" },
 ];
@@ -59,7 +59,7 @@ export function Navbar() {
             Sign In
           </Link>
           <Link
-            to="/app/dashboard"
+            to="/app/admin"
             className="inline-flex items-center gap-1.5 rounded-xl gradient-primary px-4 py-2 text-sm font-semibold text-white shadow-glow transition hover:opacity-95 active:scale-95"
           >
             Get Started

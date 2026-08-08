@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Card } from "@/components/atmo/data";
 import { useState } from "react";
 import { Globe, MapPin, ShieldCheck, Flame, Compass, AlertTriangle } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
 
 export const Route = createFileRoute("/app/dashboard/air-india")({ component: AirAcrossIndiaView });
 
