@@ -8,6 +8,7 @@
     }
   ],
   "routes": [
+    { "src": "/heatmap.html", "dest": "/heatmap.html" },
     { "src": "\\/(.*\\.(?:js|css|png|jpg|jpeg|svg|ico|webp|map))$", "dest": "\\/$1" },
     { "src": "\\/(.*)", "dest": "/index.html" }
   ]

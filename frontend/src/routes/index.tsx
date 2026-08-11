@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Navbar } from "@/components/atmo/Navbar";
 import { Footer } from "@/components/atmo/Footer";
-import { IndiaHeatmap, AQIGauge } from "@/components/atmo/Visualizations";
+import { AQIGauge } from "@/components/atmo/Visualizations";
 import { forecast24h, monthly, Card as DataCard } from "@/components/atmo/data";
 import Particles from "@/components/atmo/Particles";
 import {
@@ -14,7 +14,7 @@ import {
   ShieldCheck, Navigation2, MessageSquare, TrendingUp,
   CheckCircle2, Mail,
 } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 
 // ShadCN UI
 import { Button } from "@/components/ui/button";
@@ -33,9 +33,26 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/")({ component: Landing });
+export const Route = createFileRoute("/")({
+  component: Landing,
+  loader: async () => {
+    if (!import.meta.env.SSR) {
+      return { heatmapHtml: "" };
+    }
+
+    const [{ readFile }, { resolve }] = await Promise.all([
+      import("node:fs/promises"),
+      import("node:path"),
+    ]);
+
+    const heatmapHtml = await readFile(resolve(process.cwd(), "public", "heatmap.html"), "utf8");
+    return { heatmapHtml };
+  },
+});
 
 function Landing() {
+  const { heatmapHtml } = Route.useLoaderData();
+
   return (
     <TooltipProvider>
       <div className="bg-background font-sans antialiased">
@@ -58,10 +75,10 @@ function Landing() {
         {/* Page content sits on top via relative z-10 */}
         <div className="relative z-10">
           <Navbar />
-          <Hero />
+          <Hero heatmapHtml={heatmapHtml} />
           <Forecasting />
           <Features />
-          <PlatformPreview />
+          <PlatformPreview heatmapHtml={heatmapHtml} />
           <Contact />
           <Footer />
         </div>
@@ -72,28 +89,39 @@ function Landing() {
   );
 }
 
+function HeatmapEmbed({
+  height,
+  className = "",
+  title,
+  html,
+}: {
+  height: number | string;
+  className?: string;
+  title: string;
+  html: string;
+}) {
+  return (
+    <div className={`relative overflow-hidden rounded-2xl border border-border bg-sky-50 ${className}`} style={{ height }}>
+      <iframe
+        srcDoc={html}
+        title={title}
+        className="absolute inset-0 h-full w-full border-0"
+        loading="lazy"
+      />
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════
    §1 – HERO  (premium redesign)
 ══════════════════════════════════════════════ */
-function Hero() {
+function Hero({ heatmapHtml }: { heatmapHtml: string }) {
   const stats = [
     { value: "94.7%", label: "Forecast Accuracy", color: "text-emerald-600" },
     { value: "10 hr", label: "Prediction Window", color: "text-primary" },
     { value: "12+", label: "Indian Cities", color: "text-blue-500" },
     { value: "1.67M", label: "Lives at Risk / Yr", color: "text-red-500" },
   ];
-  const mapWrapRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const wrapper = mapWrapRef.current;
-    if (!wrapper) return;
-    // IndiaHeatmap renders a scrollable inner container with class `relative overflow-auto` when `scrollable` is set.
-    const sc = wrapper.querySelector('.relative.overflow-auto') as HTMLElement | null;
-    const el = sc ?? wrapper;
-    const left = Math.max(0, (el.scrollWidth - el.clientWidth) / 2);
-    const top = Math.max(0, (el.scrollHeight - el.clientHeight) / 2);
-    el.scrollTo({ left, top, behavior: 'smooth' });
-  }, []);
 
   return (
     <section
@@ -182,10 +210,9 @@ function Hero() {
           {/* ── Floating map card ── */}
           <div className="relative animate-float order-1 lg:order-2">
             <div
-              ref={mapWrapRef}
               className="glow-border rounded-2xl border border-border bg-card p-2 shadow-soft w-full mx-auto max-w-[640px] aspect-[4/3] lg:aspect-[1.3] xl:aspect-[1.4]"
             >
-              <IndiaHeatmap height="100%" interactive />
+              <HeatmapEmbed height="100%" title="India AQI heatmap" html={heatmapHtml} />
             </div>
 
             {/* Floating pill — accuracy */}
@@ -373,7 +400,7 @@ function Features() {
 /* ══════════════════════════════════════════════
    §4 – PLATFORM PREVIEW
 ══════════════════════════════════════════════ */
-function PlatformPreview() {
+function PlatformPreview({ heatmapHtml }: { heatmapHtml: string }) {
   return (
     <section
       id="preview"
@@ -434,7 +461,7 @@ function PlatformPreview() {
                 <CardTitle className="text-sm">India AQI Heatmap</CardTitle>
               </CardHeader>
               <CardContent>
-                <IndiaHeatmap height={200} interactive />
+                <HeatmapEmbed height={200} title="India AQI heatmap preview" html={heatmapHtml} />
               </CardContent>
             </Card>
 
