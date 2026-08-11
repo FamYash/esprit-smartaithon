@@ -12,7 +12,7 @@ import {
   Wind, Activity, Map as MapIcon, BellRing, Sparkles,
   ArrowRight, Zap, Github, Linkedin, Twitter,
   ShieldCheck, Navigation2, MessageSquare, TrendingUp,
-  CheckCircle2,
+  CheckCircle2, Mail,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
@@ -78,9 +78,9 @@ function Landing() {
 function Hero() {
   const stats = [
     { value: "94.7%", label: "Forecast Accuracy", color: "text-emerald-600" },
-    { value: "10 hr",  label: "Prediction Window", color: "text-primary" },
-    { value: "12+",    label: "Indian Cities",     color: "text-blue-500" },
-    { value: "1.67M",  label: "Lives at Risk / Yr",color: "text-red-500" },
+    { value: "10 hr", label: "Prediction Window", color: "text-primary" },
+    { value: "12+", label: "Indian Cities", color: "text-blue-500" },
+    { value: "1.67M", label: "Lives at Risk / Yr", color: "text-red-500" },
   ];
   const mapWrapRef = useRef<HTMLDivElement | null>(null);
 
@@ -179,13 +179,13 @@ function Hero() {
             </div>
           </div>
 
-        {/* ── Floating map card ── */}
-        <div className="relative animate-float order-1 lg:order-2">
+          {/* ── Floating map card ── */}
+          <div className="relative animate-float order-1 lg:order-2">
             <div
               ref={mapWrapRef}
               className="glow-border rounded-2xl border border-border bg-card p-2 shadow-soft w-full mx-auto max-w-[640px] aspect-[4/3] lg:aspect-[1.3] xl:aspect-[1.4]"
             >
-              <IndiaHeatmap height="100%" interactive scrollable />
+              <IndiaHeatmap height="100%" interactive />
             </div>
 
             {/* Floating pill — accuracy */}
@@ -199,17 +199,17 @@ function Hero() {
               </div>
             </div>
 
-          {/* PM2.5 pill */}
-          <div className="absolute -bottom-15 right-3 z-50 hidden md:block w-[180px] rounded-xl glass px-3 py-2 shadow-soft animate-fade-up animation-delay-3">
-            <p className="text-[10px] text-muted-foreground leading-none">Next 10-hour prediction</p>
-            <p className="mt-2 right-4 text-sm font-bold text-primary leading-tight">PM2.5 · 68 μg/m³</p>
-            <Badge className="mt-1 rounded-full bg-orange-100 text-orange-700 text-[9px] font-bold hover:bg-orange-100">
-              Sensitive Groups
-            </Badge>
-          </div>
+            {/* PM2.5 pill */}
+            <div className="absolute -bottom-15 right-3 z-50 hidden md:block w-[180px] rounded-xl glass px-3 py-2 shadow-soft animate-fade-up animation-delay-3">
+              <p className="text-[10px] text-muted-foreground leading-none">Next 10-hour prediction</p>
+              <p className="mt-2 right-4 text-sm font-bold text-primary leading-tight">PM2.5 · 68 μg/m³</p>
+              <Badge className="mt-1 rounded-full bg-orange-100 text-orange-700 text-[9px] font-bold hover:bg-orange-100">
+                Sensitive Groups
+              </Badge>
+            </div>
 
+          </div>
         </div>
-      </div>
       </div>
     </section>
   );
@@ -244,9 +244,9 @@ function Forecasting() {
   ];
 
   const stats = [
-    { v: "10h",   l: "Forecast Horizon" },
+    { v: "10h", l: "Forecast Horizon" },
     { v: "94.7%", l: "Model Accuracy" },
-    { v: "12+",   l: "Indian Cities" },
+    { v: "12+", l: "Indian Cities" },
     { v: "1.67M", l: "Lives at Risk / Yr" },
   ];
 
@@ -309,12 +309,12 @@ function Forecasting() {
 ══════════════════════════════════════════════ */
 function Features() {
   const items = [
-    { icon: <Wind />,         title: "PM2.5 Forecasting",        desc: "ML models predict PM2.5 concentration fields up to 10 hours ahead using historical meteorological and pollutant datasets across Indian regions.", accent: "text-orange-500 bg-orange-500/10" },
-    { icon: <MapIcon />,       title: "Interactive Pollution Maps", desc: "Live, responsive heatmaps showcasing localised pollution spreads across Indian cities, overlaid on an accurate India physical map.",        accent: "text-blue-500 bg-blue-500/10" },
-    { icon: <BellRing />,      title: "Emerging Hotspot Alerts",   desc: "Real-time identification and concise descriptions of rapidly deteriorating local air quality zones before they reach hazardous thresholds.",    accent: "text-red-500 bg-red-500/10" },
-    { icon: <Navigation2 />,   title: "Nearest Safe Zone",         desc: "Smart geographical routing recommendations that guide users toward the closest clean-air locations based on live pollution data.",               accent: "text-teal-500 bg-teal-500/10" },
-    { icon: <ShieldCheck />,   title: "Health Risk Assessment",    desc: "Personalised impact alerts and tailored safety guidance based on sensitive group vulnerabilities — children, elderly, and respiratory patients.", accent: "text-emerald-500 bg-emerald-500/10" },
-    { icon: <MessageSquare />, title: "Civics & Trend Analytics",  desc: "An integrated feedback and pollution-complaint system combined with deep historical trend analysis tools for civic reporting.",               accent: "text-purple-500 bg-purple-500/10" },
+    { icon: <Wind />, title: "PM2.5 Forecasting", desc: "ML models predict PM2.5 concentration fields up to 10 hours ahead using historical meteorological and pollutant datasets across Indian regions.", accent: "text-orange-500 bg-orange-500/10" },
+    { icon: <MapIcon />, title: "Interactive Pollution Maps", desc: "Live, responsive heatmaps showcasing localised pollution spreads across Indian cities, overlaid on an accurate India physical map.", accent: "text-blue-500 bg-blue-500/10" },
+    { icon: <BellRing />, title: "Emerging Hotspot Alerts", desc: "Real-time identification and concise descriptions of rapidly deteriorating local air quality zones before they reach hazardous thresholds.", accent: "text-red-500 bg-red-500/10" },
+    { icon: <Navigation2 />, title: "Nearest Safe Zone", desc: "Smart geographical routing recommendations that guide users toward the closest clean-air locations based on live pollution data.", accent: "text-teal-500 bg-teal-500/10" },
+    { icon: <ShieldCheck />, title: "Health Risk Assessment", desc: "Personalised impact alerts and tailored safety guidance based on sensitive group vulnerabilities — children, elderly, and respiratory patients.", accent: "text-emerald-500 bg-emerald-500/10" },
+    { icon: <MessageSquare />, title: "Civics & Trend Analytics", desc: "An integrated feedback and pollution-complaint system combined with deep historical trend analysis tools for civic reporting.", accent: "text-purple-500 bg-purple-500/10" },
   ];
 
   return (
@@ -474,9 +474,9 @@ function PlatformPreview() {
 ══════════════════════════════════════════════ */
 function Contact() {
   const team = [
-    { name: "Dabhi Chrisha Manish", role: "Team Leader",  photo: "/chrisha.JPG", init: "DC", color: "from-orange-400 to-amber-500" },
-    { name: "Gajjar Antra",         role: "Team Member",  photo: "/antra.jpg",   init: "GA", color: "from-rose-400 to-pink-500" },
-    { name: "Varu Pragati",          role: "Team Member",  photo: "/pragati.jpg", init: "VP", color: "from-teal-400 to-emerald-500" },
+    { name: "Yash Kumavat", role: "Team Leader", photo: "/yash.png", init: "YK", color: "from-orange-400 to-amber-500", github: "https://github.com/FamYash", linkedin: "https://www.linkedin.com/in/yash-kumavat-503a6a326/", email: "yashnkumavat2005@gmail.com" },
+    { name: "Gajjar Antra", role: "Team Member", photo: "/antra.png", init: "GA", color: "from-rose-400 to-pink-500", github: "https://github.com/Antra1312", linkedin: "https://www.linkedin.com/in/antra-gajjar-957977330/", email: "gajjarantra03@gmail.com" },
+    { name: "Chrisha Dabhi", role: "Team Member", photo: "/chrisha.jpeg", init: "CD", color: "from-teal-400 to-emerald-500", github: "https://github.com/DabhiChrisha", linkedin: "https://www.linkedin.com/in/chrishadabhi/", email: "chrishaadabhii0704@gmail.com" },
   ];
 
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -525,22 +525,42 @@ function Contact() {
                   <p className="mt-0.5 text-xs sm:text-sm font-medium text-primary">{t.role}</p>
                 </div>
                 <div className="flex justify-center gap-2 pt-1">
-                  {[
-                    { Icon: Github,   label: "GitHub" },
-                    { Icon: Linkedin, label: "LinkedIn" },
-                    { Icon: Twitter,  label: "Twitter" },
-                  ].map(({ Icon, label }) => (
-                    <UITooltip key={label}>
+                  {t.github && (
+                    <UITooltip key="github">
                       <TooltipTrigger asChild>
                         <Button asChild variant="outline" size="icon" className="h-8 w-8 rounded-lg border-border hover:border-primary hover:text-primary">
-                          <a href="#" aria-label={label}>
-                            <Icon className="h-3.5 w-3.5" />
+                          <a href={t.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                            <Github className="h-3.5 w-3.5" />
                           </a>
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent side="bottom" className="text-xs">{label}</TooltipContent>
+                      <TooltipContent side="bottom" className="text-xs">GitHub</TooltipContent>
                     </UITooltip>
-                  ))}
+                  )}
+                  {t.linkedin && (
+                    <UITooltip key="linkedin">
+                      <TooltipTrigger asChild>
+                        <Button asChild variant="outline" size="icon" className="h-8 w-8 rounded-lg border-border hover:border-primary hover:text-primary">
+                          <a href={t.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                            <Linkedin className="h-3.5 w-3.5" />
+                          </a>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="text-xs">LinkedIn</TooltipContent>
+                    </UITooltip>
+                  )}
+                  {t.email && (
+                    <UITooltip key="email">
+                      <TooltipTrigger asChild>
+                        <Button asChild variant="outline" size="icon" className="h-8 w-8 rounded-lg border-border hover:border-primary hover:text-primary">
+                          <a href={`mailto:${t.email}`} aria-label="Email">
+                            <Mail className="h-3.5 w-3.5" />
+                          </a>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="text-xs">Email</TooltipContent>
+                    </UITooltip>
+                  )}
                 </div>
               </CardContent>
             </Card>
