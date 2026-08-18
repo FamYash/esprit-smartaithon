@@ -3,6 +3,7 @@ import { Navbar } from "@/components/atmo/Navbar";
 import { Footer } from "@/components/atmo/Footer";
 import { AQIGauge, IndiaHeatmap } from "@/components/atmo/Visualizations";
 import { forecast24h, monthly, Card as DataCard } from "@/components/atmo/data";
+import { DynamicMap, type Hotspot } from "@/components/atmo/DynamicMap";
 import {
   AreaChart, Area, BarChart, Bar, ResponsiveContainer,
   XAxis, YAxis, Tooltip, CartesianGrid,
@@ -35,11 +36,55 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/")(  {
   component: Landing,
+  loader: async () => {
+    if (!import.meta.env.SSR) {
+      return {
+        heatmapHtml: "",
+        modelOutput: {
+          location: "Unknown",
+          prediction_window: "10-hour",
+          pm25: 0,
+          category: "Unknown"
+        },
+        hotspots: [] as Hotspot[]
+      };
+    }
+
+    const [{ readFile }, { resolve }] = await Promise.all([
+      import("node:fs/promises"),
+      import("node:path"),
+    ]);
+
+    const heatmapHtml = await readFile(resolve(process.cwd(), "public", "heatmap.html"), "utf8");
+
+    let modelOutput = {
+      location: "Bengaluru",
+      prediction_window: "10-hour",
+      pm25: 68,
+      category: "Sensitive Groups"
+    };
+    try {
+      const modelOutputStr = await readFile(resolve(process.cwd(), "public", "model_output.json"), "utf8");
+      modelOutput = JSON.parse(modelOutputStr);
+    } catch (e) {
+      console.warn("Could not read model_output.json, falling back to defaults");
+    }
+    let hotspots: Hotspot[] = [];
+    try {
+      const hotspotsStr = await readFile(resolve(process.cwd(), "public", "hotspots.json"), "utf8");
+      hotspots = JSON.parse(hotspotsStr);
+    } catch (e) {
+      console.warn("Could not read hotspots.json");
+    }
+
+    return { heatmapHtml, modelOutput, hotspots };
+  },
 });
 
 function Landing() {
+  const { heatmapHtml, modelOutput, hotspots } = Route.useLoaderData();
 
   return (
     <TooltipProvider>
@@ -65,10 +110,10 @@ function Landing() {
         {/* Page content sits on top via relative z-10 */}
         <div className="relative z-10">
           <Navbar />
-          <Hero />
+          <Hero heatmapHtml={heatmapHtml} modelOutput={modelOutput} hotspots={hotspots} />
           <Forecasting />
           <Features />
-          <PlatformPreview />
+          <PlatformPreview heatmapHtml={heatmapHtml} hotspots={hotspots} />
           <Contact />
           <Footer />
         </div>
@@ -82,7 +127,7 @@ function Landing() {
 /* ══════════════════════════════════════════════
    §1 – HERO  (premium redesign)
 ══════════════════════════════════════════════ */
-function Hero() {
+function Hero({ heatmapHtml, modelOutput, hotspots }: { heatmapHtml: string, modelOutput: any, hotspots: Hotspot[] }) {
   const stats = [
     { value: "10 hr", label: "Forecast Horizon", color: "text-emerald-600" },
     { value: "PM2.5", label: "Prediction Target", color: "text-primary" },
@@ -178,7 +223,7 @@ function Hero() {
             <div
               className="glow-border rounded-2xl border border-border bg-card p-2 shadow-soft w-full mx-auto max-w-[640px] aspect-[4/3] lg:aspect-[1.3] xl:aspect-[1.4]"
             >
-              <IndiaHeatmap height="100%" interactive />
+              <DynamicMap hotspots={hotspots} />
             </div>
 
             {/* Floating pill — AI Rec */}
@@ -192,12 +237,12 @@ function Hero() {
               </div>
             </div>
 
-            {/* Air Quality Risk pill */}
-            <div className="absolute -bottom-15 right-3 z-50 hidden md:block w-[180px] rounded-xl glass px-3 py-2 shadow-soft animate-fade-up animation-delay-3">
-              <p className="text-[10px] text-muted-foreground leading-none">Next 10-hour prediction</p>
-              <p className="mt-2 right-4 text-sm font-bold text-primary leading-tight">PM2.5 · 68 µg/m³</p>
+            {/* PM2.5 pill */}
+            <div className="absolute bottom-4 right-4 z-50 hidden md:block w-[180px] rounded-xl bg-white/90 backdrop-blur-md border border-white/20 px-3 py-2 shadow-soft animate-fade-up animation-delay-3">
+              <p className="text-[10px] text-muted-foreground leading-none">Next {modelOutput.prediction_window} prediction</p>
+              <p className="mt-2 text-sm font-bold text-primary leading-tight">PM2.5 · {modelOutput.pm25} μg/m³</p>
               <Badge className="mt-1 rounded-full bg-orange-100 text-orange-700 text-[9px] font-bold hover:bg-orange-100">
-                Sensitive Groups
+                {modelOutput.category}
               </Badge>
             </div>
 
@@ -366,7 +411,7 @@ function Features() {
 /* ══════════════════════════════════════════════
    §4 – PLATFORM PREVIEW
 ══════════════════════════════════════════════ */
-function PlatformPreview() {
+function PlatformPreview({ heatmapHtml, hotspots }: { heatmapHtml: string, hotspots: Hotspot[] }) {
   return (
     <section
       id="preview"
@@ -425,13 +470,15 @@ function PlatformPreview() {
               </CardContent>
             </Card>
 
-            {/* India Heatmap */}
+            {/* India Heatmap — Dynamic */}
             <Card className="border-border bg-card lg:col-span-2">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm">India Air Quality Risk Map</CardTitle>
               </CardHeader>
               <CardContent>
-                <IndiaHeatmap height={200} />
+                <div style={{ height: 200 }}>
+                  <DynamicMap hotspots={hotspots} />
+                </div>
               </CardContent>
             </Card>
 
