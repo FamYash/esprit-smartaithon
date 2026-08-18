@@ -11,6 +11,11 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 // while keeping the TanStack Start defaults for development. The project is already
 // configured for static SPA deployment on Vercel via frontend/vercel.json.
 export default defineConfig({
+  vite: {
+    server: {
+      port: 5174,
+    },
+  },
   tanstackStart: {
     server: {},
   },

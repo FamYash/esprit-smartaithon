@@ -1,9 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Navbar } from "@/components/atmo/Navbar";
 import { Footer } from "@/components/atmo/Footer";
-import { AQIGauge } from "@/components/atmo/Visualizations";
+import { AQIGauge, IndiaHeatmap } from "@/components/atmo/Visualizations";
 import { forecast24h, monthly, Card as DataCard } from "@/components/atmo/data";
-import Particles from "@/components/atmo/Particles";
 import {
   AreaChart, Area, BarChart, Bar, ResponsiveContainer,
   XAxis, YAxis, Tooltip, CartesianGrid,
@@ -14,7 +13,10 @@ import {
   ShieldCheck, Navigation2, MessageSquare, TrendingUp,
   CheckCircle2, Mail,
 } from "lucide-react";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
+
+// Lazy-load the heavy WebGL Particles component
+const Particles = lazy(() => import("@/components/atmo/Particles"));
 
 // ShadCN UI
 import { Button } from "@/components/ui/button";
@@ -35,50 +37,38 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   component: Landing,
-  loader: async () => {
-    if (!import.meta.env.SSR) {
-      return { heatmapHtml: "" };
-    }
-
-    const [{ readFile }, { resolve }] = await Promise.all([
-      import("node:fs/promises"),
-      import("node:path"),
-    ]);
-
-    const heatmapHtml = await readFile(resolve(process.cwd(), "public", "heatmap.html"), "utf8");
-    return { heatmapHtml };
-  },
 });
 
 function Landing() {
-  const { heatmapHtml } = Route.useLoaderData();
 
   return (
     <TooltipProvider>
       <div className="bg-background font-sans antialiased">
         {/* ── Global Particles background (fixed, behind all sections) ── */}
         <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
-          <Particles
-            particleCount={120}
-            particleSpread={12}
-            speed={0.06}
-            particleColors={["#f97316", "#fb923c", "#fdba74", "#fed7aa", "#fff7ed"]}
-            moveParticlesOnHover={false}
-            alphaParticles
-            particleBaseSize={80}
-            sizeRandomness={1.2}
-            cameraDistance={22}
-            disableRotation={false}
-          />
+          <Suspense fallback={null}>
+            <Particles
+              particleCount={120}
+              particleSpread={12}
+              speed={0.06}
+              particleColors={["#f97316", "#fb923c", "#fdba74", "#fed7aa", "#fff7ed"]}
+              moveParticlesOnHover={false}
+              alphaParticles
+              particleBaseSize={80}
+              sizeRandomness={1.2}
+              cameraDistance={22}
+              disableRotation={false}
+            />
+          </Suspense>
         </div>
 
         {/* Page content sits on top via relative z-10 */}
         <div className="relative z-10">
           <Navbar />
-          <Hero heatmapHtml={heatmapHtml} />
+          <Hero />
           <Forecasting />
           <Features />
-          <PlatformPreview heatmapHtml={heatmapHtml} />
+          <PlatformPreview />
           <Contact />
           <Footer />
         </div>
@@ -89,38 +79,15 @@ function Landing() {
   );
 }
 
-function HeatmapEmbed({
-  height,
-  className = "",
-  title,
-  html,
-}: {
-  height: number | string;
-  className?: string;
-  title: string;
-  html: string;
-}) {
-  return (
-    <div className={`relative overflow-hidden rounded-2xl border border-border bg-sky-50 ${className}`} style={{ height }}>
-      <iframe
-        srcDoc={html}
-        title={title}
-        className="absolute inset-0 h-full w-full border-0"
-        loading="lazy"
-      />
-    </div>
-  );
-}
-
 /* ══════════════════════════════════════════════
    §1 – HERO  (premium redesign)
 ══════════════════════════════════════════════ */
-function Hero({ heatmapHtml }: { heatmapHtml: string }) {
+function Hero() {
   const stats = [
-    { value: "94.7%", label: "Forecast Accuracy", color: "text-emerald-600" },
-    { value: "10 hr", label: "Prediction Window", color: "text-primary" },
+    { value: "10 hr", label: "Forecast Horizon", color: "text-emerald-600" },
+    { value: "PM2.5", label: "Prediction Target", color: "text-primary" },
     { value: "12+", label: "Indian Cities", color: "text-blue-500" },
-    { value: "1.67M", label: "Lives at Risk / Yr", color: "text-red-500" },
+    { value: "AI", label: "Air Quality Forecasting", color: "text-red-500" },
   ];
 
   return (
@@ -157,7 +124,7 @@ function Hero({ heatmapHtml }: { heatmapHtml: string }) {
               </span>
               <Badge variant="outline" className="rounded-full border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 px-4 py-1.5 text-[11px] font-semibold text-orange-600 shadow-sm gap-1.5">
                 <Sparkles className="h-3 w-3" />
-                AI-Powered · LSTM + CNN · Live Forecasting
+                AI-POWERED · LSTM + CNN · LIVE FORECASTING
               </Badge>
             </div>
 
@@ -176,8 +143,7 @@ function Hero({ heatmapHtml }: { heatmapHtml: string }) {
 
             {/* Sub-copy */}
             <p className="animate-fade-up animation-delay-2 text-sm lg:text-[15px] leading-[1.6] text-muted-foreground max-w-[480px]">
-              Over <strong className="text-foreground">1.67 million deaths</strong> in India are attributed to Air Pollution annually.
-              AtmoAI uses deep learning to forecast PM2.5 concentrations <strong className="text-foreground">10 hours ahead</strong> — so communities can act before the air turns dangerous.
+              AtmoAI uses AI-powered forecasting to predict PM2.5 concentrations ahead of time, helping communities and decision-makers identify air-quality risks before conditions become hazardous.
             </p>
 
             {/* CTAs */}
@@ -212,24 +178,24 @@ function Hero({ heatmapHtml }: { heatmapHtml: string }) {
             <div
               className="glow-border rounded-2xl border border-border bg-card p-2 shadow-soft w-full mx-auto max-w-[640px] aspect-[4/3] lg:aspect-[1.3] xl:aspect-[1.4]"
             >
-              <HeatmapEmbed height="100%" title="India AQI heatmap" html={heatmapHtml} />
+              <IndiaHeatmap height="100%" interactive />
             </div>
 
-            {/* Floating pill — accuracy */}
+            {/* Floating pill — AI Rec */}
             <div className="absolute -left-5 top-12 hidden md:flex items-center gap-3 rounded-2xl border border-border/70 bg-white/90 backdrop-blur-md px-4 py-3 shadow-[0_8px_32px_-8px_oklch(0.5_0.1_60_/_0.25)] animate-fade-up animation-delay-2">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-100 text-emerald-600 shrink-0">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary shrink-0">
                 <Activity className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-[10px] text-muted-foreground font-medium">Forecast Accuracy</p>
-                <p className="text-lg font-extrabold text-foreground leading-none">94.7%</p>
+                <p className="text-[10px] text-muted-foreground font-medium">AI Forecast (Demo Data)</p>
+                <p className="text-sm font-extrabold text-foreground leading-none">94.7% Accuracy</p>
               </div>
             </div>
 
-            {/* PM2.5 pill */}
+            {/* Air Quality Risk pill */}
             <div className="absolute -bottom-15 right-3 z-50 hidden md:block w-[180px] rounded-xl glass px-3 py-2 shadow-soft animate-fade-up animation-delay-3">
               <p className="text-[10px] text-muted-foreground leading-none">Next 10-hour prediction</p>
-              <p className="mt-2 right-4 text-sm font-bold text-primary leading-tight">PM2.5 · 68 μg/m³</p>
+              <p className="mt-2 right-4 text-sm font-bold text-primary leading-tight">PM2.5 · 68 µg/m³</p>
               <Badge className="mt-1 rounded-full bg-orange-100 text-orange-700 text-[9px] font-bold hover:bg-orange-100">
                 Sensitive Groups
               </Badge>
@@ -249,32 +215,33 @@ function Forecasting() {
   const objectives = [
     {
       icon: <Zap className="h-5 w-5" />,
-      heading: "10-Hour Forecast Horizon",
-      text: "Predicting dynamic PM2.5 distribution patterns using historical meteorological and pollution datasets fused through LSTM + Transformer architectures.",
+      heading: "Short-Term PM2.5 Forecasting",
+      text: "Forecast future PM2.5 concentrations using historical and real-time air-quality observations.",
       color: "from-orange-500/10 to-amber-500/5",
       iconBg: "gradient-primary",
     },
     {
       icon: <MapIcon className="h-5 w-5" />,
-      heading: "Hotspot Tracking",
-      text: "Identifying exactly where severe pollution zones will emerge across the Indian map, enabling precise location-level early intervention and routing.",
+      heading: "Air-Quality Risk Assessment",
+      text: "Identify high-risk regions from predicted PM2.5 levels and classify their potential air-quality severity.",
       color: "from-red-500/10 to-rose-500/5",
       iconBg: "bg-red-500",
     },
     {
       icon: <BellRing className="h-5 w-5" />,
-      heading: "Early Warnings",
-      text: "Providing data-driven insights to actively support public-health interventions, government policy responses, and community safety programmes.",
+      heading: "AI Preventive Recommendations",
+      text: "Convert air-quality forecasts into actionable guidance for individuals and sensitive groups.",
       color: "from-teal-500/10 to-emerald-500/5",
       iconBg: "bg-teal-600",
+      prominent: true,
     },
   ];
 
   const stats = [
-    { v: "10h", l: "Forecast Horizon" },
-    { v: "94.7%", l: "Model Accuracy" },
-    { v: "12+", l: "Indian Cities" },
-    { v: "1.67M", l: "Lives at Risk / Yr" },
+    { v: "PM2.5", l: "Primary Prediction Target" },
+    { v: "AI", l: "Forecast Engine" },
+    { v: "10 hr", l: "Forecast Horizon" },
+    { v: "AQI", l: "Risk Intelligence" },
   ];
 
   return (
@@ -290,18 +257,17 @@ function Forecasting() {
             Core Objectives
           </Badge>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
-            Forecasting PM2.5 Across India
+            Air Quality Prediction & Protection
           </h2>
           <blockquote className="mt-4 text-sm sm:text-base text-muted-foreground italic border-l-2 border-primary/40 pl-4 text-left mx-auto max-w-xl rounded-r-lg bg-orange-50/50 py-3 pr-3">
-            "To design scientific machine learning models that can accurately forecast
-            short-term PM2.5 concentration fields over India."
+            "To build an AI-powered air-quality intelligence platform that forecasts short-term PM2.5 risks and converts those predictions into actionable preventive guidance."
           </blockquote>
         </div>
 
         {/* Objective cards */}
         <div className="grid gap-5 grid-cols-1 sm:grid-cols-3 mb-8">
-          {objectives.map(({ icon, heading, text, color, iconBg }, idx) => (
-            <Card key={heading} className={`card-hover border-border bg-gradient-to-br ${color} overflow-hidden animate-fade-up animation-delay-${idx + 1}`}>
+          {objectives.map(({ icon, heading, text, color, iconBg, prominent }, idx) => (
+            <Card key={heading} className={`card-hover bg-gradient-to-br ${color} overflow-hidden animate-fade-up animation-delay-${idx + 1} ${prominent ? 'border-primary ring-1 ring-primary/30 shadow-md scale-[1.02] z-10' : 'border-border'}`}>
               <CardHeader className="pb-3">
                 <div className={`grid h-11 w-11 place-items-center rounded-xl ${iconBg} text-white shadow-glow mb-3`}>
                   {icon}
@@ -336,12 +302,12 @@ function Forecasting() {
 ══════════════════════════════════════════════ */
 function Features() {
   const items = [
-    { icon: <Wind />, title: "PM2.5 Forecasting", desc: "ML models predict PM2.5 concentration fields up to 10 hours ahead using historical meteorological and pollutant datasets across Indian regions.", accent: "text-orange-500 bg-orange-500/10" },
-    { icon: <MapIcon />, title: "Interactive Pollution Maps", desc: "Live, responsive heatmaps showcasing localised pollution spreads across Indian cities, overlaid on an accurate India physical map.", accent: "text-blue-500 bg-blue-500/10" },
-    { icon: <BellRing />, title: "Emerging Hotspot Alerts", desc: "Real-time identification and concise descriptions of rapidly deteriorating local air quality zones before they reach hazardous thresholds.", accent: "text-red-500 bg-red-500/10" },
-    { icon: <Navigation2 />, title: "Nearest Safe Zone", desc: "Smart geographical routing recommendations that guide users toward the closest clean-air locations based on live pollution data.", accent: "text-teal-500 bg-teal-500/10" },
-    { icon: <ShieldCheck />, title: "Health Risk Assessment", desc: "Personalised impact alerts and tailored safety guidance based on sensitive group vulnerabilities — children, elderly, and respiratory patients.", accent: "text-emerald-500 bg-emerald-500/10" },
-    { icon: <MessageSquare />, title: "Civics & Trend Analytics", desc: "An integrated feedback and pollution-complaint system combined with deep historical trend analysis tools for civic reporting.", accent: "text-purple-500 bg-purple-500/10" },
+    { icon: <Wind />, title: "PM2.5 Forecasting", desc: "AI models forecast future PM2.5 concentrations using historical and real-time air-quality observations.", accent: "text-orange-500 bg-orange-500/10" },
+    { icon: <MapIcon />, title: "Real-Time Air Quality Monitoring", desc: "Monitor air-quality conditions across Indian cities and regions through an interactive map.", accent: "text-blue-500 bg-blue-500/10" },
+    { icon: <ShieldCheck />, title: "Air-Quality Risk Assessment", desc: "Identify locations where predicted PM2.5 levels may create unhealthy conditions.", accent: "text-red-500 bg-red-500/10" },
+    { icon: <BellRing />, title: "Intelligent Alerts", desc: "Receive early warnings when PM2.5 levels are expected to deteriorate.", accent: "text-teal-500 bg-teal-500/10" },
+    { icon: <TrendingUp />, title: "Historical Air-Quality Analytics", desc: "Analyze PM2.5 and AQI trends across locations and time periods.", accent: "text-emerald-500 bg-emerald-500/10" },
+    { icon: <MessageSquare />, title: "Preventive Recommendations", desc: "Translate predicted air-quality conditions into practical guidance for affected communities.", accent: "text-purple-500 bg-purple-500/10" },
   ];
 
   return (
@@ -358,10 +324,10 @@ function Features() {
           </Badge>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
             Everything you need to understand{" "}
-            <span className="text-primary">the air around you</span>
+            <span className="text-primary">India's air quality</span>
           </h2>
           <p className="mt-3 text-sm text-muted-foreground">
-            A modern intelligence layer for environmental data — built for India's unique climate and pollution patterns.
+            AI-powered monitoring, forecasting and risk intelligence for PM2.5.
           </p>
         </div>
 
@@ -400,7 +366,7 @@ function Features() {
 /* ══════════════════════════════════════════════
    §4 – PLATFORM PREVIEW
 ══════════════════════════════════════════════ */
-function PlatformPreview({ heatmapHtml }: { heatmapHtml: string }) {
+function PlatformPreview() {
   return (
     <section
       id="preview"
@@ -413,28 +379,32 @@ function PlatformPreview({ heatmapHtml }: { heatmapHtml: string }) {
             Platform Preview
           </Badge>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
-            A control room for India's air quality
+            Inside the AtmoAI Platform
           </h2>
+          <p className="mt-3 text-sm text-muted-foreground max-w-2xl mx-auto">
+            From real-time air-quality monitoring to short-term PM2.5 forecasting and risk intelligence.
+          </p>
         </div>
 
         <Card className="border-border shadow-soft p-2 sm:p-4">
           <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
-            {/* AQI Gauge */}
+            {/* AQI Gauge -> Risk Gauge */}
             <Card className="border-border bg-card">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Current AQI</CardTitle>
+                <CardTitle className="text-sm">Current Air Quality</CardTitle>
                 <CardDescription className="text-xs">New Delhi, India</CardDescription>
               </CardHeader>
-              <CardContent className="flex justify-center">
+              <CardContent className="flex flex-col items-center">
                 <AQIGauge value={168} />
+                <p className="mt-2 text-xs font-semibold text-muted-foreground">PM2.5 · 68 µg/m³</p>
               </CardContent>
             </Card>
 
             {/* Forecast Area Chart */}
             <Card className="border-border bg-card lg:col-span-2">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm">10-Hour PM2.5 Forecast</CardTitle>
-                <CardDescription className="text-xs">μg/m³ · LSTM model</CardDescription>
+                <CardTitle className="text-sm">PM2.5 Forecast</CardTitle>
+                <CardDescription className="text-xs">µg/m³ · AI prediction model</CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={170}>
@@ -458,10 +428,10 @@ function PlatformPreview({ heatmapHtml }: { heatmapHtml: string }) {
             {/* India Heatmap */}
             <Card className="border-border bg-card lg:col-span-2">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm">India AQI Heatmap</CardTitle>
+                <CardTitle className="text-sm">India Air Quality Risk Map</CardTitle>
               </CardHeader>
               <CardContent>
-                <HeatmapEmbed height={200} title="India AQI heatmap preview" html={heatmapHtml} />
+                <IndiaHeatmap height={200} />
               </CardContent>
             </Card>
 
@@ -470,7 +440,7 @@ function PlatformPreview({ heatmapHtml }: { heatmapHtml: string }) {
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-sm">Monthly Comparison</CardTitle>
+                    <CardTitle className="text-sm">Monthly PM2.5 Comparison</CardTitle>
                     <CardDescription className="text-xs">2025 vs 2024</CardDescription>
                   </div>
                   <TrendingUp className="h-4 w-4 text-primary" />
@@ -533,7 +503,7 @@ function Contact() {
             The minds behind AtmoAI
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            A dedicated group of researchers and engineers building the future of air-quality intelligence for India.
+            A team of engineers and researchers building AI-powered tools for air-quality prediction and public safety.
           </p>
         </div>
 
@@ -603,10 +573,10 @@ function Contact() {
               Get Involved
             </Badge>
             <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              Submit Feedback or Report Pollution
+              Submit Feedback or Report Incidents
             </h3>
             <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
-              Help us improve forecasting accuracy or report severe localised pollution incidents directly to our team.
+              Help us improve forecasting accuracy or report air-quality incidents directly to our team.
             </p>
           </div>
 
@@ -637,7 +607,7 @@ function Contact() {
                   <Label htmlFor="f-msg" className="text-xs font-medium">Message / Incident Description</Label>
                   <Textarea
                     id="f-msg" required rows={4}
-                    placeholder="Describe the pollution incident or your feedback..."
+                    placeholder="Describe the air-quality incident or your feedback..."
                     value={form.message}
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
                     className="resize-none rounded-xl border-border focus-visible:ring-primary/30 text-sm"
