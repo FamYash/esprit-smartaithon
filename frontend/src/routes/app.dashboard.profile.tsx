@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Card } from "@/components/atmo/data";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, Mail, Phone, MapPin, Heart, ShieldCheck, CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/app/dashboard/profile")({ component: UserProfileView });
@@ -13,23 +13,47 @@ const locationsIndia = {
   Karnataka: ["Bengaluru", "Mysore", "Hubli", "Mangalore"],
 };
 
-function UserProfileView() {
-  const [name, setName] = useState("John Doe");
-  const [email, setEmail] = useState("john.doe@atmoai.com");
-  const [phone, setPhone] = useState("+91 98765 43210");
-  const [state, setState] = useState<keyof typeof locationsIndia>("Uttar Pradesh");
-  const [city, setCity] = useState("Noida");
+import { setStoreItem, getStoreItem } from "@/lib/atmo/storage";
 
-  const [asthma, setAsthma] = useState(true);
-  const [copd, setCopd] = useState(false);
-  const [allergies, setAllergies] = useState(true);
-  const [respiratory, setRespiratory] = useState(false);
-  const [heart, setHeart] = useState(false);
+function UserProfileView() {
+  const [profileData] = useState(() =>
+    getStoreItem<any>("atmoai_user_profile", {
+      name: "Yash Kumavat",
+      email: "yash.kumavat@atmoai.com",
+      phone: "+91 98765 43210",
+      state: "Uttar Pradesh",
+      city: "Noida",
+      asthma: true,
+      copd: false,
+      allergies: true,
+      respiratory: false,
+      heart: false,
+    })
+  );
+
+  const [name, setName] = useState(profileData.name || "Yash Kumavat");
+  const [email, setEmail] = useState(profileData.email || "yash.kumavat@atmoai.com");
+  const [phone, setPhone] = useState(profileData.phone || "+91 98765 43210");
+  const [state, setState] = useState<keyof typeof locationsIndia>(
+    profileData.state || "Uttar Pradesh"
+  );
+  const [city, setCity] = useState(profileData.city || "Noida");
+
+  const [asthma, setAsthma] = useState(profileData.asthma ?? true);
+  const [copd, setCopd] = useState(profileData.copd ?? false);
+  const [allergies, setAllergies] = useState(profileData.allergies ?? true);
+  const [respiratory, setRespiratory] = useState(profileData.respiratory ?? false);
+  const [heart, setHeart] = useState(profileData.heart ?? false);
 
   const [saveSuccess, setSaveSuccess] = useState("");
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    const data = { name, email, phone, state, city, asthma, copd, allergies, respiratory, heart };
+    setStoreItem("atmoai_user_profile", data);
+    if (city) {
+      setStoreItem("atmoai_selected_city", city);
+    }
     setSaveSuccess("Profile settings successfully updated.");
     setTimeout(() => setSaveSuccess(""), 4000);
   };

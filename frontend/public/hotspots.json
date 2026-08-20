@@ -1,0 +1,19 @@
+[
+  { "name": "Mumbai", "lat": 19.07, "lng": 72.87, "pm25": 115 },
+  { "name": "Bengaluru", "lat": 12.97, "lng": 77.59, "pm25": 68 },
+  { "name": "Kolkata", "lat": 22.57, "lng": 88.36, "pm25": 92 },
+  { "name": "Lucknow", "lat": 26.84, "lng": 80.94, "pm25": 145 },
+  { "name": "Chennai", "lat": 13.08, "lng": 80.27, "pm25": 45 },
+  { "name": "Jaipur", "lat": 26.91, "lng": 75.78, "pm25": 160 },
+  { "name": "Patna", "lat": 25.59, "lng": 85.13, "pm25": 95 },
+  { "name": "Pune", "lat": 18.52, "lng": 73.85, "pm25": 110 },
+  { "name": "Hyderabad", "lat": 17.38, "lng": 78.48, "pm25": 75 },
+  { "name": "Bhopal", "lat": 23.25, "lng": 77.41, "pm25": 135 },
+  { "name": "Indore", "lat": 22.72, "lng": 75.86, "pm25": 140 },
+  { "name": "Nagpur", "lat": 21.15, "lng": 79.09, "pm25": 55 },
+  { "name": "Surat", "lat": 21.17, "lng": 72.83, "pm25": 155 },
+  { "name": "Visakhapatnam", "lat": 17.69, "lng": 83.22, "pm25": 85 },
+  { "name": "Bhubaneswar", "lat": 20.30, "lng": 85.82, "pm25": 120 },
+  { "name": "Coimbatore", "lat": 11.02, "lng": 76.96, "pm25": 65 },
+  { "name": "Kochi", "lat": 9.97, "lng": 76.28, "pm25": 130 }
+]

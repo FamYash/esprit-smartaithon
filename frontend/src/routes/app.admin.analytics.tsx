@@ -172,6 +172,18 @@ const alertTrends = [
 ];
 
 function AdminAnalytics() {
+  const handleExport = () => {
+    const header = "State,PM2.5,PM10,AQI,Status\n";
+    const rows = statePollution.map(s => `${s.name},${s.pm25},${s.pm10},${s.aqi},${s.status}`).join("\n");
+    const blob = new Blob([header + rows], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Analytics_Export.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-8 font-sans">
       {/* Title Header */}
@@ -185,11 +197,10 @@ function AdminAnalytics() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <select className="rounded-xl border border-border bg-card px-4 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20">
-            <option>India (National)</option>
-            <option>Global (All)</option>
-          </select>
-          <button className="rounded-xl gradient-primary px-5 py-2 text-sm font-semibold text-white shadow-glow">
+          <button 
+            onClick={handleExport}
+            className="rounded-xl gradient-primary px-5 py-2 text-sm font-semibold text-white shadow-glow"
+          >
             Export Report
           </button>
         </div>

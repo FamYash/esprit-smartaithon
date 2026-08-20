@@ -58,7 +58,21 @@ const recentComplaints = [
   { id: "CMP-0839", category: "Vehicle Exhaust", city: "Bengaluru", status: "Open" },
 ];
 
+import { Link } from "@tanstack/react-router";
+import { useReactiveStore } from "@/lib/atmo/storage";
+
 function AdminDashboard() {
+  const [alerts] = useReactiveStore<any[]>("atmoai_alerts", []);
+  const [complaints] = useReactiveStore<any[]>("atmoai_complaints", []);
+  const [safeLocations] = useReactiveStore<any[]>("atmoai_safe_locations", []);
+
+  const activeAlerts = alerts.filter(
+    (a) => a.status === "Active" || a.status === "Investigating" || a.status === "Pending"
+  );
+  const openComplaints = complaints.filter(
+    (c) => c.status === "Open" || c.status === "In Progress" || c.status === "Escalated"
+  );
+
   return (
     <div className="font-sans max-w-7xl mx-auto space-y-6 pb-12">
       {/* Title Header */}
@@ -79,10 +93,10 @@ function AdminDashboard() {
       {/* KPI Cards Row */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <KPICard label="Average AQI" value="168" icon={<Activity className="h-5 w-5 text-orange-500" />} />
-        <KPICard label="Active Alerts" value="12" icon={<AlertTriangle className="h-5 w-5 text-red-500" />} />
+        <KPICard label="Active Alerts" value={activeAlerts.length} icon={<AlertTriangle className="h-5 w-5 text-red-500" />} />
         <KPICard label="Monitored Cities" value="45" icon={<Map className="h-5 w-5 text-blue-500" />} />
-        <KPICard label="Open Complaints" value="26" icon={<MessageSquareWarning className="h-5 w-5 text-amber-500" />} />
-        <KPICard label="Safe Locations" value="18" icon={<ShieldCheck className="h-5 w-5 text-emerald-500" />} />
+        <KPICard label="Open Complaints" value={openComplaints.length} icon={<MessageSquareWarning className="h-5 w-5 text-amber-500" />} />
+        <KPICard label="Safe Locations" value={safeLocations.length} icon={<ShieldCheck className="h-5 w-5 text-emerald-500" />} />
         <KPICard label="Critical Regions" value="4" icon={<MapPin className="h-5 w-5 text-purple-500" />} />
       </div>
 
@@ -150,9 +164,9 @@ function AdminDashboard() {
                 <p className="text-sm font-bold text-emerald-600">Kerala (Avg AQI: 42)</p>
               </div>
               <div className="pt-3 border-t border-slate-100">
-                <button className="text-xs font-bold text-primary hover:text-orange-600 flex items-center gap-1">
+                <Link to="/app/admin/explorer" className="text-xs font-bold text-primary hover:text-orange-600 flex items-center gap-1">
                   Open full Explorer <span aria-hidden="true">&rarr;</span>
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -209,15 +223,15 @@ function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {recentAlerts.map((a, i) => (
+                {alerts.slice(0, 5).map((a, i) => (
                   <tr key={i}>
                     <td className="py-2.5">
-                      <p className="font-bold text-slate-700">{a.location}</p>
-                      <p className="text-[10px] text-muted-foreground">{a.time}</p>
+                      <p className="font-bold text-slate-700">{a.region || a.location}</p>
+                      <p className="text-[10px] text-muted-foreground">{a.time || a.date}</p>
                     </td>
                     <td className="py-2.5">
-                      <span className={`inline-flex items-center gap-1 text-[10px] font-bold ${a.severity === "Critical" ? "text-red-600" : "text-orange-500"}`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${a.severity === "Critical" ? "bg-red-600 animate-ping" : "bg-orange-500"}`} />
+                      <span className={`inline-flex items-center gap-1 text-[10px] font-bold ${a.severity === "Critical" ? "text-red-600" : a.severity === "Warning" ? "text-amber-500" : "text-orange-500"}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${a.severity === "Critical" ? "bg-red-600 animate-ping" : a.severity === "Warning" ? "bg-amber-500" : "bg-orange-500"}`} />
                         {a.severity}
                       </span>
                     </td>
@@ -226,6 +240,11 @@ function AdminDashboard() {
                     </td>
                   </tr>
                 ))}
+                {alerts.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="py-4 text-center text-xs text-muted-foreground">No alerts found.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -246,20 +265,25 @@ function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {recentComplaints.map((c) => (
+                {complaints.slice(0, 5).map((c) => (
                   <tr key={c.id}>
                     <td className="py-2.5">
                       <p className="font-bold text-slate-700 truncate max-w-[120px]">{c.category}</p>
                       <p className="text-[10px] text-muted-foreground font-mono">{c.id}</p>
                     </td>
-                    <td className="py-2.5 font-medium text-slate-600">{c.city}</td>
+                    <td className="py-2.5 font-medium text-slate-600">{c.city || c.location}</td>
                     <td className="py-2.5 text-right">
-                      <span className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-bold ${c.status === "Open" ? "bg-red-50 text-red-600 border border-red-100" : c.status === "In Progress" ? "bg-amber-50 text-amber-600 border border-amber-100" : "bg-slate-100 text-slate-600"}`}>
+                      <span className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-bold ${c.status === "Open" ? "bg-red-50 text-red-600 border border-red-100" : c.status === "In Progress" || c.status === "Escalated" ? "bg-amber-50 text-amber-600 border border-amber-100" : "bg-slate-100 text-slate-600"}`}>
                         {c.status}
                       </span>
                     </td>
                   </tr>
                 ))}
+                {complaints.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="py-4 text-center text-xs text-muted-foreground">No complaints found.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

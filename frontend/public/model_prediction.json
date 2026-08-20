@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-08-19T12:00:00Z",
+  "prediction_window": "10-hour",
+  "model_info": "FNO-CNN Air Quality Predictor v1 (Demo Data)",
+  "summary": {
+    "location": "Bengaluru",
+    "pm25": 68,
+    "category": "Sensitive Groups"
+  },
+  "predictions": [
+    { "name": "Mumbai", "lat": 19.07, "lng": 72.87, "pm25": 115, "is_hotspot": true },
+    { "name": "Bengaluru", "lat": 12.97, "lng": 77.59, "pm25": 68, "is_hotspot": true },
+    { "name": "Kolkata", "lat": 22.57, "lng": 88.36, "pm25": 92, "is_hotspot": true },
+    { "name": "Lucknow", "lat": 26.84, "lng": 80.94, "pm25": 145, "is_hotspot": true },
+    { "name": "Chennai", "lat": 13.08, "lng": 80.27, "pm25": 45, "is_hotspot": true },
+    { "name": "Jaipur", "lat": 26.91, "lng": 75.78, "pm25": 160, "is_hotspot": true },
+    { "name": "Patna", "lat": 25.59, "lng": 85.13, "pm25": 95, "is_hotspot": true },
+    { "name": "Pune", "lat": 18.52, "lng": 73.85, "pm25": 110, "is_hotspot": true },
+    { "name": "Hyderabad", "lat": 17.38, "lng": 78.48, "pm25": 75, "is_hotspot": true },
+    { "name": "Bhopal", "lat": 23.25, "lng": 77.41, "pm25": 135, "is_hotspot": true },
+    { "name": "Indore", "lat": 22.72, "lng": 75.86, "pm25": 140, "is_hotspot": true },
+    { "name": "Nagpur", "lat": 21.15, "lng": 79.09, "pm25": 55, "is_hotspot": true },
+    { "name": "Surat", "lat": 21.17, "lng": 72.83, "pm25": 155, "is_hotspot": true },
+    { "name": "Visakhapatnam", "lat": 17.69, "lng": 83.22, "pm25": 85, "is_hotspot": true },
+    { "name": "Bhubaneswar", "lat": 20.30, "lng": 85.82, "pm25": 120, "is_hotspot": true },
+    { "name": "Coimbatore", "lat": 11.02, "lng": 76.96, "pm25": 65, "is_hotspot": true },
+    { "name": "Kochi", "lat": 9.97, "lng": 76.28, "pm25": 130, "is_hotspot": true },
+    
+    { "lat": 28.61, "lng": 77.23, "pm25": 280 },
+    { "lat": 28.70, "lng": 77.10, "pm25": 290 },
+    { "lat": 28.50, "lng": 77.30, "pm25": 250 },
+    { "lat": 19.15, "lng": 72.95, "pm25": 120 },
+    { "lat": 13.00, "lng": 80.20, "pm25": 48 },
+    { "lat": 22.50, "lng": 88.40, "pm25": 98 }
+  ]
+}

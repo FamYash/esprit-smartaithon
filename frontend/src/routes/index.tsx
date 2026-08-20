@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Navbar } from "@/components/atmo/Navbar";
 import { Footer } from "@/components/atmo/Footer";
-import { AQIGauge, IndiaHeatmap } from "@/components/atmo/Visualizations";
+import { AQIGauge } from "@/components/atmo/Visualizations";
 import { forecast24h, monthly, Card as DataCard } from "@/components/atmo/data";
+
 import {
   AreaChart, Area, BarChart, Bar, ResponsiveContainer,
   XAxis, YAxis, Tooltip, CartesianGrid,
@@ -11,12 +12,17 @@ import {
   Wind, Activity, Map as MapIcon, BellRing, Sparkles,
   ArrowRight, Zap, Github, Linkedin, Twitter,
   ShieldCheck, Navigation2, MessageSquare, TrendingUp,
-  CheckCircle2, Mail,
+  CheckCircle2, Mail, User, ShieldAlert, ChevronDown, HelpCircle,
 } from "lucide-react";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 
 // Lazy-load the heavy WebGL Particles component
 const Particles = lazy(() => import("@/components/atmo/Particles"));
+
+// Lazy-load Leaflet map component to prevent "window is not defined" error in SSR
+const DynamicMap = lazy(() =>
+  import("@/components/atmo/DynamicMap").then((m) => ({ default: m.DynamicMap }))
+);
 
 // ShadCN UI
 import { Button } from "@/components/ui/button";
@@ -24,184 +30,207 @@ import {
   Card, CardContent, CardHeader, CardTitle, CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import {
   Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/sonner";
-import { toast } from "sonner";
 
-export const Route = createFileRoute("/")({
-  component: Landing,
-});
+export const Route = createFileRoute("/")({ component: Index });
 
-function Landing() {
+function Index() {
+  const [modelOutput, setModelOutput] = useState<{
+    summary: { location: string; pm25: number; category: string };
+    predictions: any[];
+    prediction_window: string;
+    pm25: number;
+    location: string;
+    category: string;
+  }>({
+    summary: { location: "Bengaluru", pm25: 68, category: "Moderate" },
+    predictions: [],
+    prediction_window: "10-hour",
+    pm25: 68,
+    location: "Bengaluru",
+    category: "Moderate",
+  });
+
+  const [heatmapHtml, setHeatmapHtml] = useState<string>("");
+
+  useEffect(() => {
+    fetch("/model_prediction.json")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.summary) {
+          setModelOutput({
+            summary: data.summary,
+            predictions: data.predictions || [],
+            prediction_window: data.prediction_window || "10-hour",
+            pm25: data.summary.pm25,
+            location: data.summary.location,
+            category: data.summary.category,
+          });
+        }
+      })
+      .catch(() => {});
+
+    fetch("/india_air_quality_heatmap.html")
+      .then((res) => res.text())
+      .then((html) => setHeatmapHtml(html))
+      .catch(() => {});
+  }, []);
 
   return (
-    <TooltipProvider>
-      <div className="bg-background font-sans antialiased">
-        {/* ── Global Particles background (fixed, behind all sections) ── */}
-        <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
-          <Suspense fallback={null}>
-            <Particles
-              particleCount={120}
-              particleSpread={12}
-              speed={0.06}
-              particleColors={["#f97316", "#fb923c", "#fdba74", "#fed7aa", "#fff7ed"]}
-              moveParticlesOnHover={false}
-              alphaParticles
-              particleBaseSize={80}
-              sizeRandomness={1.2}
-              cameraDistance={22}
-              disableRotation={false}
-            />
-          </Suspense>
+    <div className="relative min-h-screen bg-background text-foreground font-sans overflow-x-hidden">
+      {/* Background WebGL animation */}
+      <Suspense fallback={null}>
+        <div className="fixed inset-0 pointer-events-none z-0 opacity-45">
+          <Particles />
         </div>
+      </Suspense>
 
-        {/* Page content sits on top via relative z-10 */}
-        <div className="relative z-10">
-          <Navbar />
-          <Hero />
-          <Forecasting />
-          <Features />
-          <PlatformPreview />
-          <Contact />
-          <Footer />
-        </div>
+      <Navbar />
 
-        <Toaster position="bottom-right" richColors />
-      </div>
-    </TooltipProvider>
+      <main className="relative z-10 space-y-0">
+        <Hero modelOutput={modelOutput} predictions={modelOutput.predictions} />
+        <Forecasting />
+        <Features />
+        <PlatformPreview heatmapHtml={heatmapHtml} predictions={modelOutput.predictions} />
+        <FAQ />
+        <CTA />
+      </main>
+
+      <Footer />
+    </div>
   );
 }
 
 /* ══════════════════════════════════════════════
-   §1 – HERO  (premium redesign)
+   §1 – HERO (ABOVE THE FOLD)
 ══════════════════════════════════════════════ */
-function Hero() {
+function Hero({ modelOutput, predictions }: { modelOutput: any; predictions: any[] }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const stats = [
-    { value: "10 hr", label: "Forecast Horizon", color: "text-emerald-600" },
-    { value: "PM2.5", label: "Prediction Target", color: "text-primary" },
-    { value: "12+", label: "Indian Cities", color: "text-blue-500" },
-    { value: "AI", label: "Air Quality Forecasting", color: "text-red-500" },
+    { label: "Predictive Target", value: "PM2.5", color: "text-emerald-600" },
+    { label: "Forecast Horizon", value: "10 Hours", color: "text-amber-600" },
+    { label: "Spatial Grid", value: "Nationwide", color: "text-blue-600" },
+    { label: "Update Interval", value: "Hourly", color: "text-purple-600" },
   ];
 
   return (
-    <section
-      id="home"
-      className="relative overflow-hidden flex items-center"
-      style={{ minHeight: "calc(100dvh - 3.5rem)" }}
-    >
-      {/* ── Rich layered background ── */}
-      {/* Warm radial from bottom-right */}
-      <div className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse 80% 60% at 80% 110%, oklch(0.95 0.06 60 / 0.55) 0%, transparent 65%)" }} />
-      {/* Cool soft blue top-left accent */}
-      <div className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse 60% 50% at -5% -10%, oklch(0.92 0.04 240 / 0.35) 0%, transparent 60%)" }} />
-      {/* Morphing blobs */}
-      <div className="animate-blob absolute -top-32 right-0 h-80 w-80 md:h-[460px] md:w-[460px] rounded-full bg-orange-400/12 blur-3xl pointer-events-none" />
-      <div className="animate-blob animation-delay-blob absolute bottom-0 -left-24 h-72 w-72 md:h-[380px] md:w-[380px] rounded-full bg-amber-300/10 blur-3xl pointer-events-none" />
-      {/* Grid overlay */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.035]"
-        style={{ backgroundImage: "linear-gradient(oklch(0.4 0.02 250) 1px,transparent 1px),linear-gradient(90deg,oklch(0.4 0.02 250) 1px,transparent 1px)", backgroundSize: "44px 44px" }} />
-
-      <div className="relative w-full mx-auto max-w-7xl px-4 sm:px-6 py-6 lg:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-6 lg:gap-10 xl:gap-16 items-center">
-
-          {/* ════ LEFT: Copy ════ */}
-          <div className="flex flex-col gap-4 lg:gap-6 order-2 lg:order-1">
-
-            {/* Pill badge — pulsing dot + label */}
-            <div className="animate-fade-up flex items-center gap-3">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
-              </span>
-              <Badge variant="outline" className="rounded-full border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 px-4 py-1.5 text-[11px] font-semibold text-orange-600 shadow-sm gap-1.5">
-                <Sparkles className="h-3 w-3" />
-                AI-POWERED · LSTM + CNN · LIVE FORECASTING
+    <section className="relative pt-6 pb-12 md:pt-10 md:pb-16 border-b border-border/40 bg-gradient-to-b from-orange-50/40 via-background to-background">
+      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          {/* Left Column: Headline, CTAs, Role Entry */}
+          <div className="lg:col-span-6 space-y-5 text-left">
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="rounded-full border-emerald-500/30 bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-700 gap-1.5 shadow-sm">
+                <Sparkles className="h-3 w-3 text-emerald-600" />
+                AtmoAI · AI-Powered Air Quality Intelligence
               </Badge>
             </div>
 
-            {/* Headline */}
-            <div className="animate-fade-up animation-delay-1 space-y-0.5">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[3.25rem] font-extrabold tracking-tight leading-[1.08]">
-                <span className="text-foreground">Predict Future Air Quality with</span>
+            <div className="space-y-1">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-foreground">
+                Predict PM2.5 Pollution <br />
+                <span className="shimmer-text">Before It Hits.</span>
               </h1>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[3.25rem] font-extrabold tracking-tight leading-[1.08]">
-                <span className="shimmer-text">AI-Powered PM2.5</span>
-              </h1>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[3.25rem] font-extrabold tracking-tight leading-[1.08] text-foreground/70">
-                Forecasting
-              </h1>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-xl">
+                Real-time AI spatial forecasting and health risk intelligence across Indian cities for citizens and environmental authorities.
+              </p>
             </div>
 
-            {/* Sub-copy */}
-            <p className="animate-fade-up animation-delay-2 text-sm lg:text-[15px] leading-[1.6] text-muted-foreground max-w-[480px]">
-              AtmoAI uses AI-powered forecasting to predict PM2.5 concentrations ahead of time, helping communities and decision-makers identify air-quality risks before conditions become hazardous.
-            </p>
+            {/* Role Entry Action Buttons */}
+            <div className="space-y-3 pt-1">
+              <div className="flex flex-wrap gap-3">
+                <Button asChild size="lg" className="h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-glow px-5 font-bold transition-all text-sm gap-2">
+                  <Link to="/app/dashboard">
+                    <User className="h-4 w-4" />
+                    Continue as Citizen
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="h-11 rounded-xl border-2 border-primary/40 bg-primary/5 px-5 font-bold text-sm hover:border-primary hover:bg-primary/10 transition-all gap-2">
+                  <Link to="/app/admin">
+                    <ShieldAlert className="h-4 w-4 text-primary" />
+                    Administrator Portal
+                  </Link>
+                </Button>
+              </div>
 
-            {/* CTAs */}
-            <div className="animate-fade-up animation-delay-3 flex flex-wrap gap-3">
-              <Button asChild size="lg"
-                className="h-12 rounded-2xl gradient-primary text-white shadow-glow px-7 font-semibold hover:opacity-90 hover:scale-[1.02] transition-all active:scale-95 gap-2 text-[15px]">
-                <Link to="/app/admin">
-                  Explore Dashboard
-                  <ArrowRight className="h-4 w-4" />
+              {/* Compact Role Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                <Link
+                  to="/app/dashboard"
+                  className="rounded-xl border border-emerald-200/80 bg-emerald-50/50 p-2.5 hover:bg-emerald-50 transition flex items-center gap-2.5 group"
+                >
+                  <div className="grid h-7 w-7 place-items-center rounded-lg bg-emerald-600 text-white text-xs font-bold shrink-0">
+                    <User className="h-3.5 w-3.5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-emerald-950 flex items-center gap-1">
+                      Citizen Portal <ArrowRight className="h-3 w-3 transition group-hover:translate-x-0.5 text-emerald-700" />
+                    </p>
+                    <p className="text-[10px] text-emerald-800/80 leading-tight">
+                      AQI, health advisories, safe zones & alerts
+                    </p>
+                  </div>
                 </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline"
-                className="h-12 rounded-2xl border-2 border-border px-7 font-semibold text-[15px] hover:border-primary hover:bg-primary/5 hover:text-primary transition-all active:scale-95">
-                <Link to="/app/dashboard/pollution">View Forecasts</Link>
-              </Button>
+
+                <Link
+                  to="/app/admin"
+                  className="rounded-xl border border-border/80 bg-background/80 p-2.5 hover:bg-accent/60 transition flex items-center gap-2.5 group"
+                >
+                  <div className="grid h-7 w-7 place-items-center rounded-lg gradient-primary text-white text-xs font-bold shrink-0">
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-foreground flex items-center gap-1">
+                      Administrator Portal <ArrowRight className="h-3 w-3 transition group-hover:translate-x-0.5 text-primary" />
+                    </p>
+                    <p className="text-[11px] text-muted-foreground leading-tight">
+                      Sensors, complaints, alerts & monitoring
+                    </p>
+                  </div>
+                </Link>
+              </div>
             </div>
 
-            {/* ── Live stat ticker ── */}
-            <div className="animate-fade-up animation-delay-4 grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+            {/* Stat ticker */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-border/40">
               {stats.map((s) => (
-                <div key={s.label}
-                  className="flex flex-col gap-0.5 rounded-xl border border-border/60 bg-background/70 backdrop-blur-sm px-3 py-2 shadow-sm">
-                  <span className={`text-lg font-extrabold leading-none ${s.color}`}>{s.value}</span>
-                  <span className="text-[10px] text-muted-foreground leading-tight">{s.label}</span>
+                <div key={s.label} className="rounded-lg border border-border/60 bg-background/70 p-2 text-left">
+                  <span className={`text-sm font-black block ${s.color}`}>{s.value}</span>
+                  <span className="text-[10px] text-muted-foreground leading-tight block">{s.label}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* ── Floating map card ── */}
-          <div className="relative animate-float order-1 lg:order-2">
-            <div
-              className="glow-border rounded-2xl border border-border bg-card p-2 shadow-soft w-full mx-auto max-w-[640px] aspect-[4/3] lg:aspect-[1.3] xl:aspect-[1.4]"
-            >
-              <IndiaHeatmap height="100%" interactive />
-            </div>
-
-            {/* Floating pill — AI Rec */}
-            <div className="absolute -left-5 top-12 hidden md:flex items-center gap-3 rounded-2xl border border-border/70 bg-white/90 backdrop-blur-md px-4 py-3 shadow-[0_8px_32px_-8px_oklch(0.5_0.1_60_/_0.25)] animate-fade-up animation-delay-2">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary shrink-0">
-                <Activity className="h-5 w-5" />
+          {/* Right Column: Hero Visual Map Preview */}
+          <div className="lg:col-span-6">
+            <div className="relative rounded-2xl border border-border/80 bg-card p-2 shadow-lg overflow-hidden">
+              <div className="h-[320px] sm:h-[380px] lg:h-[400px] w-full rounded-xl overflow-hidden">
+                {mounted ? (
+                  <Suspense fallback={<div className="h-full w-full bg-slate-900/5 flex items-center justify-center text-xs text-muted-foreground">Loading Map...</div>}>
+                    <DynamicMap predictions={predictions} />
+                  </Suspense>
+                ) : (
+                  <div className="h-full w-full bg-slate-900/5 flex items-center justify-center text-xs text-muted-foreground">Loading Map...</div>
+                )}
               </div>
-              <div>
-                <p className="text-[10px] text-muted-foreground font-medium">AI Forecast (Demo Data)</p>
-                <p className="text-sm font-extrabold text-foreground leading-none">94.7% Accuracy</p>
+
+              {/* Floating Live Badge */}
+              <div className="absolute top-4 left-4 z-[400] flex items-center gap-2 rounded-xl border border-border/80 bg-background/90 px-3 py-1.5 text-xs font-bold backdrop-blur-md shadow-md">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                Live PM2.5 Forecast Node
               </div>
             </div>
-
-            {/* Air Quality Risk pill */}
-            <div className="absolute -bottom-15 right-3 z-50 hidden md:block w-[180px] rounded-xl glass px-3 py-2 shadow-soft animate-fade-up animation-delay-3">
-              <p className="text-[10px] text-muted-foreground leading-none">Next 10-hour prediction</p>
-              <p className="mt-2 right-4 text-sm font-bold text-primary leading-tight">PM2.5 · 68 µg/m³</p>
-              <Badge className="mt-1 rounded-full bg-orange-100 text-orange-700 text-[9px] font-bold hover:bg-orange-100">
-                Sensitive Groups
-              </Badge>
-            </div>
-
           </div>
+
         </div>
       </div>
     </section>
@@ -209,85 +238,59 @@ function Hero() {
 }
 
 /* ══════════════════════════════════════════════
-   §2 – FORECASTING
+   §2 – FORECASTING OBJECTIVES
 ══════════════════════════════════════════════ */
 function Forecasting() {
   const objectives = [
     {
-      icon: <Zap className="h-5 w-5" />,
+      icon: <Zap className="h-4 w-4" />,
       heading: "Short-Term PM2.5 Forecasting",
-      text: "Forecast future PM2.5 concentrations using historical and real-time air-quality observations.",
+      text: "Forecast PM2.5 concentrations using spatial neural modeling to predict risks before exposure.",
       color: "from-orange-500/10 to-amber-500/5",
       iconBg: "gradient-primary",
     },
     {
-      icon: <MapIcon className="h-5 w-5" />,
+      icon: <MapIcon className="h-4 w-4" />,
       heading: "Air-Quality Risk Assessment",
-      text: "Identify high-risk regions from predicted PM2.5 levels and classify their potential air-quality severity.",
+      text: "Classify high-risk industrial and urban regions using standard WHO/CPCB air quality thresholds.",
       color: "from-red-500/10 to-rose-500/5",
       iconBg: "bg-red-500",
     },
     {
-      icon: <BellRing className="h-5 w-5" />,
-      heading: "AI Preventive Recommendations",
-      text: "Convert air-quality forecasts into actionable guidance for individuals and sensitive groups.",
-      color: "from-teal-500/10 to-emerald-500/5",
-      iconBg: "bg-teal-600",
-      prominent: true,
+      icon: <BellRing className="h-4 w-4" />,
+      heading: "Actionable Preventive Guidance",
+      text: "Translate spatial predictions into personalized health advisories for citizens and vulnerable groups.",
+      color: "from-emerald-500/10 to-teal-500/5",
+      iconBg: "bg-emerald-600",
     },
   ];
 
-  const stats = [
-    { v: "PM2.5", l: "Primary Prediction Target" },
-    { v: "AI", l: "Forecast Engine" },
-    { v: "10 hr", l: "Forecast Horizon" },
-    { v: "AQI", l: "Risk Intelligence" },
-  ];
-
   return (
-    <section
-      id="forecasting"
-      className="flex items-center border-t border-border bg-gradient-to-b from-orange-50/50 to-background"
-      style={{ minHeight: "100dvh" }}
-    >
-      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 py-12">
-        {/* Header */}
-        <div className="mx-auto max-w-2xl text-center mb-10">
-          <Badge variant="outline" className="mb-3 rounded-full border-primary/30 bg-primary/5 text-primary text-[11px] font-semibold tracking-widest uppercase">
-            Core Objectives
+    <section id="forecasting" className="py-12 border-b border-border bg-muted/20">
+      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="mx-auto max-w-2xl text-center mb-8">
+          <Badge variant="outline" className="mb-2 rounded-full border-primary/30 bg-primary/5 text-primary text-[10px] font-bold tracking-widest uppercase">
+            Platform Mission
           </Badge>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
-            Air Quality Prediction & Protection
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+            Preventing Exposure with Intelligence
           </h2>
-          <blockquote className="mt-4 text-sm sm:text-base text-muted-foreground italic border-l-2 border-primary/40 pl-4 text-left mx-auto max-w-xl rounded-r-lg bg-orange-50/50 py-3 pr-3">
-            "To build an AI-powered air-quality intelligence platform that forecasts short-term PM2.5 risks and converts those predictions into actionable preventive guidance."
-          </blockquote>
+          <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
+            Converting complex ML forecasts into clear, preventive action plans for individuals and authorities.
+          </p>
         </div>
 
-        {/* Objective cards */}
-        <div className="grid gap-5 grid-cols-1 sm:grid-cols-3 mb-8">
-          {objectives.map(({ icon, heading, text, color, iconBg, prominent }, idx) => (
-            <Card key={heading} className={`card-hover bg-gradient-to-br ${color} overflow-hidden animate-fade-up animation-delay-${idx + 1} ${prominent ? 'border-primary ring-1 ring-primary/30 shadow-md scale-[1.02] z-10' : 'border-border'}`}>
-              <CardHeader className="pb-3">
-                <div className={`grid h-11 w-11 place-items-center rounded-xl ${iconBg} text-white shadow-glow mb-3`}>
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+          {objectives.map(({ icon, heading, text, color, iconBg }) => (
+            <Card key={heading} className={`bg-gradient-to-br ${color} border-border hover:border-primary/40 transition-all`}>
+              <CardHeader className="p-4 pb-2">
+                <div className={`grid h-9 w-9 place-items-center rounded-lg ${iconBg} text-white shadow-sm mb-2`}>
                   {icon}
                 </div>
-                <CardTitle className="text-base">{heading}</CardTitle>
+                <CardTitle className="text-sm sm:text-base font-bold">{heading}</CardTitle>
               </CardHeader>
-              <CardContent>
-                <CardDescription className="text-xs sm:text-sm leading-relaxed">{text}</CardDescription>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {stats.map((s, i) => (
-            <Card key={s.l} className={`card-hover text-center border-border animate-fade-up animation-delay-${i + 4}`}>
-              <CardContent className="pt-5 pb-5">
-                <p className="text-2xl sm:text-3xl font-bold text-primary">{s.v}</p>
-                <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground">{s.l}</p>
+              <CardContent className="p-4 pt-0">
+                <CardDescription className="text-xs leading-relaxed text-muted-foreground">{text}</CardDescription>
               </CardContent>
             </Card>
           ))}
@@ -302,60 +305,42 @@ function Forecasting() {
 ══════════════════════════════════════════════ */
 function Features() {
   const items = [
-    { icon: <Wind />, title: "PM2.5 Forecasting", desc: "AI models forecast future PM2.5 concentrations using historical and real-time air-quality observations.", accent: "text-orange-500 bg-orange-500/10" },
-    { icon: <MapIcon />, title: "Real-Time Air Quality Monitoring", desc: "Monitor air-quality conditions across Indian cities and regions through an interactive map.", accent: "text-blue-500 bg-blue-500/10" },
-    { icon: <ShieldCheck />, title: "Air-Quality Risk Assessment", desc: "Identify locations where predicted PM2.5 levels may create unhealthy conditions.", accent: "text-red-500 bg-red-500/10" },
-    { icon: <BellRing />, title: "Intelligent Alerts", desc: "Receive early warnings when PM2.5 levels are expected to deteriorate.", accent: "text-teal-500 bg-teal-500/10" },
-    { icon: <TrendingUp />, title: "Historical Air-Quality Analytics", desc: "Analyze PM2.5 and AQI trends across locations and time periods.", accent: "text-emerald-500 bg-emerald-500/10" },
-    { icon: <MessageSquare />, title: "Preventive Recommendations", desc: "Translate predicted air-quality conditions into practical guidance for affected communities.", accent: "text-purple-500 bg-purple-500/10" },
+    { icon: <Wind className="h-4 w-4" />, title: "PM2.5 Spatial Forecasting", desc: "Predict future PM2.5 levels across urban grid coordinates.", accent: "text-orange-500 bg-orange-500/10" },
+    { icon: <MapIcon className="h-4 w-4" />, title: "Interactive Leaflet Heatmaps", desc: "Visualize pollution intensity and vector markers dynamically.", accent: "text-blue-500 bg-blue-500/10" },
+    { icon: <ShieldCheck className="h-4 w-4" />, title: "Safe Air Zone Identification", desc: "Rank cities and parks with lowest particulate levels.", accent: "text-emerald-500 bg-emerald-500/10" },
+    { icon: <BellRing className="h-4 w-4" />, title: "Real-Time Emergency Alerts", desc: "Notify citizens when local PM2.5 crosses safe thresholds.", accent: "text-red-500 bg-red-500/10" },
+    { icon: <TrendingUp className="h-4 w-4" />, title: "Historical Trends & Analytics", desc: "Compare historical trajectories and municipal statistics.", accent: "text-purple-500 bg-purple-500/10" },
+    { icon: <MessageSquare className="h-4 w-4" />, title: "Public Grievance System", desc: "Report industrial emissions directly to municipal bureaus.", accent: "text-teal-500 bg-teal-500/10" },
   ];
 
   return (
-    <section
-      id="features"
-      className="flex items-center border-t border-border"
-      style={{ minHeight: "100dvh" }}
-    >
-      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 py-12">
-        {/* Header */}
-        <div className="mx-auto max-w-2xl text-center mb-10">
-          <Badge variant="outline" className="mb-3 rounded-full border-primary/30 bg-primary/5 text-primary text-[11px] font-semibold tracking-widest uppercase">
-            Features
+    <section id="features" className="py-12 border-b border-border bg-background">
+      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="mx-auto max-w-2xl text-center mb-8">
+          <Badge variant="outline" className="mb-2 rounded-full border-primary/30 bg-primary/5 text-primary text-[10px] font-bold tracking-widest uppercase">
+            Capabilities
           </Badge>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
-            Everything you need to understand{" "}
-            <span className="text-primary">India's air quality</span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+            Complete Air Quality Ecosystem
           </h2>
-          <p className="mt-3 text-sm text-muted-foreground">
-            AI-powered monitoring, forecasting and risk intelligence for PM2.5.
+          <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
+            Designed for seamless accessibility across mobile, tablet, and desktop devices.
           </p>
         </div>
 
-        {/* 3×2 grid */}
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map(({ icon, title, desc, accent }, idx) => (
-            <TooltipProvider key={title}>
-              <UITooltip>
-                <TooltipTrigger asChild>
-                  <Card className={`card-hover group cursor-default border-border relative overflow-hidden animate-fade-up animation-delay-${idx + 1}`}>
-                    {/* Hover shimmer overlay */}
-                    <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/5 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                    <CardHeader className="pb-2">
-                      <div className={`grid h-10 w-10 place-items-center rounded-xl ${accent} mb-3 transition-transform duration-300 group-hover:scale-110`}>
-                        {icon}
-                      </div>
-                      <CardTitle className="text-sm sm:text-base">{title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription className="text-xs sm:text-sm leading-relaxed">{desc}</CardDescription>
-                    </CardContent>
-                  </Card>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="text-xs max-w-[220px]">
-                  {desc}
-                </TooltipContent>
-              </UITooltip>
-            </TooltipProvider>
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map(({ icon, title, desc, accent }) => (
+            <Card key={title} className="border-border hover:border-primary/40 transition-all p-4">
+              <div className="flex items-start gap-3">
+                <div className={`grid h-9 w-9 place-items-center rounded-lg ${accent} shrink-0`}>
+                  {icon}
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">{title}</h3>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{desc}</p>
+                </div>
+              </div>
+            </Card>
           ))}
         </div>
       </div>
@@ -366,265 +351,130 @@ function Features() {
 /* ══════════════════════════════════════════════
    §4 – PLATFORM PREVIEW
 ══════════════════════════════════════════════ */
-function PlatformPreview() {
+function PlatformPreview({ predictions }: { heatmapHtml: string; predictions: any[] }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
-    <section
-      id="preview"
-      className="flex items-center border-t border-border bg-gradient-to-b from-background to-orange-50/30"
-      style={{ minHeight: "100dvh" }}
-    >
-      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 py-12">
+    <section id="preview" className="py-12 border-b border-border bg-muted/20">
+      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mx-auto max-w-2xl text-center mb-8">
-          <Badge variant="outline" className="mb-3 rounded-full border-primary/30 bg-primary/5 text-primary text-[11px] font-semibold tracking-widest uppercase">
-            Platform Preview
+          <Badge variant="outline" className="mb-2 rounded-full border-primary/30 bg-primary/5 text-primary text-[10px] font-bold tracking-widest uppercase">
+            Live Preview
           </Badge>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
-            Inside the AtmoAI Platform
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+            Inside AtmoAI Intelligence
           </h2>
-          <p className="mt-3 text-sm text-muted-foreground max-w-2xl mx-auto">
-            From real-time air-quality monitoring to short-term PM2.5 forecasting and risk intelligence.
+          <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
+            Real-time prediction snapshots and spatial visualizations.
           </p>
         </div>
 
-        <Card className="border-border shadow-soft p-2 sm:p-4">
-          <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
-            {/* AQI Gauge -> Risk Gauge */}
-            <Card className="border-border bg-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Current Air Quality</CardTitle>
-                <CardDescription className="text-xs">New Delhi, India</CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col items-center">
-                <AQIGauge value={168} />
-                <p className="mt-2 text-xs font-semibold text-muted-foreground">PM2.5 · 68 µg/m³</p>
-              </CardContent>
-            </Card>
+        <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
+          <Card className="border-border bg-card p-4">
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Selected Location AQI</h3>
+            <div className="flex flex-col items-center">
+              <AQIGauge value={68} />
+              <p className="mt-2 text-xs font-bold text-foreground">Bengaluru · PM2.5: 68 µg/m³</p>
+            </div>
+          </Card>
 
-            {/* Forecast Area Chart */}
-            <Card className="border-border bg-card lg:col-span-2">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">PM2.5 Forecast</CardTitle>
-                <CardDescription className="text-xs">µg/m³ · AI prediction model</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={170}>
-                  <AreaChart data={forecast24h.slice(0, 10)}>
-                    <defs>
-                      <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#F97316" stopOpacity={0.4} />
-                        <stop offset="100%" stopColor="#F97316" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.93 0.01 250)" vertical={false} />
-                    <XAxis dataKey="time" stroke="oklch(0.5 0.02 250)" fontSize={10} />
-                    <YAxis stroke="oklch(0.5 0.02 250)" fontSize={10} />
-                    <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid oklch(0.93 0.01 250)", fontSize: 11 }} />
-                    <Area type="monotone" dataKey="predicted" stroke="#F97316" strokeWidth={2} fill="url(#g1)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* India Heatmap */}
-            <Card className="border-border bg-card lg:col-span-2">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">India Air Quality Risk Map</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <IndiaHeatmap height={200} />
-              </CardContent>
-            </Card>
-
-            {/* Monthly Bar */}
-            <Card className="border-border bg-card">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-sm">Monthly PM2.5 Comparison</CardTitle>
-                    <CardDescription className="text-xs">2025 vs 2024</CardDescription>
-                  </div>
-                  <TrendingUp className="h-4 w-4 text-primary" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={170}>
-                  <BarChart data={monthly}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.93 0.01 250)" vertical={false} />
-                    <XAxis dataKey="month" stroke="oklch(0.5 0.02 250)" fontSize={9} />
-                    <YAxis stroke="oklch(0.5 0.02 250)" fontSize={9} />
-                    <Tooltip contentStyle={{ borderRadius: 10, fontSize: 11 }} />
-                    <Bar dataKey="last" fill="#FDBA74" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="pm25" fill="#F97316" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-        </Card>
+          <Card className="border-border bg-card p-4 lg:col-span-2">
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">10-Hour PM2.5 Forecast Trajectory</h3>
+            <div className="h-[180px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={forecast24h.slice(0, 8)}>
+                  <defs>
+                    <linearGradient id="previewGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.4} />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                  <XAxis dataKey="time" fontSize={10} />
+                  <YAxis fontSize={10} />
+                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
+                  <Area type="monotone" dataKey="predicted" stroke="#10b981" strokeWidth={2} fill="url(#previewGrad)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </div>
       </div>
     </section>
   );
 }
 
 /* ══════════════════════════════════════════════
-   §5 – CONTACT  (Team + Form)
+   §5 – FAQ
 ══════════════════════════════════════════════ */
-function Contact() {
-  const team = [
-    { name: "Yash Kumavat", role: "Team Leader", photo: "/yash.png", init: "YK", color: "from-orange-400 to-amber-500", github: "https://github.com/FamYash", linkedin: "https://www.linkedin.com/in/yash-kumavat-503a6a326/", email: "yashnkumavat2005@gmail.com" },
-    { name: "Gajjar Antra", role: "Team Member", photo: "/antra.png", init: "GA", color: "from-rose-400 to-pink-500", github: "https://github.com/Antra1312", linkedin: "https://www.linkedin.com/in/antra-gajjar-957977330/", email: "gajjarantra03@gmail.com" },
-    { name: "Chrisha Dabhi", role: "Team Member", photo: "/chrisha.jpeg", init: "CD", color: "from-teal-400 to-emerald-500", github: "https://github.com/DabhiChrisha", linkedin: "https://www.linkedin.com/in/chrishadabhi/", email: "chrishaadabhii0704@gmail.com" },
+function FAQ() {
+  const faqs = [
+    { q: "How is PM2.5 predicted?", a: "AtmoAI models spatial and temporal air quality observations to forecast upcoming PM2.5 concentration levels." },
+    { q: "What is the difference between Citizen and Admin portals?", a: "Citizens view local AQI, health advisories, safe locations, and submit complaints. Admins manage monitoring nodes, alerts, complaints, and platform parameters." },
+    { q: "Are map coordinates geographically accurate?", a: "Yes. All markers and heatmaps use exact latitude, longitude, and PM2.5 values from the authoritative prediction dataset." },
+    { q: "Is AtmoAI responsive on mobile devices?", a: "Yes. AtmoAI is engineered for fluid responsiveness from 375px mobile screens to 1440px desktop displays." },
   ];
 
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success("Report received!", {
-      description: "Our team will review your submission shortly.",
-    });
-    setForm({ name: "", email: "", message: "" });
-  };
-
   return (
-    <section
-      id="contact"
-      className="flex items-start border-t border-border"
-      style={{ minHeight: "100dvh" }}
-    >
-      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 py-12">
-
-        {/* ── Team ── */}
+    <section className="py-12 border-b border-border bg-background">
+      <div className="w-full mx-auto max-w-4xl px-4 sm:px-6">
         <div className="text-center mb-8">
-          <Badge variant="outline" className="mb-3 rounded-full border-primary/30 bg-primary/5 text-primary text-[11px] font-semibold tracking-widest uppercase">
-            Our Team
+          <Badge variant="outline" className="mb-2 rounded-full border-primary/30 bg-primary/5 text-primary text-[10px] font-bold tracking-widest uppercase">
+            FAQ
           </Badge>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
-            The minds behind AtmoAI
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+            Frequently Asked Questions
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            A team of engineers and researchers building AI-powered tools for air-quality prediction and public safety.
-          </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 max-w-4xl mx-auto mb-12">
-          {team.map((t, idx) => (
-            <Card key={t.name} className={`card-hover border-border text-center animate-fade-up animation-delay-${idx + 1}`}>
-              <CardContent className="pt-8 pb-6 flex flex-col items-center gap-3">
-                <Avatar className={`h-24 w-24 ring-4 bg-gradient-to-br ${t.color} ring-primary/15 shadow-md`}>
-                  <AvatarImage src={t.photo} alt={t.name} className="object-cover object-top" />
-                  <AvatarFallback className={`text-xl font-bold text-white bg-gradient-to-br ${t.color}`}>
-                    {t.init}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="text-sm sm:text-base font-semibold text-foreground leading-tight">{t.name}</h3>
-                  <p className="mt-0.5 text-xs sm:text-sm font-medium text-primary">{t.role}</p>
-                </div>
-                <div className="flex justify-center gap-2 pt-1">
-                  {t.github && (
-                    <UITooltip key="github">
-                      <TooltipTrigger asChild>
-                        <Button asChild variant="outline" size="icon" className="h-8 w-8 rounded-lg border-border hover:border-primary hover:text-primary">
-                          <a href={t.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-                            <Github className="h-3.5 w-3.5" />
-                          </a>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom" className="text-xs">GitHub</TooltipContent>
-                    </UITooltip>
-                  )}
-                  {t.linkedin && (
-                    <UITooltip key="linkedin">
-                      <TooltipTrigger asChild>
-                        <Button asChild variant="outline" size="icon" className="h-8 w-8 rounded-lg border-border hover:border-primary hover:text-primary">
-                          <a href={t.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-                            <Linkedin className="h-3.5 w-3.5" />
-                          </a>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom" className="text-xs">LinkedIn</TooltipContent>
-                    </UITooltip>
-                  )}
-                  {t.email && (
-                    <UITooltip key="email">
-                      <TooltipTrigger asChild>
-                        <Button asChild variant="outline" size="icon" className="h-8 w-8 rounded-lg border-border hover:border-primary hover:text-primary">
-                          <a href={`mailto:${t.email}`} aria-label="Email">
-                            <Mail className="h-3.5 w-3.5" />
-                          </a>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom" className="text-xs">Email</TooltipContent>
-                    </UITooltip>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+        <div className="space-y-3">
+          {faqs.map((faq) => (
+            <div key={faq.q} className="rounded-xl border border-border p-4 bg-card">
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <HelpCircle className="h-4 w-4 text-emerald-600 shrink-0" />
+                {faq.q}
+              </h3>
+              <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed pl-6">
+                {faq.a}
+              </p>
+            </div>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
 
-        <Separator className="my-8 max-w-4xl mx-auto" />
-
-        {/* ── Form ── */}
-        <div className="mx-auto max-w-xl">
-          <div className="text-center mb-6">
-            <Badge variant="outline" className="mb-3 rounded-full border-primary/30 bg-primary/5 text-primary text-[11px] font-semibold tracking-widest uppercase">
-              Get Involved
-            </Badge>
-            <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              Submit Feedback or Report Incidents
-            </h3>
-            <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
-              Help us improve forecasting accuracy or report air-quality incidents directly to our team.
-            </p>
-          </div>
-
-          <Card className="border-border shadow-soft">
-            <CardContent className="pt-6">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="f-name" className="text-xs font-medium">Full Name</Label>
-                    <Input
-                      id="f-name" type="text" required placeholder="Chrisha Dabhi"
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="rounded-xl border-border focus-visible:ring-primary/30 text-sm"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="f-email" className="text-xs font-medium">Email Address</Label>
-                    <Input
-                      id="f-email" type="email" required placeholder="you@example.com"
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="rounded-xl border-border focus-visible:ring-primary/30 text-sm"
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="f-msg" className="text-xs font-medium">Message / Incident Description</Label>
-                  <Textarea
-                    id="f-msg" required rows={4}
-                    placeholder="Describe the air-quality incident or your feedback..."
-                    value={form.message}
-                    onChange={(e) => setForm({ ...form, message: e.target.value })}
-                    className="resize-none rounded-xl border-border focus-visible:ring-primary/30 text-sm"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-full rounded-xl gradient-primary text-white shadow-glow hover:opacity-90 transition-all active:scale-95"
-                >
-                  Submit Report
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+/* ══════════════════════════════════════════════
+   §6 – CTA
+══════════════════════════════════════════════ */
+function CTA() {
+  return (
+    <section className="py-12 bg-gradient-to-br from-emerald-900 to-slate-900 text-white text-center">
+      <div className="w-full mx-auto max-w-4xl px-4 sm:px-6 space-y-4">
+        <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
+          Ready to forecast cleaner air?
+        </h2>
+        <p className="text-xs sm:text-sm text-emerald-100/80 max-w-xl mx-auto">
+          Access local PM2.5 risk advisories as a citizen or manage municipal monitoring nodes as an administrator.
+        </p>
+        <div className="flex flex-wrap justify-center gap-3 pt-2">
+          <Button asChild size="lg" className="h-11 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs gap-2">
+            <Link to="/app/dashboard">
+              <User className="h-4 w-4" />
+              Citizen Portal
+            </Link>
+          </Button>
+          <Button asChild size="lg" variant="outline" className="h-11 rounded-xl border-white/30 bg-white/10 text-white hover:bg-white/20 font-bold text-xs gap-2">
+            <Link to="/app/admin">
+              <ShieldAlert className="h-4 w-4" />
+              Admin Portal
+            </Link>
+          </Button>
         </div>
-
       </div>
     </section>
   );

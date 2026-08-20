@@ -1,16 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Upload, Database, CheckCircle2, AlertTriangle, HardDrive, RefreshCcw, Trash2, Eye, Activity, ShieldCheck } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/admin/data-center")({ component: AdminDataCenter });
 
-const datasets = [
-  { name: "EPA AirNow · Global", rows: "48.2M", updated: "2 hours ago", status: "Validated", size: "1.2 GB" },
-  { name: "OpenAQ Live Feed", rows: "12.4M", updated: "Streaming", status: "Live", size: "340 MB" },
-  { name: "Sentinel-5P Satellite", rows: "2.1B", updated: "Yesterday", status: "Validated", size: "45.8 GB" },
-  { name: "ECMWF Meteorology", rows: "892M", updated: "6 hours ago", status: "Validated", size: "12.4 GB" },
+const initialDatasets = [
+  { id: "ds1", name: "EPA AirNow · Global", rows: "48.2M", updated: "2 hours ago", status: "Validated", size: "1.2 GB" },
+  { id: "ds2", name: "OpenAQ Live Feed", rows: "12.4M", updated: "Streaming", status: "Live", size: "340 MB" },
+  { id: "ds3", name: "Sentinel-5P Satellite", rows: "2.1B", updated: "Yesterday", status: "Validated", size: "45.8 GB" },
+  { id: "ds4", name: "ECMWF Meteorology", rows: "892M", updated: "6 hours ago", status: "Validated", size: "12.4 GB" },
 ];
 
-const stations = [
+const initialStations = [
   { id: "STN-DEL-01", name: "Anand Vihar, Delhi", status: "Online", lastUpdate: "2 mins ago" },
   { id: "STN-MUM-04", name: "Bandra Kurla Complex", status: "Online", lastUpdate: "5 mins ago" },
   { id: "STN-PUN-02", name: "Shivaji Nagar, Pune", status: "Offline", lastUpdate: "3 hours ago" },
@@ -19,6 +21,36 @@ const stations = [
 ];
 
 function AdminDataCenter() {
+  const [datasets, setDatasets] = useState(initialDatasets);
+  const [stations, setStations] = useState(initialStations);
+  const [isValidating, setIsValidating] = useState(false);
+
+  const handleDeleteDataset = (id: string) => {
+    if (confirm("Are you sure you want to delete this dataset?")) {
+      setDatasets(datasets.filter(ds => ds.id !== id));
+      toast.success("Dataset deleted successfully.");
+    }
+  };
+
+  const handleRunValidation = () => {
+    setIsValidating(true);
+    toast("Validation pipeline started...");
+    setTimeout(() => {
+      // Simulate validation fixing a warning station
+      setStations(stations.map(st => st.status === "Warning" ? { ...st, status: "Online", lastUpdate: "Just now" } : st));
+      setIsValidating(false);
+      toast.success("Data validation completed successfully. Anomalies quarantined.");
+    }, 1500);
+  };
+
+  const handleUpload = () => {
+    toast("File upload simulation: UI action recorded.");
+  };
+
+  const handleViewData = () => {
+    toast("Dataset explorer viewer is under construction.");
+  };
+
   return (
     <div className="font-sans max-w-7xl mx-auto space-y-6 pb-12">
       {/* Header */}
@@ -50,14 +82,19 @@ function AdminDataCenter() {
                 <h3 className="text-sm font-bold text-foreground">Pollution Datasets</h3>
                 <p className="text-[11px] text-muted-foreground">Manage raw data sources and uploads</p>
               </div>
-              <button className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-emerald-600 transition-colors">
+              <button onClick={handleUpload} className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-emerald-600 transition-colors">
                 <Upload className="h-4 w-4" /> Upload CSV
               </button>
             </div>
             
             <div className="space-y-3">
-              {datasets.map((ds) => (
-                <div key={ds.name} className="flex items-center justify-between rounded-xl border border-slate-100 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
+              {datasets.length === 0 ? (
+                <div className="py-8 text-center border border-slate-100 rounded-xl bg-slate-50">
+                  <Database className="mx-auto h-8 w-8 text-slate-300 mb-2" />
+                  <p className="text-sm font-bold text-slate-600">No datasets available</p>
+                </div>
+              ) : datasets.map((ds) => (
+                <div key={ds.id} className="flex items-center justify-between rounded-xl border border-slate-100 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-4">
                     <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 shrink-0">
                       <Database className="h-5 w-5 text-slate-400" />
@@ -79,10 +116,10 @@ function AdminDataCenter() {
                       {ds.status}
                     </span>
                     <div className="flex items-center gap-2 border-l border-slate-100 pl-4">
-                      <button className="p-1.5 text-slate-400 hover:text-emerald-600 rounded-lg transition-colors" title="View Data">
+                      <button onClick={handleViewData} className="p-1.5 text-slate-400 hover:text-emerald-600 rounded-lg transition-colors" title="View Data">
                         <Eye className="h-4 w-4" />
                       </button>
-                      <button className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg transition-colors" title="Delete Dataset">
+                      <button onClick={() => handleDeleteDataset(ds.id)} className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg transition-colors" title="Delete Dataset">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -127,8 +164,13 @@ function AdminDataCenter() {
                 </div>
               </div>
             </div>
-            <button className="mt-4 w-full py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm flex items-center justify-center gap-2">
-              <RefreshCcw className="h-3.5 w-3.5" /> Run Full Validation
+            <button 
+              onClick={handleRunValidation} 
+              disabled={isValidating}
+              className={`mt-4 w-full py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm flex items-center justify-center gap-2 ${isValidating ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <RefreshCcw className={`h-3.5 w-3.5 ${isValidating ? 'animate-spin' : ''}`} /> 
+              {isValidating ? 'Validating...' : 'Run Full Validation'}
             </button>
           </div>
 
@@ -153,7 +195,7 @@ function AdminDataCenter() {
               ))}
             </div>
             <div className="pt-3 border-t border-slate-100 mt-2 shrink-0">
-               <button className="text-xs font-bold text-primary hover:text-emerald-700 transition-colors w-full text-center">
+               <button onClick={() => toast("Station list viewer under construction.")} className="text-xs font-bold text-primary hover:text-emerald-700 transition-colors w-full text-center">
                  View All Stations
                </button>
             </div>

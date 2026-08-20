@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Search, MapPin, Activity, Wind, Filter } from "lucide-react";
 import { IndiaHeatmap } from "@/components/atmo/Visualizations";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/admin/explorer")({ component: AdminExplorer });
 
-const stateData = [
+const defaultStateData = [
   { name: "Delhi", aqi: 248, pm25: 145, status: "Severe", stations: 38 },
   { name: "Uttar Pradesh", aqi: 210, pm25: 120, status: "Very Poor", stations: 45 },
   { name: "Haryana", aqi: 195, pm25: 110, status: "Poor", stations: 22 },
@@ -15,6 +17,19 @@ const stateData = [
 ];
 
 function AdminExplorer() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [stateData] = useState(defaultStateData);
+  const [selectedState, setSelectedState] = useState(defaultStateData[0]);
+
+  const filteredData = stateData.filter(s => 
+    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.status.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleFilterClick = () => {
+    toast("Advanced filtering panel is under construction.");
+  };
+
   return (
     <div className="font-sans max-w-7xl mx-auto h-[calc(100vh-8rem)] flex flex-col pb-4">
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border/40 pb-4 mb-4 shrink-0">
@@ -31,11 +46,13 @@ function AdminExplorer() {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search states or cities..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search states or status..."
               className="rounded-xl border border-white/40 bg-white/60 backdrop-blur-sm py-2 pl-9 pr-4 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 w-[250px]"
             />
           </div>
-          <button className="h-9 px-4 rounded-xl border border-white/40 bg-white/60 backdrop-blur-sm shadow-sm text-xs font-bold text-slate-700 flex items-center gap-2 hover:bg-white transition-colors">
+          <button onClick={handleFilterClick} className="h-9 px-4 rounded-xl border border-white/40 bg-white/60 backdrop-blur-sm shadow-sm text-xs font-bold text-slate-700 flex items-center gap-2 hover:bg-white transition-colors">
             <Filter className="h-4 w-4" /> Filters
           </button>
         </div>
@@ -80,36 +97,37 @@ function AdminExplorer() {
           {/* State Card */}
           <div className="rounded-2xl border border-white/40 bg-white/60 backdrop-blur-xl p-5 shadow-sm shrink-0">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-black text-slate-800">New Delhi</h2>
-              <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
-                Severe
+              <h2 className="text-lg font-black text-slate-800">{selectedState.name}</h2>
+              <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${selectedState.aqi > 200 ? 'bg-purple-100 text-purple-700' : selectedState.aqi > 150 ? 'bg-red-100 text-red-700' : selectedState.aqi > 100 ? 'bg-orange-100 text-orange-700' : selectedState.aqi > 50 ? 'bg-yellow-100 text-yellow-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                {selectedState.status}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <p className="text-[10px] font-bold uppercase text-slate-500 mb-1">AQI</p>
-                <p className="text-3xl font-black text-purple-700">248</p>
+                <p className={`text-3xl font-black ${selectedState.aqi > 200 ? 'text-purple-700' : selectedState.aqi > 150 ? 'text-red-600' : selectedState.aqi > 100 ? 'text-orange-600' : selectedState.aqi > 50 ? 'text-yellow-600' : 'text-emerald-600'}`}>{selectedState.aqi}</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold uppercase text-slate-500 mb-1">PM2.5</p>
-                <p className="text-3xl font-black text-red-600">145</p>
+                <p className={`text-3xl font-black ${selectedState.pm25 > 120 ? 'text-red-600' : selectedState.pm25 > 60 ? 'text-orange-600' : 'text-emerald-600'}`}>{selectedState.pm25}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 bg-white/50 p-3 rounded-xl border border-slate-100">
-              <Activity className="h-4 w-4 text-purple-600" />
+              <Activity className={`h-4 w-4 ${selectedState.aqi > 200 ? 'text-purple-600' : 'text-emerald-600'}`} />
               Primary Pollutant: PM2.5
             </div>
           </div>
 
           {/* State List */}
           <div className="rounded-2xl border border-white/40 bg-white/60 backdrop-blur-xl shadow-sm flex-1 flex flex-col min-h-0">
-            <div className="p-4 border-b border-slate-100/50 shrink-0">
+            <div className="p-4 border-b border-slate-100/50 shrink-0 flex items-center justify-between">
               <h3 className="text-sm font-bold text-foreground">Top Polluted Regions</h3>
+              <span className="text-[10px] text-slate-400 font-bold">{filteredData.length} Results</span>
             </div>
             <div className="overflow-y-auto p-2 flex-1">
               <div className="space-y-1">
-                {stateData.map((state, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/60 transition-colors cursor-pointer">
+                {filteredData.map((state, i) => (
+                  <div key={i} onClick={() => setSelectedState(state)} className={`flex items-center justify-between p-3 rounded-xl hover:bg-white/60 transition-colors cursor-pointer ${selectedState.name === state.name ? 'bg-white shadow-sm border border-slate-100' : 'border border-transparent'}`}>
                     <div className="flex items-center gap-3">
                       <div className={`w-2 h-2 rounded-full ${state.aqi > 200 ? 'bg-purple-500' : state.aqi > 150 ? 'bg-red-500' : state.aqi > 100 ? 'bg-orange-500' : state.aqi > 50 ? 'bg-yellow-500' : 'bg-emerald-500'}`} />
                       <div>
@@ -125,6 +143,9 @@ function AdminExplorer() {
                     </div>
                   </div>
                 ))}
+                {filteredData.length === 0 && (
+                  <div className="p-4 text-center text-slate-500 text-xs font-bold">No regions found matching query.</div>
+                )}
               </div>
             </div>
           </div>

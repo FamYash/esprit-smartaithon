@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { FileText, Download, FileJson, FileSpreadsheet, Plus, Filter, Search, Calendar } from "lucide-react";
 
@@ -12,6 +13,25 @@ const reportHistory = [
 ];
 
 function AdminReports() {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredReports = reportHistory.filter((rep) =>
+    rep.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    rep.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    rep.author.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleDownload = (rep: any) => {
+    const content = `Report: ${rep.name}\nID: ${rep.id}\nAuthor: ${rep.author}\nDate: ${rep.date}\n\n[Simulated Content for ${rep.type}]`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${rep.id}_${rep.name.replace(/\s+/g, '_')}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="font-sans max-w-7xl mx-auto space-y-6 pb-12">
       {/* Header */}
@@ -66,6 +86,8 @@ function AdminReports() {
                 <input
                   type="text"
                   placeholder="Search reports..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="rounded-xl border border-slate-200 bg-white py-1.5 pl-9 pr-4 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 w-[200px]"
                 />
               </div>
@@ -87,7 +109,7 @@ function AdminReports() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {reportHistory.map((rep) => (
+                {filteredReports.map((rep) => (
                   <tr key={rep.id} className="hover:bg-white/60 transition-colors">
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
@@ -104,7 +126,10 @@ function AdminReports() {
                     <td className="py-3 px-4 font-medium text-slate-700">{rep.author}</td>
                     <td className="py-3 px-4 text-slate-500 font-medium">{rep.size}</td>
                     <td className="py-3 px-4 text-right">
-                      <button className="flex items-center justify-end gap-1.5 ml-auto rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-bold text-slate-700 shadow-sm hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-colors">
+                      <button 
+                        onClick={() => handleDownload(rep)}
+                        className="flex items-center justify-end gap-1.5 ml-auto rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-bold text-slate-700 shadow-sm hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-colors"
+                      >
                         <Download className="h-3 w-3" /> {rep.type}
                       </button>
                     </td>
@@ -120,6 +145,17 @@ function AdminReports() {
 }
 
 function ReportTemplate({ title, description, icon }: { title: string; description: string; icon: React.ReactNode }) {
+  const handleExport = (format: string) => {
+    const content = `Report: ${title}\nDescription: ${description}\n\n[Simulated ${format} Content]`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/\s+/g, '_')}.${format.toLowerCase() === 'excel' ? 'csv' : format.toLowerCase()}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="rounded-2xl border border-white/40 bg-white/60 backdrop-blur-sm p-4 shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
       <div className="flex items-start gap-4">
@@ -130,9 +166,9 @@ function ReportTemplate({ title, description, icon }: { title: string; descripti
           <h4 className="text-sm font-bold text-slate-800">{title}</h4>
           <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">{description}</p>
           <div className="mt-3 flex items-center gap-2">
-             <button className="text-[10px] font-bold px-3 py-1.5 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors">Generate PDF</button>
-             <button className="text-[10px] font-bold px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">Export Excel</button>
-             <button className="text-[10px] font-bold px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">Export CSV</button>
+             <button onClick={() => handleExport('PDF')} className="text-[10px] font-bold px-3 py-1.5 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors">Generate PDF</button>
+             <button onClick={() => handleExport('Excel')} className="text-[10px] font-bold px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">Export Excel</button>
+             <button onClick={() => handleExport('CSV')} className="text-[10px] font-bold px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">Export CSV</button>
           </div>
         </div>
       </div>

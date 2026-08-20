@@ -1,30 +1,100 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Filter, Calendar, MapPin, Wind, Activity, ArrowDownToLine, Droplets, FlaskConical, Beaker, MountainSnow } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/admin/monitoring")({ component: AirQualityMonitoring });
 
-const historicalAqi = Array.from({ length: 24 }, (_, i) => ({
+// Data generation helpers
+const generateHistoricalAqi = (base: number) => Array.from({ length: 24 }, (_, i) => ({
   time: `${String(i).padStart(2, '0')}:00`,
-  aqi: Math.round(120 + Math.sin(i / 2) * 50 + Math.random() * 20),
+  aqi: Math.round(base + Math.sin(i / 2) * 50 + Math.random() * 20),
 }));
 
-const pollutantComparison = Array.from({ length: 7 }, (_, i) => ({
+const generatePollutantComparison = (base: number) => Array.from({ length: 7 }, (_, i) => ({
   day: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i],
-  pm25: Math.round(60 + Math.random() * 40),
-  pm10: Math.round(100 + Math.random() * 60),
+  pm25: Math.round(base * 0.4 + Math.random() * 40),
+  pm10: Math.round(base * 0.7 + Math.random() * 60),
   no2: Math.round(30 + Math.random() * 20),
   o3: Math.round(40 + Math.random() * 30),
 }));
 
-const hourlyData = Array.from({ length: 8 }, (_, i) => ({
-  time: `${String(16 - i).padStart(2, '0')}:00`,
-  aqi: Math.round(140 + Math.random() * 60),
-  pm25: Math.round(80 + Math.random() * 30),
-  pm10: Math.round(150 + Math.random() * 40),
-}));
+const generateHourlyData = (base: number) => {
+  const currentHour = new Date().getHours();
+  return Array.from({ length: 8 }, (_, i) => {
+    const hour = (currentHour - i + 24) % 24;
+    return {
+      time: `${String(hour).padStart(2, '0')}:00`,
+      aqi: Math.round(base + Math.random() * 60),
+      pm25: Math.round((base * 0.5) + Math.random() * 30),
+      pm10: Math.round((base * 0.9) + Math.random() * 40),
+      no2: Math.round(30 + Math.random() * 20),
+      so2: Math.round(10 + Math.random() * 10),
+      co: (0.5 + Math.random() * 1).toFixed(1),
+      o3: Math.round(40 + Math.random() * 20),
+    };
+  });
+};
 
 function AirQualityMonitoring() {
+  const [region, setRegion] = useState("All States");
+  const [city, setCity] = useState("All Cities");
+  const [timeframe, setTimeframe] = useState("Today (Real-time)");
+  
+  // State for the datasets
+  const [historicalAqi, setHistoricalAqi] = useState<any[]>([]);
+  const [pollutantComparison, setPollutantComparison] = useState<any[]>([]);
+  const [hourlyData, setHourlyData] = useState<any[]>([]);
+
+  // Load initial data
+  useEffect(() => {
+    loadData("All Cities");
+  }, []);
+
+  const loadData = (selectedCity: string) => {
+    // Simulate different bases for different cities
+    let base = 120; // default
+    if (selectedCity === "New Delhi" || selectedCity === "Delhi") base = 180;
+    if (selectedCity === "Bengaluru" || selectedCity === "Karnataka") base = 60;
+    if (selectedCity === "Mumbai" || selectedCity === "Maharashtra") base = 100;
+
+    setHistoricalAqi(generateHistoricalAqi(base));
+    setPollutantComparison(generatePollutantComparison(base));
+    setHourlyData(generateHourlyData(base));
+    toast.success(`Telemetry data reloaded for ${selectedCity}`);
+  };
+
+  const handleFilter = () => {
+    loadData(city !== "All Cities" ? city : region !== "All States" ? region : "All Cities");
+  };
+
+  const handleExport = () => {
+    if (hourlyData.length === 0) return;
+    
+    // Convert hourlyData to CSV
+    const headers = ["Time", "AQI", "PM2.5", "PM10", "NO2", "SO2", "CO", "O3", "Status"];
+    const csvRows = [headers.join(",")];
+    
+    for (const row of hourlyData) {
+      const status = row.aqi > 150 ? "Unhealthy" : row.aqi > 100 ? "Sensitive" : "Moderate";
+      const values = [row.time, row.aqi, row.pm25, row.pm10, row.no2, row.so2, row.co, row.o3, status];
+      csvRows.push(values.join(","));
+    }
+    
+    const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `atmoai_telemetry_${city.replace(/\s+/g, '_')}_${new Date().getTime()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("Telemetry data exported to CSV");
+  };
+
+  const currentData = hourlyData.length > 0 ? hourlyData[0] : null;
+
   return (
     <div className="font-sans max-w-7xl mx-auto space-y-6 pb-12">
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border/40 pb-4">
@@ -42,7 +112,7 @@ function AirQualityMonitoring() {
       <div className="rounded-2xl border border-white/40 bg-white/60 backdrop-blur-xl p-4 shadow-sm flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-slate-100 shadow-sm flex-1 min-w-[200px]">
           <Calendar className="h-4 w-4 text-muted-foreground" />
-          <select className="text-xs font-semibold text-slate-700 bg-transparent outline-none w-full">
+          <select value={timeframe} onChange={(e) => setTimeframe(e.target.value)} className="text-xs font-semibold text-slate-700 bg-transparent outline-none w-full">
             <option>Today (Real-time)</option>
             <option>Last 24 Hours</option>
             <option>Last 7 Days</option>
@@ -51,7 +121,7 @@ function AirQualityMonitoring() {
         </div>
         <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-slate-100 shadow-sm flex-1 min-w-[200px]">
           <MapPin className="h-4 w-4 text-muted-foreground" />
-          <select className="text-xs font-semibold text-slate-700 bg-transparent outline-none w-full">
+          <select value={region} onChange={(e) => setRegion(e.target.value)} className="text-xs font-semibold text-slate-700 bg-transparent outline-none w-full">
             <option>All States</option>
             <option>Delhi</option>
             <option>Maharashtra</option>
@@ -60,36 +130,31 @@ function AirQualityMonitoring() {
         </div>
         <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-slate-100 shadow-sm flex-1 min-w-[200px]">
           <MapPin className="h-4 w-4 text-muted-foreground" />
-          <select className="text-xs font-semibold text-slate-700 bg-transparent outline-none w-full">
+          <select value={city} onChange={(e) => setCity(e.target.value)} className="text-xs font-semibold text-slate-700 bg-transparent outline-none w-full">
             <option>All Cities</option>
             <option>New Delhi</option>
             <option>Mumbai</option>
             <option>Bengaluru</option>
           </select>
         </div>
-        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-slate-100 shadow-sm flex-1 min-w-[200px]">
-          <Wind className="h-4 w-4 text-muted-foreground" />
-          <select className="text-xs font-semibold text-slate-700 bg-transparent outline-none w-full">
-            <option>All Pollutants</option>
-            <option>PM2.5</option>
-            <option>PM10</option>
-            <option>O₃</option>
-          </select>
-        </div>
-        <button className="h-10 w-10 bg-emerald-500 hover:bg-emerald-600 rounded-xl text-white flex items-center justify-center shadow-sm transition-colors">
+        <button onClick={handleFilter} className="h-10 w-10 bg-emerald-500 hover:bg-emerald-600 rounded-xl text-white flex items-center justify-center shadow-sm transition-colors" title="Reload Data">
           <Filter className="h-4 w-4" />
         </button>
       </div>
 
       {/* AQI Overview Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-        <PollutantCard title="AQI" val="168" unit="" icon={<Activity className="text-orange-500" />} />
-        <PollutantCard title="PM2.5" val="82.4" unit="μg/m³" icon={<MountainSnow className="text-amber-600" />} />
-        <PollutantCard title="PM10" val="145.1" unit="μg/m³" icon={<Wind className="text-amber-500" />} />
-        <PollutantCard title="NO₂" val="38.2" unit="ppb" icon={<FlaskConical className="text-blue-500" />} />
-        <PollutantCard title="SO₂" val="12.4" unit="ppb" icon={<Beaker className="text-purple-500" />} />
-        <PollutantCard title="CO" val="0.8" unit="ppm" icon={<Droplets className="text-slate-500" />} />
-        <PollutantCard title="O₃" val="45.6" unit="ppb" icon={<Wind className="text-sky-500" />} />
+        {currentData && (
+          <>
+            <PollutantCard title="AQI" val={currentData.aqi.toString()} unit="" icon={<Activity className="text-orange-500" />} />
+            <PollutantCard title="PM2.5" val={currentData.pm25.toString()} unit="μg/m³" icon={<MountainSnow className="text-amber-600" />} />
+            <PollutantCard title="PM10" val={currentData.pm10.toString()} unit="μg/m³" icon={<Wind className="text-amber-500" />} />
+            <PollutantCard title="NO₂" val={currentData.no2.toString()} unit="ppb" icon={<FlaskConical className="text-blue-500" />} />
+            <PollutantCard title="SO₂" val={currentData.so2.toString()} unit="ppb" icon={<Beaker className="text-purple-500" />} />
+            <PollutantCard title="CO" val={currentData.co.toString()} unit="ppm" icon={<Droplets className="text-slate-500" />} />
+            <PollutantCard title="O₃" val={currentData.o3.toString()} unit="ppb" icon={<Wind className="text-sky-500" />} />
+          </>
+        )}
       </div>
 
       {/* Charts */}
@@ -97,7 +162,7 @@ function AirQualityMonitoring() {
         <div className="rounded-2xl border border-white/40 bg-white/60 backdrop-blur-xl p-5 shadow-sm">
           <div className="mb-4">
             <h3 className="text-sm font-bold text-foreground">Historical AQI Trend</h3>
-            <p className="text-[11px] text-muted-foreground">Observed values for selected period</p>
+            <p className="text-[11px] text-muted-foreground">Simulated observations for selected period</p>
           </div>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -115,7 +180,7 @@ function AirQualityMonitoring() {
         <div className="rounded-2xl border border-white/40 bg-white/60 backdrop-blur-xl p-5 shadow-sm">
           <div className="mb-4">
             <h3 className="text-sm font-bold text-foreground">Pollutant Comparison</h3>
-            <p className="text-[11px] text-muted-foreground">Key components breakdown</p>
+            <p className="text-[11px] text-muted-foreground">Key components breakdown (Simulated)</p>
           </div>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -140,9 +205,9 @@ function AirQualityMonitoring() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-sm font-bold text-foreground">Hourly Monitoring Logs</h3>
-            <p className="text-[11px] text-muted-foreground">Raw observations for New Delhi station</p>
+            <p className="text-[11px] text-muted-foreground">Simulated observations for {city}</p>
           </div>
-          <button className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-bold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm">
+          <button onClick={handleExport} className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-bold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm">
             <ArrowDownToLine className="h-3.5 w-3.5" /> Export Data
           </button>
         </div>
@@ -165,7 +230,7 @@ function AirQualityMonitoring() {
                   <td className="py-3 px-2 text-slate-600 font-medium">{row.pm25}</td>
                   <td className="py-3 px-2 text-slate-600 font-medium">{row.pm10}</td>
                   <td className="py-3 px-2">
-                    <span className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-bold ${row.aqi > 150 ? "bg-red-100 text-red-700" : row.aqi > 100 ? "bg-orange-100 text-orange-700" : "bg-yellow-100 text-yellow-700"}`}>
+                    <span className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-bold ${row.aqi > 150 ? "bg-red-100 text-red-700" : row.aqi > 100 ? "bg-orange-100 text-orange-700" : "bg-emerald-100 text-emerald-700"}`}>
                       {row.aqi > 150 ? "Unhealthy" : row.aqi > 100 ? "Sensitive" : "Moderate"}
                     </span>
                   </td>
@@ -179,7 +244,7 @@ function AirQualityMonitoring() {
   );
 }
 
-function PollutantCard({ title, val, unit, icon }: { title: string; val: string; unit: string; icon: any }) {
+function PollutantCard({ title, val, unit, icon }: { title: string; val: string; unit: string; icon: React.ReactNode }) {
   return (
     <div className="rounded-2xl border border-white/40 bg-white/60 backdrop-blur-sm p-3 shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
       <div className="flex justify-between items-start mb-2">

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
 import { 
   MessageSquareWarning, 
   Search, 
@@ -13,19 +14,51 @@ import {
   Image as ImageIcon,
   MoreVertical
 } from "lucide-react";
+import { useReactiveStore } from "@/lib/atmo/storage";
 
 export const Route = createFileRoute("/app/admin/complaints")({ component: AdminComplaints });
 
-const complaintsData = [
-  { id: "CMP-0842", category: "Industrial Emission", location: "Ahmedabad, GIDC", date: "2023-11-15 14:30", status: "Open", reporter: "Rajesh K.", description: "Heavy black smoke from chemical plant since morning." },
-  { id: "CMP-0841", category: "Stubble Burning", location: "Amritsar (Rural)", date: "2023-11-15 11:15", status: "In Progress", reporter: "Anonymous", description: "Widespread crop burning visible from highway." },
-  { id: "CMP-0840", category: "Construction Dust", location: "Pune, Baner", date: "2023-11-14 09:45", status: "Escalated", reporter: "Priya S.", description: "No dust control measures at new metro site. Breathing difficulty." },
-  { id: "CMP-0839", category: "Vehicle Exhaust", location: "Bengaluru, Silk Board", date: "2023-11-14 08:20", status: "Resolved", reporter: "Amit D.", description: "Commercial truck emitting heavy smoke, license plate noted." },
-  { id: "CMP-0838", category: "Waste Burning", location: "Delhi, Okhla", date: "2023-11-13 18:10", status: "Rejected", reporter: "Sneha M.", description: "Small fire in an empty plot." },
+const defaultComplaints = [
+  { id: "CMP-0842", category: "Industrial Emission", location: "Ahmedabad, GIDC", date: "2026-08-19 14:30", status: "Open", reporter: "Rajesh K.", description: "Heavy black smoke from chemical plant since morning." },
+  { id: "CMP-0841", category: "Stubble Burning", location: "Amritsar (Rural)", date: "2026-08-19 11:15", status: "In Progress", reporter: "Anonymous", description: "Widespread crop burning visible from highway." },
+  { id: "CMP-0840", category: "Construction Dust", location: "Pune, Baner", date: "2026-08-18 09:45", status: "Escalated", reporter: "Priya S.", description: "No dust control measures at new metro site. Breathing difficulty." },
+  { id: "CMP-0839", category: "Vehicle Exhaust", location: "Bengaluru, Silk Board", date: "2026-08-17 08:20", status: "Resolved", reporter: "Amit D.", description: "Commercial truck emitting heavy smoke, license plate noted." },
+  { id: "CMP-0838", category: "Waste Burning", location: "Delhi, Okhla", date: "2026-08-16 18:10", status: "Rejected", reporter: "Sneha M.", description: "Small fire in an empty plot." },
 ];
 
 function AdminComplaints() {
+  const [complaints, setComplaints] = useReactiveStore<any[]>("atmoai_complaints", defaultComplaints);
   const [selectedComplaint, setSelectedComplaint] = useState<any | null>(null);
+  
+  // Search and Filter State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+
+  const updateStatus = (id: string, newStatus: string) => {
+    setComplaints(complaints.map(c => c.id === id ? { ...c, status: newStatus } : c));
+    if (selectedComplaint && selectedComplaint.id === id) {
+      setSelectedComplaint({ ...selectedComplaint, status: newStatus });
+    }
+    toast.success(`Complaint status updated to ${newStatus}`);
+  };
+
+  // Derived state
+  const filteredComplaints = complaints.filter(c => {
+    const matchesSearch = 
+      c.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      c.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.reporter.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = statusFilter === "All" || c.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  const openCount = complaints.filter(c => c.status === "Open").length;
+  const inProgressCount = complaints.filter(c => c.status === "In Progress").length;
+  const escalatedCount = complaints.filter(c => c.status === "Escalated").length;
+  const resolvedCount = complaints.filter(c => c.status === "Resolved").length;
 
   return (
     <div className="font-sans max-w-7xl mx-auto space-y-6 pb-12 relative">
@@ -43,10 +76,10 @@ function AdminComplaints() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title="Open" value="26" icon={<AlertCircle className="text-red-500 h-5 w-5" />} color="red" />
-        <StatCard title="In Progress" value="14" icon={<Clock className="text-amber-500 h-5 w-5" />} color="amber" />
-        <StatCard title="Escalated" value="5" icon={<MessageSquareWarning className="text-purple-500 h-5 w-5" />} color="purple" />
-        <StatCard title="Resolved" value="342" icon={<CheckCircle2 className="text-emerald-500 h-5 w-5" />} color="emerald" />
+        <StatCard title="Open" value={openCount.toString()} icon={<AlertCircle className="text-red-500 h-5 w-5" />} color="red" />
+        <StatCard title="In Progress" value={inProgressCount.toString()} icon={<Clock className="text-amber-500 h-5 w-5" />} color="amber" />
+        <StatCard title="Escalated" value={escalatedCount.toString()} icon={<MessageSquareWarning className="text-purple-500 h-5 w-5" />} color="purple" />
+        <StatCard title="Resolved" value={resolvedCount.toString()} icon={<CheckCircle2 className="text-emerald-500 h-5 w-5" />} color="emerald" />
       </div>
 
       {/* Main Table */}
@@ -57,51 +90,73 @@ function AdminComplaints() {
             <input
               type="text"
               placeholder="Search ID, Location or Category..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-4 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 w-[300px]"
             />
           </div>
-          <button className="h-9 px-4 rounded-xl border border-slate-200 bg-white shadow-sm text-xs font-bold text-slate-700 flex items-center gap-2 hover:bg-slate-50 transition-colors">
-            <Filter className="h-4 w-4" /> Filter Status
-          </button>
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-slate-500" />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="h-9 px-3 rounded-xl border border-slate-200 bg-white shadow-sm text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            >
+              <option value="All">All Statuses</option>
+              <option value="Open">Open</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Escalated">Escalated</option>
+              <option value="Resolved">Resolved</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
         </div>
         
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/50 text-[10px] uppercase tracking-wider text-muted-foreground">
-                <th className="py-3 px-4 font-bold">ID & Category</th>
-                <th className="py-3 px-4 font-bold">Location</th>
-                <th className="py-3 px-4 font-bold">Date Reported</th>
-                <th className="py-3 px-4 font-bold">Status</th>
-                <th className="py-3 px-4 font-bold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {complaintsData.map((c) => (
-                <tr key={c.id} className="hover:bg-white/60 transition-colors cursor-pointer" onClick={() => setSelectedComplaint(c)}>
-                  <td className="py-3 px-4">
-                    <p className="font-bold text-slate-800">{c.category}</p>
-                    <p className="text-[10px] text-muted-foreground font-mono mt-0.5">{c.id}</p>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-1.5 text-slate-600 font-medium">
-                      <MapPin className="h-3.5 w-3.5 text-slate-400" />
-                      {c.location}
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 text-slate-500 font-medium">{c.date}</td>
-                  <td className="py-3 px-4">
-                    <StatusBadge status={c.status} />
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <button className="p-1.5 text-slate-400 hover:text-emerald-600 rounded-lg transition-colors">
-                      <MoreVertical className="h-4 w-4" />
-                    </button>
-                  </td>
+          {filteredComplaints.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <MessageSquareWarning className="h-12 w-12 text-slate-300 mb-4" />
+              <h3 className="text-lg font-bold text-slate-700">NO COMPLAINTS FOUND</h3>
+              <p className="text-sm text-slate-500 mt-1">Adjust your search or filters to see more results.</p>
+            </div>
+          ) : (
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50/50 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <th className="py-3 px-4 font-bold">ID & Category</th>
+                  <th className="py-3 px-4 font-bold">Location</th>
+                  <th className="py-3 px-4 font-bold">Date Reported</th>
+                  <th className="py-3 px-4 font-bold">Status</th>
+                  <th className="py-3 px-4 font-bold text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredComplaints.map((c) => (
+                  <tr key={c.id} className="hover:bg-white/60 transition-colors cursor-pointer" onClick={() => setSelectedComplaint(c)}>
+                    <td className="py-3 px-4">
+                      <p className="font-bold text-slate-800">{c.category}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono mt-0.5">{c.id}</p>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-1.5 text-slate-600 font-medium">
+                        <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                        {c.location}
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-slate-500 font-medium">{c.date}</td>
+                    <td className="py-3 px-4">
+                      <StatusBadge status={c.status} />
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <button className="p-1.5 text-slate-400 hover:text-emerald-600 rounded-lg transition-colors">
+                        <MoreVertical className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
@@ -140,14 +195,14 @@ function AdminComplaints() {
                   <div>
                     <h3 className="text-xs font-bold text-slate-400 uppercase mb-2">Location</h3>
                     <div className="flex items-start gap-2 text-sm font-semibold text-slate-700">
-                      <MapPin className="h-4 w-4 text-slate-400 mt-0.5" />
+                      <MapPin className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
                       {selectedComplaint.location}
                     </div>
                   </div>
                   <div>
                     <h3 className="text-xs font-bold text-slate-400 uppercase mb-2">Reporter</h3>
                     <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                      <User className="h-4 w-4 text-slate-400" />
+                      <User className="h-4 w-4 text-slate-400 shrink-0" />
                       {selectedComplaint.reporter}
                     </div>
                   </div>
@@ -166,18 +221,30 @@ function AdminComplaints() {
             {/* Drawer Footer Actions */}
             <div className="p-4 border-t border-slate-100 bg-slate-50 space-y-2">
               <div className="grid grid-cols-2 gap-2">
-                <button className="py-2.5 rounded-xl bg-emerald-500 text-white font-bold text-xs hover:bg-emerald-600 transition-colors shadow-sm text-center">
+                <button 
+                  onClick={() => updateStatus(selectedComplaint.id, "Resolved")}
+                  className="py-2.5 rounded-xl bg-emerald-500 text-white font-bold text-xs hover:bg-emerald-600 transition-colors shadow-sm text-center"
+                >
                   Resolve Complaint
                 </button>
-                <button className="py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 transition-colors text-center">
+                <button 
+                  onClick={() => updateStatus(selectedComplaint.id, "In Progress")}
+                  className="py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 transition-colors text-center"
+                >
                   Assign Officer
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <button className="py-2 rounded-xl bg-purple-50 text-purple-700 font-bold text-xs hover:bg-purple-100 transition-colors text-center border border-purple-100">
+                <button 
+                  onClick={() => updateStatus(selectedComplaint.id, "Escalated")}
+                  className="py-2 rounded-xl bg-purple-50 text-purple-700 font-bold text-xs hover:bg-purple-100 transition-colors text-center border border-purple-100"
+                >
                   Escalate
                 </button>
-                <button className="py-2 rounded-xl bg-red-50 text-red-700 font-bold text-xs hover:bg-red-100 transition-colors text-center border border-red-100">
+                <button 
+                  onClick={() => updateStatus(selectedComplaint.id, "Rejected")}
+                  className="py-2 rounded-xl bg-red-50 text-red-700 font-bold text-xs hover:bg-red-100 transition-colors text-center border border-red-100"
+                >
                   Reject (Invalid)
                 </button>
               </div>
@@ -190,11 +257,11 @@ function AdminComplaints() {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  if (status === "Open") return <span className="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-50 text-red-600 border border-red-100">{status}</span>;
-  if (status === "In Progress") return <span className="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100">{status}</span>;
-  if (status === "Escalated") return <span className="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-50 text-purple-600 border border-purple-100">{status}</span>;
-  if (status === "Resolved") return <span className="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">{status}</span>;
-  return <span className="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">{status}</span>;
+  if (status === "Open") return <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-50 text-red-600 border border-red-100">{status}</span>;
+  if (status === "In Progress") return <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100">{status}</span>;
+  if (status === "Escalated") return <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-50 text-purple-600 border border-purple-100">{status}</span>;
+  if (status === "Resolved") return <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">{status}</span>;
+  return <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">{status}</span>;
 }
 
 function StatCard({ title, value, icon, color }: { title: string; value: string; icon: React.ReactNode; color: string }) {
